@@ -1,6 +1,7 @@
 import { Db, MongoClient } from "mongodb";
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_USER } from "../config.ts";
 import type { Playable } from "./schema.ts";
+import { pretty } from "../lib/helpers.ts";
 
 const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/?retryWrites=true&w=majority&appName=juke-cluster`;
 const CATALOGS = "catalogs";
@@ -27,19 +28,33 @@ export const disconnect = async () => {
   }
 };
 
-export const printCatalogs = async () => {
+export const findCatalogs = async (log?: boolean) => {
   if (db) {
     const catalogs = await db.collection("catalogs").find().toArray();
-    console.log("Catalogs: ", catalogs);
+
+    if (log) {
+      console.log("Catalogs: ", catalogs);
+      console.log(pretty(catalogs));
+    }
+    return catalogs;
   }
 };
 
-// export const printCatalog = async (title: string) => {
-//   if (db) {
-//     const catalog = db.collection("catalogs").find({ title });
-//     console.log("******", catalog);
-//   }
-// };
+export const findCatalog = async (title: string, log?: boolean) => {
+  if (db) {
+    const catalog = await db.collection("catalogs").findOne({ title });
+
+    if (catalog) {
+      if (log) {
+        console.log(pretty(catalog));
+      }
+
+      return catalog;
+    }
+
+    console.log(`Catalog with name '${title}' not found!`);
+  }
+};
 
 export const createOrUpdateCatalog = async (
   title: string,
@@ -62,17 +77,62 @@ export const createOrUpdateCatalog = async (
   }
 };
 
-// export const insertPlayable = async (
-//   title: string,
-//   playable: Playable,
-//   index?: number
-// ) => null;
+export const insertPlayable = async (
+  title: string,
+  playable: Playable,
+  index?: number
+) => {
+  const catalog = await findCatalog(title);
 
-// export const removeFromCatalog = async (
-//   catalogTitle: string,
-//   playableTitle: string
-// ) => null;
+  if (catalog) {
+    if (catalog.playables.find((p) => p.spId === playable.spId)) {
+      console.log(
+        `Playable entry '${playable.title}', spId: '${playable.spId}' already exists! No changes have been made.`
+      );
+      return;
+    }
+    const newPlayables = catalog.playables;
+    newPlayables.splice(index, 0, playable);
 
-// export const removeCatalog = async (title: string) => null;
+    await createOrUpdateCatalog(title, newPlayables);
+  } else {
+    console.log(
+      `Catalog entry with title '${title}' not found! No changes have been made.`
+    );
+  }
+};
+
+export const removeFromCatalog = async (catalogTitle: string, spId: string) => {
+  const catalog = await findCatalog(catalogTitle);
+
+  if (catalog) {
+    const newPlayables = catalog.playables.filter(
+      (playable) => playable.spId !== spId
+    );
+
+    if (newPlayables.length === catalog.playables.length) {
+      console.log(
+        `Playable entry with spId '${spId}' not found! No changes have been made.`
+      );
+      return;
+    }
+
+    await createOrUpdateCatalog(catalogTitle, newPlayables);
+  } else {
+    console.log(
+      `Catalog entry with title '${catalogTitle}' not found! No changes have been made.`
+    );
+  }
+};
+
+export const removeCatalog = async (title: string) => {
+  const deleted = await db.collection("catalogs").deleteOne({ title });
+
+  if (deleted.deletedCount === 1) {
+    console.log(`Successfully deleted '${title}' catalog!`);
+  } else {
+    console.log(`No catalog '${title}' found! No changes have been made.`);
+  }
+};
 
 export default connect;
