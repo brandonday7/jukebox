@@ -1,0 +1,25 @@
+{
+  "name": "juke",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node backend/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mongodb": "^6.20.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "eslint": "^9.37.0",
+    "globals": "^16.4.0",
+    "typescript-eslint": "^8.46.0"
+  }
+}
