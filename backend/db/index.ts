@@ -1,138 +1,149 @@
-import { Db, MongoClient } from "mongodb";
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_USER } from "../config.ts";
-import type { Playable } from "./schema.ts";
-import { pretty } from "../lib/helpers.ts";
+import { Vibe, Playable, type PlayableData } from "./schema.ts";
+import { isDefined, logError, pretty } from "../lib/helpers.ts";
+import mongoose from "mongoose";
 
-const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/?retryWrites=true&w=majority&appName=juke-cluster`;
-const CATALOGS = "catalogs";
-let client: MongoClient | undefined = undefined;
-let db: Db | undefined = undefined;
+const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster`;
 
 const connect = async () => {
-  client = new MongoClient(URI);
-
   try {
     console.log("Connecting to database...");
-    await client.connect();
-    db = client.db(DB_NAME);
-    console.log("Connected to database!");
-  } catch (e) {
-    console.error(e);
+    await mongoose.connect(URI, { bufferCommands: false });
+  } catch (error) {
+    logError(error);
   }
 };
 
 export const disconnect = async () => {
-  if (client) {
-    await client.close();
-    console.log("Disconnected from database!");
-  }
+  console.log("Closing database connection...");
+  await mongoose.disconnect();
 };
 
-export const findCatalogs = async (log?: boolean) => {
-  if (db) {
-    const catalogs = await db.collection("catalogs").find().toArray();
+mongoose.connection.on("connected", () =>
+  console.log("Connected to database!")
+);
 
+mongoose.connection.on("disconnected", () =>
+  console.log("Disconnected from database!")
+);
+
+export const findVibes = async (log?: boolean) => {
+  const vibes = await Vibe.find();
+
+  if (log) {
+    console.log(pretty(vibes));
+  }
+  return vibes;
+};
+
+export const findVibe = async (title: string, log?: boolean) => {
+  const vibe = await Vibe.findOne({ title });
+
+  if (vibe) {
     if (log) {
-      console.log("Catalogs: ", catalogs);
-      console.log(pretty(catalogs));
-    }
-    return catalogs;
-  }
-};
-
-export const findCatalog = async (title: string, log?: boolean) => {
-  if (db) {
-    const catalog = await db.collection("catalogs").findOne({ title });
-
-    if (catalog) {
-      if (log) {
-        console.log(pretty(catalog));
-      }
-
-      return catalog;
+      console.log(pretty(vibe));
     }
 
-    console.log(`Catalog with name '${title}' not found!`);
+    return vibe;
   }
+
+  console.log(`Vibe with name '${title}' not found!`);
 };
 
-export const createOrUpdateCatalog = async (
+export const createOrUpdateVibe = async (
   title: string,
-  playables: Playable[]
+  playables?: PlayableData[],
+  hidden?: boolean
 ) => {
-  if (db) {
-    const catalogs = db.collection(CATALOGS);
+  if (!playables && !hidden) {
+    console.log(`Nothing to update in ${title}.`);
+    return;
+  }
 
-    try {
-      await catalogs.updateOne(
-        { title },
-        { $set: { playables } },
-        {
-          upsert: true,
-        }
-      );
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    const filter = { title };
+    const toUpdate = {
+      ...(isDefined(playables) ? { playables } : {}),
+      ...(isDefined(hidden) ? { hidden } : {}),
+    };
+    const options = { upsert: true, new: true };
+    const vibe = await Vibe.findOneAndUpdate(filter, toUpdate, options);
+    return vibe;
+  } catch (error) {
+    logError(error);
   }
 };
 
-export const insertPlayable = async (
-  title: string,
-  playable: Playable,
-  index?: number
-) => {
-  const catalog = await findCatalog(title);
+// export const insertPlayable = async (
+//   title: string,
+//   playable: Playable,
+//   index?: number
+// ) => {
+//   const vibe = await findVibe(title);
 
-  if (catalog) {
-    if (catalog.playables.find((p) => p.spId === playable.spId)) {
-      console.log(
-        `Playable entry '${playable.title}', spId: '${playable.spId}' already exists! No changes have been made.`
-      );
-      return;
-    }
-    const newPlayables = catalog.playables;
-    newPlayables.splice(index, 0, playable);
+//   if (vibe) {
+//     if (vibe.playables.find((p) => p.spId === playable.spId)) {
+//       console.log(
+//         `Playable entry '${playable.title}', spId: '${playable.spId}' already exists! No changes have been made.`
+//       );
+//       return;
+//     }
+//     const newPlayables = vibe.playables;
+//     newPlayables.splice(index, 0, playable);
 
-    await createOrUpdateCatalog(title, newPlayables);
-  } else {
-    console.log(
-      `Catalog entry with title '${title}' not found! No changes have been made.`
-    );
-  }
-};
+//     await vibe.update(
+//       { $set: { playables: newPlayables } },
+//       {
+//         upsert: true,
+//       }
+//     );
 
-export const removeFromCatalog = async (catalogTitle: string, spId: string) => {
-  const catalog = await findCatalog(catalogTitle);
+//     // await createOrUpdateVibe(title, newPlayables);
+//   } else {
+//     console.log(
+//       `Vibe entry with title '${title}' not found! No changes have been made.`
+//     );
+//   }
+// };
 
-  if (catalog) {
-    const newPlayables = catalog.playables.filter(
-      (playable) => playable.spId !== spId
-    );
+// export const removeFromVibe = async (vibeTitle: string, spId: string) => {
+//   const vibe = await findVibe(vibeTitle);
 
-    if (newPlayables.length === catalog.playables.length) {
-      console.log(
-        `Playable entry with spId '${spId}' not found! No changes have been made.`
-      );
-      return;
-    }
+//   if (vibe) {
+//     const newPlayables = vibe.playables.filter(
+//       (playable) => playable.spId !== spId
+//     );
 
-    await createOrUpdateCatalog(catalogTitle, newPlayables);
-  } else {
-    console.log(
-      `Catalog entry with title '${catalogTitle}' not found! No changes have been made.`
-    );
-  }
-};
+//     if (newPlayables.length === vibe.playables.length) {
+//       console.log(
+//         `Playable entry with spId '${spId}' not found! No changes have been made.`
+//       );
+//       return;
+//     }
 
-export const removeCatalog = async (title: string) => {
-  const deleted = await db.collection("catalogs").deleteOne({ title });
+//     await vibe.update(
+//       { $set: { playables: newPlayables } },
+//       {
+//         upsert: true,
+//       }
+//     );
 
-  if (deleted.deletedCount === 1) {
-    console.log(`Successfully deleted '${title}' catalog!`);
-  } else {
-    console.log(`No catalog '${title}' found! No changes have been made.`);
-  }
-};
+//     // await createOrUpdateVibe(vibeTitle, newPlayables);
+//   } else {
+//     console.log(
+//       `Vibe entry with title '${vibeTitle}' not found! No changes have been made.`
+//     );
+//   }
+// };
+
+// export const removeVibe = async (title: string) => {
+//   const deleted = await db.collection(VIBES).deleteOne({ title });
+
+//   if (deleted.deletedCount === 1) {
+//     console.log(`Successfully deleted '${title}' vibe!`);
+//   } else {
+//     console.log(`No vibe '${title}' found! No changes have been made.`);
+//   }
+// };
 
 export default connect;

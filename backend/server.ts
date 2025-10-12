@@ -1,15 +1,12 @@
 import express from "express";
 import connect, {
-  createOrUpdateCatalog,
+  createOrUpdateVibe,
   disconnect,
-  findCatalog,
-  findCatalogs,
-  insertPlayable,
-  removeCatalog,
-  removeFromCatalog,
+  findVibe,
+  findVibes,
 } from "./db/index.ts";
 import { PORT } from "./config.ts";
-import { MAC, ZEP } from "./db/schema.ts";
+import { MAC, OLDIES, Playable, WEEKEND_MORNING, ZEP } from "./db/schema.ts";
 
 const APP = express();
 
@@ -22,15 +19,21 @@ APP.listen(PORT, () => {
 });
 
 await connect();
-await removeCatalog("Weekend Morning");
-// findCatalog("Weekend Morning", true);
-// await insertPlayable("Weekend Morning", MAC, 0);
-// findCatalog("Weekend Morning", true);
-// await removeFromCatalog("Weekend Morning", ZEP.spId);
-// findCatalog("Weekend Morning", true);
+// await findVibes(true);
+await findVibe("Weekend Morning", true);
+await createOrUpdateVibe(
+  WEEKEND_MORNING.title,
+  WEEKEND_MORNING.playables,
+  WEEKEND_MORNING.hidden
+);
+await findVibe("Weekend Morning", true);
+
+// findVibes(true);
+// await removeFromVibe(OLDIES.title, ZEP.spId);
+// await createOrUpdateVibe('title', [{...ZEP, }]);
+// findVibes(true);
 
 const gracefulShutdown = async () => {
-  console.log("Closing database connection...");
   await disconnect();
   process.exit(0);
 };
