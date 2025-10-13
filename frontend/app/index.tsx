@@ -27,6 +27,16 @@ const Index = () => {
     setPlaying(false);
   };
 
+  const back = async () => {
+    await fetch("http://localhost:3000/back");
+    setPlaying(false);
+  };
+
+  const next = async () => {
+    await fetch("http://localhost:3000/next");
+    setPlaying(false);
+  };
+
   useEffect(() => {
     if (!vibes) {
       fetchVibes();
@@ -85,12 +95,14 @@ const Index = () => {
           alignItems: "center",
         }}
       >
+        <Button onPress={() => back()} title="Back"></Button>
         <Button
           onPress={() =>
             playing ? pause() : selectedPlayable ? play(selectedPlayable) : null
           }
           title={playing ? "Pause" : "Play"}
         ></Button>
+        <Button onPress={() => next()} title="Next"></Button>
       </View>
     </Root>
   );

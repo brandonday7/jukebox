@@ -1,0 +1,17 @@
+import { SPOTIFY_CLIENT_ID, SPOTIFY_SECRET } from "../config.ts";
+
+import SpotifyWebApi from "spotify-web-api-node";
+
+const spotifyApi = new SpotifyWebApi({
+  clientId: SPOTIFY_CLIENT_ID,
+  clientSecret: SPOTIFY_SECRET,
+  redirectUri: "http://127.0.0.1:3000/callback",
+});
+
+export const scopes = [
+  "user-modify-playback-state",
+  "user-read-playback-state",
+  "user-read-currently-playing",
+];
+
+export default spotifyApi;

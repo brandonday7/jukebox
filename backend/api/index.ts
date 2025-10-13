@@ -7,17 +7,10 @@ import {
   removeVibe,
 } from "../db/index.ts";
 import { pretty } from "../lib/helpers.ts";
+import spotifyApi, { scopes } from "../spotifyClient/index.ts";
 import { validateVibe } from "./validators.ts";
 import express from "express";
 const router = express.Router();
-
-router.get("/play", async (_req, res) => {
-  res.send("playing");
-});
-
-router.get("/pause", async (_req, res) => {
-  res.send("paused");
-});
 
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
@@ -57,5 +50,90 @@ router.delete("/vibe", async (req, res) => {
   const vibe = await removeVibe(title);
   res.send(vibe);
 });
+
+// Spotify
+router.get("/login", (req, res) => {
+  res.redirect(spotifyApi.createAuthorizeURL(scopes));
+});
+
+// Step 2: Handle callback and get tokens
+router.get("/callback", async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    const data = await spotifyApi.authorizationCodeGrant(code);
+
+    const { access_token, refresh_token, expires_in } = data.body;
+
+    // Set the access token and refresh token
+    spotifyApi.setAccessToken(access_token);
+    spotifyApi.setRefreshToken(refresh_token);
+
+    console.log("Access token:", access_token);
+    console.log("Refresh token:", refresh_token);
+    console.log("Token expires in:", expires_in);
+
+    // IMPORTANT: Store refresh_token securely (database, .env file, etc.)
+    // You'll need it to get new access tokens when they expire
+
+    res.send("Successfully authenticated! You can close this window.");
+  } catch (err) {
+    res.send("Error during authentication: " + err.message);
+  }
+});
+
+// Refresh access token when it expires
+const refreshAccessToken = async () => {
+  try {
+    const data = await spotifyApi.refreshAccessToken();
+    const access_token = data.body["access_token"];
+
+    spotifyApi.setAccessToken(access_token);
+    console.log("Access token refreshed!");
+  } catch (err) {
+    console.error("Could not refresh access token", err);
+  }
+};
+
+// Playback control functions
+router.get("/play", async (req, res) => {
+  try {
+    await spotifyApi.play({
+      context_uri: generateSpUri(req.query.spId as string),
+    });
+    res.send("Playing");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/pause", async (req, res) => {
+  try {
+    await spotifyApi.pause();
+    res.send("Paused");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/back", async (req, res) => {
+  try {
+    await spotifyApi.skipToPrevious();
+    res.send("Previous");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/next", async (req, res) => {
+  try {
+    await spotifyApi.skipToNext();
+    res.send("Next");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+const generateSpUri = (spId: string) => `spotify:album:${spId}`;
 
 export default router;
