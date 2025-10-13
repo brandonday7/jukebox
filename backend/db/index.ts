@@ -93,7 +93,7 @@ export const insertPlayable = async (
   }
 };
 
-export const removeFromVibe = async (vibeTitle: string, spId: string) => {
+export const removePlayable = async (vibeTitle: string, spId: string) => {
   const vibe = await findVibe(vibeTitle);
 
   if (vibe) {
