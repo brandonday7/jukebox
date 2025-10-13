@@ -1,21 +1,99 @@
-import { Button, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Button, Text, View, TouchableOpacity } from "react-native";
 
-export default function Index() {
+const Root = View;
+
+const Index = () => {
+  const [playing, setPlaying] = useState(false);
+  const [vibes, setVibes] =
+    useState<
+      { title: string; playables: { title: string; spId: string }[] }[]
+    >();
+  const [selectedVibe, setSelectedVibe] = useState<string>();
+  const [selectedPlayable, setSelectedPlayable] = useState<string>();
+
+  const fetchVibes = async () => {
+    const vibes = await fetch("http://localhost:3000/vibes");
+    setVibes(await vibes.json());
+  };
+
+  const play = async (spId: string) => {
+    await fetch(`http://localhost:3000/play?spId=${spId}`);
+    setPlaying(true);
+  };
+
+  const pause = async () => {
+    await fetch("http://localhost:3000/pause");
+    setPlaying(false);
+  };
+
+  useEffect(() => {
+    if (!vibes) {
+      fetchVibes();
+    }
+  }, [vibes]);
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Button
-        onPress={async () => {
-          const res = await fetch("http://localhost:3000/vibes");
-          console.log(await res.json());
+    <Root>
+      {vibes ? (
+        <View>
+          {vibes.map((v) => (
+            <View key={v.title}>
+              <TouchableOpacity onPress={() => setSelectedVibe(v.title)}>
+                <Text
+                  style={
+                    selectedVibe === v.title
+                      ? { backgroundColor: "#444", color: "white" }
+                      : {}
+                  }
+                >
+                  {v.title}
+                </Text>
+              </TouchableOpacity>
+              {selectedVibe === v.title ? (
+                <View style={{ paddingLeft: 50, backgroundColor: "#ccc" }}>
+                  {v.playables.map((p) => (
+                    <TouchableOpacity
+                      key={p.title}
+                      onPress={() => setSelectedPlayable(p.spId)}
+                    >
+                      <Text
+                        style={
+                          selectedPlayable === p.spId
+                            ? { backgroundColor: "#666", color: "white" }
+                            : {}
+                        }
+                      >
+                        {p.title}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 20,
+          marginTop: 10,
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
         }}
-        title="Fetch..."
-      ></Button>
-    </View>
+      >
+        <Button
+          onPress={() =>
+            playing ? pause() : selectedPlayable ? play(selectedPlayable) : null
+          }
+          title={playing ? "Pause" : "Play"}
+        ></Button>
+      </View>
+    </Root>
   );
-}
+};
+
+export default Index;

@@ -11,9 +11,16 @@ import { validateVibe } from "./validators.ts";
 import express from "express";
 const router = express.Router();
 
+router.get("/play", async (_req, res) => {
+  res.send("playing");
+});
+
+router.get("/pause", async (_req, res) => {
+  res.send("paused");
+});
+
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
-  console.log("****HERE", pretty(vibes));
   res.send(vibes);
 });
 
