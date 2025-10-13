@@ -6,12 +6,14 @@ import {
   removePlayable,
   removeVibe,
 } from "../db/index.ts";
+import { pretty } from "../lib/helpers.ts";
 import { validateVibe } from "./validators.ts";
 import express from "express";
 const router = express.Router();
 
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
+  console.log("****HERE", pretty(vibes));
   res.send(vibes);
 });
 
