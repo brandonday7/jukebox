@@ -15,3 +15,14 @@ export const scopes = [
 ];
 
 export default spotifyApi;
+
+export const activateDevice = async (deviceId?: string) => {
+  const deviceIdToActivate =
+    deviceId ?? (await spotifyApi.getMyDevices()).body.devices[0]?.id;
+
+  if (deviceIdToActivate) {
+    await spotifyApi.transferMyPlayback([deviceIdToActivate], { play: true });
+    return true;
+  }
+  return false;
+};

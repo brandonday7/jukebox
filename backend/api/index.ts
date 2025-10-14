@@ -7,10 +7,16 @@ import {
   removeVibe,
 } from "../db/index.ts";
 import { pretty } from "../lib/helpers.ts";
-import spotifyApi, { scopes } from "../spotifyClient/index.ts";
+import spotifyApi, { activateDevice, scopes } from "../spotifyClient/index.ts";
 import { validateVibe } from "./validators.ts";
 import express from "express";
 const router = express.Router();
+
+interface SpotifyError extends Error {
+  status: number;
+  message: string;
+  reason: "NO_ACTIVE_DEVICE" | string;
+}
 
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
@@ -103,6 +109,18 @@ router.get("/play", async (req, res) => {
     });
     res.send("Playing");
   } catch (err) {
+    const error = err.body.error as SpotifyError;
+    if (error.reason === "NO_ACTIVE_DEVICE") {
+      const activated = activateDevice();
+
+      if (activated) {
+        await spotifyApi.play({
+          context_uri: generateSpUri(req.query.spId as string),
+        });
+      } else {
+        res.status(500).send("Error: No playback devices found");
+      }
+    }
     res.status(500).send("Error: " + err.message);
   }
 });
