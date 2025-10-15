@@ -15,6 +15,10 @@ export const scopes = [
   "user-read-email",
 ];
 
+export const PLAYER_ACCOUNT_NAME = "Brandon";
+export const BRANDON_RECENTS_ACCOUNT_NAME = "Brandon";
+export const ALARA_RECENTS_ACCOUNT_NAME = "Alara";
+
 export default spotifyApi;
 
 export const activateDevice = async (deviceId?: string) => {

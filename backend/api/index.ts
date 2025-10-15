@@ -9,7 +9,11 @@ import {
   removeVibe,
 } from "../db/index.ts";
 import { pretty } from "../lib/helpers.ts";
-import spotifyApi, { activateDevice, scopes } from "../spotifyClient/index.ts";
+import spotifyApi, {
+  activateDevice,
+  PLAYER_ACCOUNT_NAME,
+  scopes,
+} from "../spotifyClient/index.ts";
 import { validateVibe } from "./validators.ts";
 import express from "express";
 const router = express.Router();
@@ -77,7 +81,7 @@ router.get("/callback", async (req, res) => {
     spotifyApi.setRefreshToken(refresh_token);
 
     await createOrUpdateSpAccount({
-      userName: "Brandon",
+      userName: "TO UPDATE",
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: Date.now() + expires_in * 1000,
@@ -89,17 +93,15 @@ router.get("/callback", async (req, res) => {
   }
 });
 
-// Refresh access token when it expires
-const validateAccessToken = async () => {
-  const spAccount = await getSpAccount("Brandon");
+const validateAccessToken = async (accountName: string) => {
+  const spAccount = await getSpAccount(accountName);
 
   const { accessToken, refreshToken, expiresAt } = spAccount;
+  spotifyApi.setAccessToken(accessToken);
+  spotifyApi.setRefreshToken(refreshToken);
 
   const now = Date.now();
-  if (now < expiresAt) {
-    spotifyApi.setAccessToken(accessToken);
-    spotifyApi.setRefreshToken(refreshToken);
-  } else {
+  if (now >= expiresAt) {
     const data = await spotifyApi.refreshAccessToken();
     const access_token = data.body["access_token"];
     const refresh_token = data.body["refresh_token"];
@@ -108,8 +110,8 @@ const validateAccessToken = async () => {
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
 
-    createOrUpdateSpAccount({
-      userName: "Brandon",
+    await createOrUpdateSpAccount({
+      userName: accountName,
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: Date.now() + expires_in * 1000,
@@ -120,7 +122,7 @@ const validateAccessToken = async () => {
 
 // Playback control functions
 router.get("/play", async (req, res) => {
-  await validateAccessToken();
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.play({
@@ -145,7 +147,7 @@ router.get("/play", async (req, res) => {
 });
 
 router.get("/pause", async (req, res) => {
-  await validateAccessToken();
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.pause();
@@ -156,7 +158,7 @@ router.get("/pause", async (req, res) => {
 });
 
 router.get("/back", async (req, res) => {
-  await validateAccessToken();
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.skipToPrevious();
@@ -167,7 +169,7 @@ router.get("/back", async (req, res) => {
 });
 
 router.get("/next", async (req, res) => {
-  await validateAccessToken();
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.skipToNext();
