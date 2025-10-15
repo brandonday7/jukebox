@@ -8,11 +8,14 @@ import {
   removePlayable,
   removeVibe,
 } from "../db/index.ts";
+import type { PlayableType } from "../db/schema.ts";
 import { pretty } from "../lib/helpers.ts";
 import spotifyApi, {
-  activateDevice,
+  activateAndRetry,
+  generateSpUri,
   PLAYER_ACCOUNT_NAME,
   scopes,
+  validateAccessToken,
 } from "../spotifyClient/index.ts";
 import { validateVibe } from "./validators.ts";
 import express from "express";
@@ -80,8 +83,10 @@ router.get("/callback", async (req, res) => {
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
 
+    const me = await spotifyApi.getMe();
+
     await createOrUpdateSpAccount({
-      userName: "TO UPDATE",
+      userName: me.body.display_name,
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: Date.now() + expires_in * 1000,
@@ -93,54 +98,25 @@ router.get("/callback", async (req, res) => {
   }
 });
 
-const validateAccessToken = async (accountName: string) => {
-  const spAccount = await getSpAccount(accountName);
-
-  const { accessToken, refreshToken, expiresAt } = spAccount;
-  spotifyApi.setAccessToken(accessToken);
-  spotifyApi.setRefreshToken(refreshToken);
-
-  const now = Date.now();
-  if (now >= expiresAt) {
-    const data = await spotifyApi.refreshAccessToken();
-    const access_token = data.body["access_token"];
-    const refresh_token = data.body["refresh_token"];
-    const expires_in = data.body["expires_in"];
-
-    spotifyApi.setAccessToken(access_token);
-    spotifyApi.setRefreshToken(refresh_token);
-
-    await createOrUpdateSpAccount({
-      userName: accountName,
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: Date.now() + expires_in * 1000,
-    });
-    console.log("Access token refreshed!");
-  }
-};
-
 // Playback control functions
 router.get("/play", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
-  try {
+  const play = async () =>
     await spotifyApi.play({
-      context_uri: generateSpUri(req.query.spId as string),
+      context_uri: generateSpUri(
+        req.query.type as PlayableType,
+        req.query.spId as string
+      ),
     });
+
+  try {
+    await play();
     res.send("Playing");
   } catch (err) {
     const error = err.body.error as SpotifyError;
     if (error.reason === "NO_ACTIVE_DEVICE") {
-      const activated = activateDevice();
-
-      if (activated) {
-        await spotifyApi.play({
-          context_uri: generateSpUri(req.query.spId as string),
-        });
-      } else {
-        res.status(500).send("Error: No playback devices found");
-      }
+      await activateAndRetry(play, PLAYER_ACCOUNT_NAME);
     }
     res.status(500).send("Error: " + err.message);
   }
@@ -178,7 +154,5 @@ router.get("/next", async (req, res) => {
     res.status(500).send("Error: " + err.message);
   }
 });
-
-const generateSpUri = (spId: string) => `spotify:album:${spId}`;
 
 export default router;

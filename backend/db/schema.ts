@@ -102,6 +102,7 @@ export const spAccountSchema = new Schema({
   accessToken: { type: String, required: true },
   refreshToken: { type: String, required: true },
   expiresAt: { type: Number, required: true },
+  defaultDeviceId: { type: String, required: false },
 });
 
 export const SpAccount = model("SpAccount", spAccountSchema);
@@ -111,4 +112,5 @@ export interface SpAccountData {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
+  defaultDeviceId?: string;
 }

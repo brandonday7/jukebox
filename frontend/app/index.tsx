@@ -3,22 +3,31 @@ import { Button, Text, View, TouchableOpacity } from "react-native";
 
 const Root = View;
 
+type PlayableType = "album" | "playlist";
+interface PlayableData {
+  type: PlayableType;
+  title: string;
+  artworkUrl?: string;
+  artistName: string;
+  spId: string;
+}
+
 const Index = () => {
   const [playing, setPlaying] = useState(false);
   const [vibes, setVibes] =
-    useState<
-      { title: string; playables: { title: string; spId: string }[] }[]
-    >();
+    useState<{ title: string; playables: PlayableData[] }[]>();
   const [selectedVibe, setSelectedVibe] = useState<string>();
-  const [selectedPlayable, setSelectedPlayable] = useState<string>();
+  const [selectedPlayable, setSelectedPlayable] = useState<PlayableData>();
 
   const fetchVibes = async () => {
     const vibes = await fetch("http://localhost:3000/vibes");
     setVibes(await vibes.json());
   };
 
-  const play = async (spId: string) => {
-    await fetch(`http://localhost:3000/play?spId=${spId}`);
+  const play = async (playable: PlayableData) => {
+    await fetch(
+      `http://localhost:3000/play?type=${playable.type}&spId=${playable.spId}`
+    );
     setPlaying(true);
   };
 
@@ -65,11 +74,14 @@ const Index = () => {
                   {v.playables.map((p) => (
                     <TouchableOpacity
                       key={p.title}
-                      onPress={() => setSelectedPlayable(p.spId)}
+                      onPress={() => {
+                        setPlaying(false);
+                        setSelectedPlayable(p);
+                      }}
                     >
                       <Text
                         style={
-                          selectedPlayable === p.spId
+                          selectedPlayable?.spId === p.spId
                             ? { backgroundColor: "#666", color: "white" }
                             : {}
                         }
