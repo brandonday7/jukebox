@@ -95,3 +95,20 @@ export const WEEKEND_MORNING: VibeData = {
   ],
   hidden: false,
 };
+
+// Spotify
+export const spAccountSchema = new Schema({
+  userName: { type: String, required: true },
+  accessToken: { type: String, required: true },
+  refreshToken: { type: String, required: true },
+  expiresAt: { type: Number, required: true },
+});
+
+export const SpAccount = model("SpAccount", spAccountSchema);
+
+export interface SpAccountData {
+  userName: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+}

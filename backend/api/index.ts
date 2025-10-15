@@ -1,7 +1,9 @@
 import {
   createOrUpdateVibe,
+  createOrUpdateSpAccount,
   findVibe,
   findVibes,
+  getSpAccount,
   insertPlayable,
   removePlayable,
   removeVibe,
@@ -71,16 +73,15 @@ router.get("/callback", async (req, res) => {
 
     const { access_token, refresh_token, expires_in } = data.body;
 
-    // Set the access token and refresh token
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
 
-    console.log("Access token:", access_token);
-    console.log("Refresh token:", refresh_token);
-    console.log("Token expires in:", expires_in);
-
-    // IMPORTANT: Store refresh_token securely (database, .env file, etc.)
-    // You'll need it to get new access tokens when they expire
+    await createOrUpdateSpAccount({
+      userName: "Brandon",
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresAt: Date.now() + expires_in * 1000,
+    });
 
     res.send("Successfully authenticated! You can close this window.");
   } catch (err) {
@@ -89,20 +90,38 @@ router.get("/callback", async (req, res) => {
 });
 
 // Refresh access token when it expires
-const refreshAccessToken = async () => {
-  try {
+const validateAccessToken = async () => {
+  const spAccount = await getSpAccount("Brandon");
+
+  const { accessToken, refreshToken, expiresAt } = spAccount;
+
+  const now = Date.now();
+  if (now < expiresAt) {
+    spotifyApi.setAccessToken(accessToken);
+    spotifyApi.setRefreshToken(refreshToken);
+  } else {
     const data = await spotifyApi.refreshAccessToken();
     const access_token = data.body["access_token"];
+    const refresh_token = data.body["refresh_token"];
+    const expires_in = data.body["expires_in"];
 
     spotifyApi.setAccessToken(access_token);
+    spotifyApi.setRefreshToken(refresh_token);
+
+    createOrUpdateSpAccount({
+      userName: "Brandon",
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresAt: Date.now() + expires_in * 1000,
+    });
     console.log("Access token refreshed!");
-  } catch (err) {
-    console.error("Could not refresh access token", err);
   }
 };
 
 // Playback control functions
 router.get("/play", async (req, res) => {
+  await validateAccessToken();
+
   try {
     await spotifyApi.play({
       context_uri: generateSpUri(req.query.spId as string),
@@ -126,6 +145,8 @@ router.get("/play", async (req, res) => {
 });
 
 router.get("/pause", async (req, res) => {
+  await validateAccessToken();
+
   try {
     await spotifyApi.pause();
     res.send("Paused");
@@ -135,6 +156,8 @@ router.get("/pause", async (req, res) => {
 });
 
 router.get("/back", async (req, res) => {
+  await validateAccessToken();
+
   try {
     await spotifyApi.skipToPrevious();
     res.send("Previous");
@@ -144,6 +167,8 @@ router.get("/back", async (req, res) => {
 });
 
 router.get("/next", async (req, res) => {
+  await validateAccessToken();
+
   try {
     await spotifyApi.skipToNext();
     res.send("Next");

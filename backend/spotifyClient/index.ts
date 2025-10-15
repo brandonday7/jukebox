@@ -12,6 +12,7 @@ export const scopes = [
   "user-modify-playback-state",
   "user-read-playback-state",
   "user-read-currently-playing",
+  "user-read-email",
 ];
 
 export default spotifyApi;

@@ -1,5 +1,10 @@
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_USER } from "../config.ts";
-import { Vibe, type PlayableData } from "./schema.ts";
+import {
+  SpAccount,
+  Vibe,
+  type PlayableData,
+  type SpAccountData,
+} from "./schema.ts";
 import { isDefined, logError, pretty } from "../lib/helpers.ts";
 import mongoose from "mongoose";
 
@@ -122,5 +127,31 @@ export const removeVibe = async (title: string) => {
     console.log(`Successfully deleted '${title}' vibe!`);
   } else {
     console.log(`No vibe '${title}' found! No changes have been made.`);
+  }
+};
+
+export const createOrUpdateSpAccount = async (account: SpAccountData) => {
+  const filter = { userName: account.userName };
+  const toUpdate = {
+    accessToken: account.accessToken,
+    refreshToken: account.refreshToken,
+    expiresAt: account.expiresAt,
+  };
+  const options = { upsert: true, new: true };
+
+  try {
+    await SpAccount.findOneAndUpdate(filter, toUpdate, options);
+  } catch (error) {
+    console.log(pretty(error));
+  }
+};
+
+export const getSpAccount = async (userName: string) => {
+  const spAccount = await SpAccount.findOne({ userName });
+
+  if (spAccount) {
+    return spAccount;
+  } else {
+    console.log(`No account with name: ${userName} found!`);
   }
 };

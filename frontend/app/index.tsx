@@ -97,9 +97,14 @@ const Index = () => {
       >
         <Button onPress={() => back()} title="Back"></Button>
         <Button
-          onPress={() =>
-            playing ? pause() : selectedPlayable ? play(selectedPlayable) : null
-          }
+          disabled={!playing && !selectedPlayable}
+          onPress={() => {
+            return playing
+              ? pause()
+              : selectedPlayable
+              ? play(selectedPlayable)
+              : null;
+          }}
           title={playing ? "Pause" : "Play"}
         ></Button>
         <Button onPress={() => next()} title="Next"></Button>
