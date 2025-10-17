@@ -1,27 +1,18 @@
+import { getVibes, type PlayableData, type VibeData } from "../api/index";
 import { useEffect, useState } from "react";
 import { Button, Text, View, TouchableOpacity } from "react-native";
 
 const Root = View;
 
-type PlayableType = "album" | "playlist";
-interface PlayableData {
-  type: PlayableType;
-  title: string;
-  artworkUrl?: string;
-  artistName: string;
-  spId: string;
-}
-
 const Index = () => {
   const [playing, setPlaying] = useState(false);
-  const [vibes, setVibes] =
-    useState<{ title: string; playables: PlayableData[] }[]>();
-  const [selectedVibe, setSelectedVibe] = useState<string>();
+  const [vibes, setVibes] = useState<VibeData[]>();
+  const [selectedVibe, setSelectedVibe] = useState<VibeData>();
   const [selectedPlayable, setSelectedPlayable] = useState<PlayableData>();
 
   const fetchVibes = async () => {
-    const vibes = await fetch("http://localhost:3000/vibes");
-    setVibes(await vibes.json());
+    const vibes = await getVibes();
+    setVibes(vibes);
   };
 
   const play = async (playable: PlayableData) => {
@@ -58,10 +49,10 @@ const Index = () => {
         <View>
           {vibes.map((v) => (
             <View key={v.title}>
-              <TouchableOpacity onPress={() => setSelectedVibe(v.title)}>
+              <TouchableOpacity onPress={() => setSelectedVibe(v)}>
                 <Text
                   style={
-                    selectedVibe === v.title
+                    selectedVibe?.title === v.title
                       ? { backgroundColor: "#444", color: "white" }
                       : {}
                   }
@@ -69,7 +60,7 @@ const Index = () => {
                   {v.title}
                 </Text>
               </TouchableOpacity>
-              {selectedVibe === v.title ? (
+              {selectedVibe?.title === v.title ? (
                 <View style={{ paddingLeft: 50, backgroundColor: "#ccc" }}>
                   {v.playables.map((p) => (
                     <TouchableOpacity
