@@ -117,8 +117,9 @@ router.get("/play", async (req, res) => {
     const error = err.body.error as SpotifyError;
     if (error.reason === "NO_ACTIVE_DEVICE") {
       await activateAndRetry(play, PLAYER_ACCOUNT_NAME);
+    } else {
+      res.status(500).send("Error: " + err.message);
     }
-    res.status(500).send("Error: " + err.message);
   }
 });
 

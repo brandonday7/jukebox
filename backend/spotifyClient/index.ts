@@ -31,23 +31,25 @@ export const activateAndRetry = async (
   const activated = await activateDevice(deviceId);
 
   if (activated) {
-    // there is a race condition between the transferMyPlayback request and Spotify
-    // actually activating the retry. It seemingly doesn't need the retry...let's
-    // try this again later today without the retry once it shuts down again.
-    // await retry();
+    await retry();
   } else {
     console.log("Error: No playback devices found");
   }
 };
 
 const activateDevice = async (deviceId?: string) => {
-  const devices = (await spotifyApi.getMyDevices()).body.devices;
-  const deviceIdToActivate = deviceId ?? devices[0]?.id;
+  const deviceIdToActivate =
+    deviceId ?? (await spotifyApi.getMyDevices()).body.devices[0]?.id;
 
   if (deviceIdToActivate) {
-    await spotifyApi.transferMyPlayback([deviceIdToActivate], { play: true });
+    await spotifyApi.transferMyPlayback([deviceIdToActivate]);
+    console.log(`Device with ID ${deviceIdToActivate} has been activated!`);
+    // After device has been activated, it needs 500ms to actually wake up.
+    // This delay will only ever happen when you first turn the device playback on.
+    await new Promise((resolve) => setTimeout(resolve, 500));
     return true;
   }
+  console.log(`No device activated`);
   return false;
 };
 
