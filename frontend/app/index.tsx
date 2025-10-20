@@ -9,6 +9,7 @@ import {
 } from "../api/index";
 import { useEffect, useState } from "react";
 import { Button, Text, View, TouchableOpacity } from "react-native";
+import Manager from "./Manager";
 
 const Root = View;
 
@@ -104,7 +105,7 @@ const Index = () => {
           alignItems: "center",
         }}
       >
-        <Button onPress={() => previousTrack()} title="Back"></Button>
+        <Button onPress={() => previousTrack()} title="Back" />
         <Button
           disabled={!playing && !selectedPlayable}
           onPress={() => {
@@ -115,9 +116,10 @@ const Index = () => {
               : null;
           }}
           title={playing ? "Pause" : "Play"}
-        ></Button>
-        <Button onPress={() => nextTrack()} title="Next"></Button>
+        />
+        <Button onPress={() => nextTrack()} title="Next" />
       </View>
+      <Manager vibe={selectedVibe} />
     </Root>
   );
 };

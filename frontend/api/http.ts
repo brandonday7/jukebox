@@ -45,17 +45,15 @@ export const post = async <T>(
 
 export const del = async <T>(
   url: string,
-  p?: Record<string, any>
+  body?: Record<string, any>
 ): Promise<T> => {
-  const params = new URLSearchParams();
-  for (const key in p) {
-    params.append(key, p[key]);
-  }
-
   try {
     const result = await fetch(url, {
       method: "DELETE",
-      body: params,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
     if (result.ok) {
       return await result.json();
