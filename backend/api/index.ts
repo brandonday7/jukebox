@@ -99,20 +99,21 @@ router.get("/callback", async (req, res) => {
 });
 
 // Playback control functions
-router.get("/play", async (req, res) => {
+router.post("/play", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
-  const play = async () =>
+  const play = async () => {
     await spotifyApi.play({
       context_uri: generateSpUri(
-        req.query.type as PlayableType,
-        req.query.spId as string
+        req.body.type as PlayableType,
+        req.body.spId as string
       ),
     });
+    res.send({ playing: true });
+  };
 
   try {
     await play();
-    res.send("Playing");
   } catch (err) {
     const error = err.body.error as SpotifyError;
     if (error.reason === "NO_ACTIVE_DEVICE") {
@@ -123,34 +124,34 @@ router.get("/play", async (req, res) => {
   }
 });
 
-router.get("/pause", async (req, res) => {
+router.post("/pause", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.pause();
-    res.send("Paused");
+    res.send({ playing: false });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
 });
 
-router.get("/back", async (req, res) => {
+router.post("/back", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.skipToPrevious();
-    res.send("Previous");
+    res.send({ playing: true });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
 });
 
-router.get("/next", async (req, res) => {
+router.post("/next", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.skipToNext();
-    res.send("Next");
+    res.send({ playing: true });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }

@@ -1,4 +1,12 @@
-import { getVibes, type PlayableData, type VibeData } from "../api/index";
+import {
+  back,
+  getVibes,
+  next,
+  pause,
+  play,
+  type PlayableData,
+  type VibeData,
+} from "../api/index";
 import { useEffect, useState } from "react";
 import { Button, Text, View, TouchableOpacity } from "react-native";
 
@@ -15,26 +23,24 @@ const Index = () => {
     setVibes(vibes);
   };
 
-  const play = async (playable: PlayableData) => {
-    await fetch(
-      `http://localhost:3000/play?type=${playable.type}&spId=${playable.spId}`
-    );
-    setPlaying(true);
+  const playSelectedPlayable = async (playable: PlayableData) => {
+    const { playing } = await play(playable.type, playable.spId);
+    setPlaying(playing);
   };
 
-  const pause = async () => {
-    await fetch("http://localhost:3000/pause");
-    setPlaying(false);
+  const pausePlayback = async () => {
+    const { playing } = await pause();
+    setPlaying(playing);
   };
 
-  const back = async () => {
-    await fetch("http://localhost:3000/back");
-    setPlaying(false);
+  const previousTrack = async () => {
+    const { playing } = await back();
+    setPlaying(playing);
   };
 
-  const next = async () => {
-    await fetch("http://localhost:3000/next");
-    setPlaying(false);
+  const nextTrack = async () => {
+    const { playing } = await next();
+    setPlaying(playing);
   };
 
   useEffect(() => {
@@ -98,19 +104,19 @@ const Index = () => {
           alignItems: "center",
         }}
       >
-        <Button onPress={() => back()} title="Back"></Button>
+        <Button onPress={() => previousTrack()} title="Back"></Button>
         <Button
           disabled={!playing && !selectedPlayable}
           onPress={() => {
             return playing
-              ? pause()
+              ? pausePlayback()
               : selectedPlayable
-              ? play(selectedPlayable)
+              ? playSelectedPlayable(selectedPlayable)
               : null;
           }}
           title={playing ? "Pause" : "Play"}
         ></Button>
-        <Button onPress={() => next()} title="Next"></Button>
+        <Button onPress={() => nextTrack()} title="Next"></Button>
       </View>
     </Root>
   );

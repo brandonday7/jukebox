@@ -44,9 +44,9 @@ const activateDevice = async (deviceId?: string) => {
   if (deviceIdToActivate) {
     await spotifyApi.transferMyPlayback([deviceIdToActivate]);
     console.log(`Device with ID ${deviceIdToActivate} has been activated!`);
-    // After device has been activated, it needs 500ms to actually wake up.
+    // After device has been activated, it needs 3s to actually wake up.
     // This delay will only ever happen when you first turn the device playback on.
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     return true;
   }
   console.log(`No device activated`);
