@@ -28,3 +28,6 @@ export const next = async () => post<{ playing: boolean }>(makeUrl("/next"));
 
 export const deleteVibe = async (title: string) =>
   del(makeUrl("/vibe"), { title });
+
+export const createVibe = async (title: string, playables: PlayableData[]) =>
+  post(makeUrl("/vibe"), { title, playables });

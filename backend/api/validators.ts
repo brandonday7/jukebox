@@ -1,11 +1,13 @@
 import type { PlayableData } from "../db/schema";
+import { isDefined } from "../lib/helpers.ts";
 
 export const validateVibe = (req, res, next) => {
   const data = req.body;
+
   if (
     typeof data.title !== "string" ||
-    typeof data.playables.map(isValidPlayable).find((b) => b === false) ||
-    typeof data.hidden !== "boolean"
+    !!data.playables.map((p) => isValidPlayable(p)).filter((b) => !b).length ||
+    (isDefined(data.hidden) && typeof data.hidden !== "boolean")
   ) {
     return res.status(400).json({
       error: "Invalid data format",

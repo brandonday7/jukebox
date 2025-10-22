@@ -8,7 +8,7 @@ import {
   removePlayable,
   removeVibe,
 } from "../db/index.ts";
-import type { PlayableType } from "../db/schema.ts";
+import type { PlayableData, PlayableType } from "../db/schema.ts";
 import { pretty } from "../lib/helpers.ts";
 import spotifyApi, {
   activateAndRetry,
@@ -39,10 +39,13 @@ router.get("/vibe/:title", async (req, res) => {
 
 router.post("/vibe", validateVibe, async (req, res) => {
   const title = req.body.title as string;
-  const playables = JSON.parse(req.body.playables as string);
+  const playables = req.body.playables as PlayableData[];
   const hidden = req.body.hidden === "true";
+
+  // Get playable artwork here
   const vibe = await createOrUpdateVibe(title, playables, hidden);
-  res.send(vibe);
+  // res.send(vibe);
+  res.send({ success: true });
 });
 
 router.post("/vibe/insertPlayable", async (req, res) => {

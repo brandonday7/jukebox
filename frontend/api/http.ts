@@ -16,7 +16,7 @@ export const get = async <T>(
     }
   } catch (error) {
     console.error(error);
-    throw error;
+    // throw error;
   }
 };
 
@@ -39,7 +39,7 @@ export const post = async <T>(
     }
   } catch (error) {
     console.error(error);
-    throw error;
+    // throw error;
   }
 };
 

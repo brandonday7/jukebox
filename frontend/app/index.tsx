@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { Button, Text, View, TouchableOpacity } from "react-native";
 import Manager from "./Manager";
+import Creator from "./Creator";
 
 const Root = View;
 
@@ -120,6 +121,7 @@ const Index = () => {
         <Button onPress={() => nextTrack()} title="Next" />
       </View>
       <Manager vibe={selectedVibe} />
+      <Creator />
     </Root>
   );
 };
