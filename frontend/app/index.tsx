@@ -134,7 +134,7 @@ const Index = () => {
         />
         <Button onPress={() => nextTrack()} title="Next" />
       </View>
-      <Manager vibe={selectedVibe} />
+      <Manager vibe={selectedVibe} playable={selectedPlayable} />
       <Creator />
     </Root>
   );

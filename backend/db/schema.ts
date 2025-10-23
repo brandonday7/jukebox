@@ -5,7 +5,7 @@ export const playableSchema = new Schema({
   type: { type: String, required: true },
   title: { type: String, required: true },
   artistName: { type: String, required: true },
-  artworkUrl: { type: String, required: true },
+  artworkUrl: { type: String, required: false },
   spId: { type: String, required: true },
 });
 

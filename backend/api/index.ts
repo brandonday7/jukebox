@@ -43,7 +43,9 @@ router.post("/vibe", validateVibe, async (req, res) => {
   const hidden = req.body.hidden === "true";
 
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
-  const spIds = playablesRaw.map(({ spId }) => spId);
+  const spIds = playablesRaw
+    .filter(({ type }) => type === "album")
+    .map(({ spId }) => spId);
   const artworkUrlsBySpId = await getArtworkUrlsBySpId(spIds);
   const playables = playablesRaw.map((p) => ({
     ...p,
@@ -55,17 +57,27 @@ router.post("/vibe", validateVibe, async (req, res) => {
 
 router.post("/vibe/insertPlayable", async (req, res) => {
   const title = req.body.title as string;
-  const playable = JSON.parse(req.body.playables as string);
+  const playable = req.body.playable as PlayableData;
   const index = Number(req.body.index);
-  const vibe = await insertPlayable(title, playable, index);
-  res.send({ updated: true });
+
+  if (playable.type === "playlist") {
+    await insertPlayable(title, { ...playable }, index);
+    res.send({ success: true });
+  } else {
+    await validateAccessToken(PLAYER_ACCOUNT_NAME);
+    const artworkUrl = (await getArtworkUrlsBySpId([playable.spId]))[
+      playable.spId
+    ];
+    await insertPlayable(title, { ...playable, artworkUrl }, index);
+    res.send({ success: true });
+  }
 });
 
 router.delete("/vibe/removePlayable", async (req, res) => {
   const title = req.body.title as string;
-  const playable = JSON.parse(req.body.playables as string);
-  const vibe = await removePlayable(title, playable);
-  res.send({ deleted: true });
+  const spId = req.body.spId as string;
+  await removePlayable(title, spId);
+  res.send({ success: true });
 });
 
 router.delete("/vibe", async (req, res) => {

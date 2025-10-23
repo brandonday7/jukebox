@@ -3,7 +3,7 @@ import { SPOTIFY_CLIENT_ID, SPOTIFY_SECRET } from "../config.ts";
 import SpotifyWebApi from "spotify-web-api-node";
 import { createOrUpdateSpAccount, getSpAccount } from "../db/index.ts";
 import type { PlayableType } from "../db/schema.ts";
-import { pretty } from "../lib/helpers.ts";
+import { pretty, sleep } from "../lib/helpers.ts";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: SPOTIFY_CLIENT_ID,
@@ -95,7 +95,7 @@ export const getArtworkUrlsBySpId = async (spIds: string[]) => {
     );
     i += limit;
 
-    // sleep here...
+    sleep(500);
   }
 
   const artworkUrlsBySpId = albums.reduce((acc, { images, id }) => {

@@ -31,3 +31,12 @@ export const deleteVibe = async (title: string) =>
 
 export const createVibe = async (title: string, playables: PlayableData[]) =>
   post(makeUrl("/vibe"), { title, playables });
+
+export const insertPlayable = async (
+  title: string,
+  playable: PlayableData,
+  index?: number
+) => post(makeUrl("/vibe/insertPlayable"), { title, playable, index });
+
+export const removePlayable = async (title: string, spId: string) =>
+  del(makeUrl("/vibe/removePlayable"), { title, spId });

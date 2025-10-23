@@ -11,3 +11,6 @@ export const isDefined = (value: unknown) => {
 };
 
 export const logError = (error: Error) => console.log(pretty(error));
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

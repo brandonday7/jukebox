@@ -62,6 +62,6 @@ export const del = async <T>(
     }
   } catch (error) {
     console.error(error);
-    throw error;
+    // throw error;
   }
 };
