@@ -3,7 +3,6 @@ import {
   createOrUpdateSpAccount,
   findVibe,
   findVibes,
-  getSpAccount,
   insertPlayable,
   removePlayable,
   removeVibe,
@@ -13,6 +12,7 @@ import { pretty } from "../lib/helpers.ts";
 import spotifyApi, {
   activateAndRetry,
   generateSpUri,
+  getArtworkUrlsBySpId,
   PLAYER_ACCOUNT_NAME,
   scopes,
   validateAccessToken,
@@ -39,12 +39,17 @@ router.get("/vibe/:title", async (req, res) => {
 
 router.post("/vibe", validateVibe, async (req, res) => {
   const title = req.body.title as string;
-  const playables = req.body.playables as PlayableData[];
+  const playablesRaw = req.body.playables as PlayableData[];
   const hidden = req.body.hidden === "true";
 
-  // Get playable artwork here
-  const vibe = await createOrUpdateVibe(title, playables, hidden);
-  // res.send(vibe);
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+  const spIds = playablesRaw.map(({ spId }) => spId);
+  const artworkUrlsBySpId = await getArtworkUrlsBySpId(spIds);
+  const playables = playablesRaw.map((p) => ({
+    ...p,
+    artworkUrl: artworkUrlsBySpId[p.spId],
+  }));
+  await createOrUpdateVibe(title, playables, hidden);
   res.send({ success: true });
 });
 

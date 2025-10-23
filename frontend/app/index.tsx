@@ -8,7 +8,14 @@ import {
   type VibeData,
 } from "../api/index";
 import { useEffect, useState } from "react";
-import { Button, Text, View, TouchableOpacity } from "react-native";
+import {
+  Button,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  type ImageSourcePropType,
+} from "react-native";
 import Manager from "./Manager";
 import Creator from "./Creator";
 
@@ -72,12 +79,19 @@ const Index = () => {
                 <View style={{ paddingLeft: 50, backgroundColor: "#ccc" }}>
                   {v.playables.map((p) => (
                     <TouchableOpacity
+                      style={{ display: "flex", flexDirection: "row", gap: 10 }}
                       key={p.title}
                       onPress={() => {
                         setPlaying(false);
                         setSelectedPlayable(p);
                       }}
                     >
+                      {p.artworkUrl ? (
+                        <Image
+                          source={p.artworkUrl as ImageSourcePropType}
+                          style={{ width: 20, height: 20, borderRadius: 4 }}
+                        />
+                      ) : null}
                       <Text
                         style={
                           selectedPlayable?.spId === p.spId
