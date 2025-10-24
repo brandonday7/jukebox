@@ -1,21 +1,15 @@
-import {
-  deleteVibe,
-  removePlayable as deletePlayable,
-  type VibeData,
-  type PlayableData,
-} from "@/api";
+import type { VibeData, PlayableData } from "@/api";
+import { useVibeState } from "@/state/vibesState";
 import { Button, View } from "react-native";
-
-const removeVibe = async (title: string) => await deleteVibe(title);
-const removePlayable = async (title: string, spId: string) =>
-  await deletePlayable(title, spId);
 
 interface Props {
   vibe?: VibeData;
   playable?: PlayableData;
 }
 
-const Manager = ({ vibe, playable }: Props) => {
+const Destroyer = ({ vibe, playable }: Props) => {
+  const { removePlayable, removeVibe } = useVibeState();
+
   return (
     <View>
       <Button
@@ -33,4 +27,4 @@ const Manager = ({ vibe, playable }: Props) => {
   );
 };
 
-export default Manager;
+export default Destroyer;

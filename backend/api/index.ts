@@ -50,8 +50,8 @@ router.post("/vibe", validateVibe, async (req, res) => {
     ...p,
     artworkUrl: artworkUrlsBySpId[p.spId],
   }));
-  await createOrUpdateVibe(title, playables, hidden);
-  res.send({ success: true });
+  const vibe = await createOrUpdateVibe(title, playables, hidden);
+  res.send({ title: vibe.title, playables: vibe.playables });
 });
 
 router.post("/vibe/insertPlayable", async (req, res) => {
@@ -67,8 +67,12 @@ router.post("/vibe/insertPlayable", async (req, res) => {
     const artworkUrl = (await getArtworkUrlsBySpId([playable.spId]))[
       playable.spId
     ];
-    await insertPlayable(title, { ...playable, artworkUrl }, index);
-    res.send({ success: true });
+    const playables = await insertPlayable(
+      title,
+      { ...playable, artworkUrl },
+      index
+    );
+    res.send({ playables });
   }
 });
 

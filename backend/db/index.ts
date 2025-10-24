@@ -91,6 +91,7 @@ export const insertPlayable = async (
     newPlayables.splice(index || newPlayables.length, 0, playable);
     vibe.playables = newPlayables;
     await vibe.save();
+    return vibe.playables;
   } else {
     console.log(
       `Vibe entry with title '${title}' not found! No changes have been made.`

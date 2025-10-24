@@ -1,12 +1,4 @@
-import {
-  back,
-  getVibes,
-  next,
-  pause,
-  play,
-  type PlayableData,
-  type VibeData,
-} from "../api/index";
+import type { PlayableData, VibeData } from "../api/index";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -17,47 +9,44 @@ import {
   Image,
   type ImageSourcePropType,
 } from "react-native";
-import Manager from "./Manager";
+import Destroyer from "./Destroyer";
 import Creator from "./Creator";
+import { useVibeState } from "@/state/vibesState";
+import { usePlaybackState } from "@/state/playbackState";
 
 const Root = ScrollView;
 
 const Index = () => {
-  const [playing, setPlaying] = useState(false);
-  const [vibes, setVibes] = useState<VibeData[]>();
+  const { fetchVibes, vibes } = useVibeState();
+  const { playing, play, pause, back, next } = usePlaybackState();
+
   const [selectedVibe, setSelectedVibe] = useState<VibeData>();
   const [selectedPlayable, setSelectedPlayable] = useState<PlayableData>();
-
-  const fetchVibes = async () => {
-    const vibes = await getVibes();
-    setVibes(vibes);
-  };
-
-  const playSelectedPlayable = async (playable: PlayableData) => {
-    const { playing } = await play(playable.type, playable.spId);
-    setPlaying(playing);
-  };
-
-  const pausePlayback = async () => {
-    const { playing } = await pause();
-    setPlaying(playing);
-  };
-
-  const previousTrack = async () => {
-    const { playing } = await back();
-    setPlaying(playing);
-  };
-
-  const nextTrack = async () => {
-    const { playing } = await next();
-    setPlaying(playing);
-  };
 
   useEffect(() => {
     if (!vibes) {
       fetchVibes();
     }
-  }, [vibes]);
+  }, [vibes, fetchVibes]);
+
+  // If the selected vibe or playable has been removed, un-select them.
+  useEffect(() => {
+    if (
+      vibes &&
+      selectedVibe &&
+      !vibes.find((v) => v.title === selectedVibe.title)
+    ) {
+      setSelectedVibe(undefined);
+    }
+
+    if (
+      selectedVibe &&
+      selectedPlayable &&
+      !selectedVibe.playables.find((p) => p.spId === selectedPlayable.spId)
+    ) {
+      setSelectedPlayable(undefined);
+    }
+  }, [vibes, selectedVibe, selectedPlayable]);
 
   return (
     <Root>
@@ -82,10 +71,7 @@ const Index = () => {
                     <TouchableOpacity
                       style={{ display: "flex", flexDirection: "row", gap: 10 }}
                       key={p.title}
-                      onPress={() => {
-                        setPlaying(false);
-                        setSelectedPlayable(p);
-                      }}
+                      onPress={() => setSelectedPlayable(p)}
                     >
                       {p.artworkUrl ? (
                         <Image
@@ -121,21 +107,21 @@ const Index = () => {
           alignItems: "center",
         }}
       >
-        <Button onPress={() => previousTrack()} title="Back" />
+        <Button onPress={() => back()} title="Back" />
         <Button
           disabled={!playing && !selectedPlayable}
           onPress={() => {
             return playing
-              ? pausePlayback()
+              ? pause()
               : selectedPlayable
-              ? playSelectedPlayable(selectedPlayable)
+              ? play(selectedPlayable.type, selectedPlayable.spId)
               : null;
           }}
           title={playing ? "Pause" : "Play"}
         />
-        <Button onPress={() => nextTrack()} title="Next" />
+        <Button onPress={() => next()} title="Next" />
       </View>
-      <Manager vibe={selectedVibe} playable={selectedPlayable} />
+      <Destroyer vibe={selectedVibe} playable={selectedPlayable} />
       <Creator />
     </Root>
   );

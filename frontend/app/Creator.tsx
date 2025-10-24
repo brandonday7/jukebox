@@ -1,17 +1,25 @@
-import { createVibe, insertPlayable, type PlayableData } from "@/api";
-import { useState } from "react";
+import type { PlayableData } from "@/api";
+import { useVibeState } from "@/state/vibesState";
+import { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
 
-const create = async (title: string, playables: PlayableData[]) =>
-  await createVibe(title, playables);
-
-const insert = async (title: string, playable: PlayableData, index?: number) =>
-  await insertPlayable(title, playable, index);
-
 const Creator = () => {
+  const { insertPlayable, createVibe, vibes } = useVibeState();
   const [title, setTitle] = useState("");
   const [index, setIndex] = useState<number>();
   const [playableString, setPlayableString] = useState("");
+  const [playables, setPlayables] = useState<PlayableData[]>();
+
+  const existingVibe = vibes?.find((v) => v.title === title);
+
+  useEffect(() => {
+    if (playableString) {
+      const formattedPlayables = formatPlayables(playableString);
+      if (formatPlayables.length) {
+        setPlayables(formattedPlayables);
+      }
+    }
+  }, [playableString]);
 
   return (
     <>
@@ -30,15 +38,19 @@ const Creator = () => {
         onChangeText={(val) => setPlayableString(val)}
       />
       <Button
-        title="Create!"
-        disabled={!title || !playableString}
+        title={
+          !existingVibe || (playables || []).length > 1
+            ? "Create vibe!"
+            : "Insert playable!"
+        }
+        disabled={!title || !playables}
         onPress={() => {
-          const playables = formatPlayables(playableString);
-
-          if (playables.length === 1) {
-            insert(title, playables[0], index);
-          } else {
-            create(title, playables);
+          if (playables) {
+            if (!existingVibe || playables.length > 1) {
+              createVibe(title, playables);
+            } else {
+              insertPlayable(title, playables[0], index);
+            }
           }
         }}
       />
@@ -50,13 +62,17 @@ export default Creator;
 
 const formatPlayables = (playableString: string) => {
   const rows = playableString.split("\n");
-  return rows.map((row) => {
-    const fields = row.split("	");
-    return {
-      type: fields[3].toLocaleLowerCase(),
-      title: fields[0],
-      artistName: fields[1],
-      spId: fields[2],
-    } as PlayableData;
-  });
+  try {
+    return rows.map((row) => {
+      const fields = row.split("	");
+      return {
+        type: fields[3].toLocaleLowerCase(),
+        title: fields[0],
+        artistName: fields[1],
+        spId: fields[2],
+      } as PlayableData;
+    });
+  } catch {
+    return [];
+  }
 };
