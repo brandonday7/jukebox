@@ -13,5 +13,5 @@ const gracefulShutdown = async () => {
   process.exit(0);
 };
 
-process.on("SIGINT", gracefulShutdown); // Ctrl+C
-process.on("SIGTERM", gracefulShutdown); // kill command
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);

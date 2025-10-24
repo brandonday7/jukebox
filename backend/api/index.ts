@@ -8,7 +8,6 @@ import {
   removeVibe,
 } from "../db/index.ts";
 import type { PlayableData, PlayableType } from "../db/schema.ts";
-import { pretty } from "../lib/helpers.ts";
 import spotifyApi, {
   activateAndRetry,
   generateSpUri,
@@ -82,7 +81,7 @@ router.delete("/vibe/removePlayable", async (req, res) => {
 
 router.delete("/vibe", async (req, res) => {
   const title = req.body.title as string;
-  const vibe = await removeVibe(title);
+  await removeVibe(title);
   res.send({ deleted: true });
 });
 

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import {
   Button,
   Text,
+  ScrollView,
   View,
   TouchableOpacity,
   Image,
@@ -19,7 +20,7 @@ import {
 import Manager from "./Manager";
 import Creator from "./Creator";
 
-const Root = View;
+const Root = ScrollView;
 
 const Index = () => {
   const [playing, setPlaying] = useState(false);

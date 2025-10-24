@@ -1,10 +1,10 @@
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default tseslint.config(
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    ignores: ["frontend/**/*"],
     languageOptions: {
       globals: globals.node,
     },
@@ -14,5 +14,5 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-unused-vars": "warn",
     },
-  },
-]);
+  }
+);
