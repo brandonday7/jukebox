@@ -2,6 +2,12 @@ import type { PlayableData } from "@/api";
 import { useVibeState } from "@/state/vibesState";
 import { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native";
+import { styled } from "styled-components/native";
+
+const Root = styled.View`
+  flex: 1;
+  padding: 80px 8px 0 8px;
+`;
 
 const Creator = () => {
   const { insertPlayable, createVibe, vibes } = useVibeState();
@@ -21,8 +27,13 @@ const Creator = () => {
     }
   }, [playableString]);
 
+  useEffect(() => {
+    setTitle("");
+    setPlayableString("");
+  }, [vibes]);
+
   return (
-    <>
+    <Root>
       <Text>Title</Text>
       <TextInput value={title} onChangeText={(val) => setTitle(val)} />
       <Text>Index</Text>
@@ -54,7 +65,7 @@ const Creator = () => {
           }
         }}
       />
-    </>
+    </Root>
   );
 };
 
