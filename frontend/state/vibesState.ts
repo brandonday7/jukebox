@@ -11,15 +11,18 @@ import { create } from "zustand";
 
 interface VibeState {
   vibes?: VibeData[];
+  selectedPlayable?: PlayableData;
   fetchVibes(): void;
   removeVibe(title: string): void;
   createVibe(title: string, playables: PlayableData[]): void;
   insertPlayable(title: string, playable: PlayableData, index?: number): void;
   removePlayable(title: string, spId: string): void;
+  setSelectedPlayable(playable?: PlayableData): void;
 }
 
 export const useVibeState = create<VibeState>((set) => ({
   vibes: undefined,
+  selectedPlayable: undefined,
   fetchVibes: async () => {
     const vibes = await getVibes();
     set(() => ({ vibes }));
@@ -55,5 +58,8 @@ export const useVibeState = create<VibeState>((set) => ({
         vibes: vibes.map((v) => (v.title === title ? { ...v, playables } : v)),
       };
     });
+  },
+  setSelectedPlayable: (playable) => {
+    set(() => ({ selectedPlayable: playable }));
   },
 }));

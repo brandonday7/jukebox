@@ -3,12 +3,14 @@ import { useVibeState } from "@/state/vibesState";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text } from "react-native";
 import { styled } from "styled-components/native";
-import spotifyImage from "../../assets/spotify.png";
+import Artwork from "./common/Artwork";
+import Header from "./common/Header";
+import type { PlayableData } from "@/api";
 
 const Root = styled.ScrollView`
   flex: 1;
   background-color: white;
-  padding-top: 80px;
+  padding-top: 15px;
 `;
 
 const PlayablesContainer = styled.View`
@@ -30,18 +32,10 @@ const PressablePlayable = styled.TouchableOpacity`
   width: 170px;
 `;
 
-const AlbumArtContainer = styled.View``;
-
-const AlbumArt = styled.Image`
-  width: 170px;
-  height: 170px;
-  border-radius: 4px;
-`;
-
 const Details = styled.View`
   display: flex;
   align-items: center;
-  gap: 5;
+  gap: 8px;
 `;
 
 const PlayableName = styled.Text`
@@ -56,9 +50,15 @@ const ArtistName = styled.Text`
 
 const Vibe = () => {
   const { name } = useLocalSearchParams();
-  const { vibes } = useVibeState();
+  const { vibes, setSelectedPlayable } = useVibeState();
   const { play } = usePlaybackState();
   const router = useRouter();
+
+  const onSelect = (playable: PlayableData) => {
+    play(playable.type, playable.spId);
+    setSelectedPlayable(playable);
+    router.push("/vibes/player");
+  };
 
   const vibe = vibes?.find((v) => v.title === name);
 
@@ -68,36 +68,21 @@ const Vibe = () => {
 
   const { playables } = vibe;
 
-  console.log("******", playables);
-
   return (
     <Root>
+      <Header
+        title={vibe.title}
+        mixItUp={() =>
+          onSelect(playables[Math.floor(Math.random() * playables.length)])
+        }
+      />
       <PlayablesContainer>
         {playables.map((playable) => (
           <PressablePlayable
             key={playable.spId}
-            onPress={() => {
-              play(playable.type, playable.spId);
-              router.push("/vibes/player");
-            }}
+            onPress={() => onSelect(playable)}
           >
-            <AlbumArtContainer
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.3,
-                shadowRadius: 3,
-              }}
-            >
-              {playable.artworkUrl ? (
-                <AlbumArt source={{ uri: playable.artworkUrl }} />
-              ) : (
-                <AlbumArt
-                  source={spotifyImage}
-                  style={{ width: 110, height: 110 }}
-                />
-              )}
-            </AlbumArtContainer>
+            <Artwork url={playable.artworkUrl} />
             <Details>
               <PlayableName>{playable.title}</PlayableName>
               <ArtistName>{playable.artistName}</ArtistName>

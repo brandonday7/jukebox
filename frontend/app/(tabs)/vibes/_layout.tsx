@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
 
 export default function VibesLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack />;
 }

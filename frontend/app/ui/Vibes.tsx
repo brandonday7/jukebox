@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useVibeState } from "@/state/vibesState";
 import { styled } from "styled-components/native";
-import type { PlayableData, VibeData } from "@/api";
+import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
+import Header from "./common/Header";
 
 const Root = styled.ScrollView`
   flex: 1;
   background-color: white;
-  padding-top: 80px;
+  padding-top: 15px;
 `;
 
 const VibesContainer = styled.View`
@@ -40,9 +41,9 @@ const VibeText = styled.Text`
 `;
 
 const Vibes = () => {
-  const { fetchVibes, vibes } = useVibeState();
+  const { fetchVibes, vibes, selectedPlayable, setSelectedPlayable } =
+    useVibeState();
   const [selectedVibe, setSelectedVibe] = useState<VibeData>();
-  const [selectedPlayable, setSelectedPlayable] = useState<PlayableData>();
   const { push } = useRouter();
 
   useEffect(() => {
@@ -68,20 +69,27 @@ const Vibes = () => {
     ) {
       setSelectedPlayable(undefined);
     }
-  }, [vibes, selectedVibe, selectedPlayable]);
+  }, [vibes, selectedVibe, selectedPlayable, setSelectedPlayable]);
+
+  const onSelect = (vibe: VibeData) => {
+    setSelectedVibe(vibe);
+    push(`/vibes/${vibe.title}`);
+  };
 
   return (
     <Root>
+      <Header
+        title="Vibes"
+        mixItUp={() =>
+          vibes
+            ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
+            : null
+        }
+      />
       {vibes ? (
         <VibesContainer>
           {vibes.map((v) => (
-            <PressableVibe
-              key={v.title}
-              onPress={() => {
-                setSelectedVibe(v);
-                push(`/vibes/${v.title}`);
-              }}
-            >
+            <PressableVibe key={v.title} onPress={() => onSelect(v)}>
               <VibeText>{v.title}</VibeText>
             </PressableVibe>
           ))}
