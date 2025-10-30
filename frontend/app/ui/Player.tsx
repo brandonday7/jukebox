@@ -3,13 +3,19 @@ import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import { useVibeState } from "@/state/vibesState";
 import Header from "./common/Header";
+import { toHSLA } from "./helpers";
+import ColorHash from "color-hash";
 
-const Root = styled.View`
+const colorHash = new ColorHash();
+
+const Root = styled.View<{ color: string }>`
+  flex: 1;
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
   padding-top: 100px;
+  background-color: ${({ color }) => color};
 `;
 
 const Details = styled.View`
@@ -60,10 +66,21 @@ const Player = () => {
     return null;
   }
 
+  const color = toHSLA(
+    ...colorHash.hsl(
+      `${selectedPlayable.title} - ${selectedPlayable.artistName}`
+    ),
+    0.5
+  );
+
   return (
-    <Root>
+    <Root color={color}>
       <Header title="" />
-      <Artwork url={selectedPlayable.artworkUrl} size={250} />
+      <Artwork
+        url={selectedPlayable.artworkUrl}
+        size={250}
+        title={`${selectedPlayable.title} - ${selectedPlayable.artistName}`}
+      />
       <Details>
         <PlayableName>{selectedPlayable.title}</PlayableName>
         <ArtistName>{selectedPlayable.artistName}</ArtistName>

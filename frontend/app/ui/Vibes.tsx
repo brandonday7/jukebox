@@ -5,6 +5,7 @@ import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
 import Header from "./common/Header";
 import { Alert } from "react-native";
+import { BlankArtwork } from "./common/Artwork";
 
 const Root = styled.ScrollView`
   flex: 1;
@@ -24,13 +25,6 @@ const VibesContainer = styled.View`
 `;
 
 const PressableVibe = styled.TouchableOpacity`
-  border-radius: 4px;
-  width: 170px;
-  height: 170px;
-  background-color: #67b399;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   shadow-color: "#000";
   shadow-opacity: 0.3;
   shadow-radius: 3px;
@@ -39,11 +33,6 @@ const PressableVibe = styled.TouchableOpacity`
 const DummyVibe = styled.View`
   flex-grow: 1;
   max-width: 170px;
-`;
-
-const VibeText = styled.Text`
-  color: white;
-  font-size: 16px;
 `;
 
 const Vibes = () => {
@@ -121,7 +110,7 @@ const Vibes = () => {
                 );
               }}
             >
-              <VibeText>{v.title}</VibeText>
+              <BlankArtwork title={v.title} />
             </PressableVibe>
           ))}
           {vibes.length % 2 === 1 ? <DummyVibe /> : null}

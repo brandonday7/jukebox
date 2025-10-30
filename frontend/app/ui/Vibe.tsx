@@ -6,9 +6,13 @@ import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import Header from "./common/Header";
 import type { PlayableData } from "@/api";
+import ColorHash from "color-hash";
+import { toHSLA } from "./helpers";
 
-const Root = styled.ScrollView`
-  background-color: white;
+const colorHash = new ColorHash();
+
+const Root = styled.ScrollView<{ color: string }>`
+  background-color: ${({ color }) => color};
 `;
 
 const PlayablesContainer = styled.View`
@@ -68,9 +72,10 @@ const Vibe = () => {
   }
 
   const { playables } = vibe;
+  const color = colorHash.hsl(vibe.title);
 
   return (
-    <Root>
+    <Root color={toHSLA(...color, 0.5)}>
       <Header
         title={vibe.title}
         mixItUp={() =>
@@ -100,7 +105,10 @@ const Vibe = () => {
               );
             }}
           >
-            <Artwork url={playable.artworkUrl} />
+            <Artwork
+              url={playable.artworkUrl}
+              title={`${playable.title} - ${playable.artistName}`}
+            />
             <Details>
               <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
               <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
