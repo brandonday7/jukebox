@@ -4,6 +4,7 @@ import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
 import Header from "./common/Header";
+import { Alert } from "react-native";
 
 const Root = styled.ScrollView`
   flex: 1;
@@ -46,8 +47,13 @@ const VibeText = styled.Text`
 `;
 
 const Vibes = () => {
-  const { fetchVibes, vibes, selectedPlayable, setSelectedPlayable } =
-    useVibeState();
+  const {
+    fetchVibes,
+    vibes,
+    selectedPlayable,
+    setSelectedPlayable,
+    removeVibe,
+  } = useVibeState();
   const [selectedVibe, setSelectedVibe] = useState<VibeData>();
   const { push } = useRouter();
 
@@ -94,7 +100,27 @@ const Vibes = () => {
       {vibes ? (
         <VibesContainer>
           {vibes.map((v) => (
-            <PressableVibe key={v.title} onPress={() => onSelect(v)}>
+            <PressableVibe
+              key={v.title}
+              onPress={() => onSelect(v)}
+              onLongPress={() => {
+                Alert.alert(
+                  "Delete vibe",
+                  `Are you sure you want to delete '${v.title}' from your library?`,
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Delete",
+                      onPress: () => removeVibe(v.title),
+                      style: "default",
+                    },
+                  ]
+                );
+              }}
+            >
               <VibeText>{v.title}</VibeText>
             </PressableVibe>
           ))}

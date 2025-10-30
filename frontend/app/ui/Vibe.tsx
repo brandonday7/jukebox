@@ -1,7 +1,7 @@
 import { usePlaybackState } from "@/state/playbackState";
 import { useVibeState } from "@/state/vibesState";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Text } from "react-native";
+import { Alert, Text } from "react-native";
 import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import Header from "./common/Header";
@@ -51,7 +51,7 @@ const ArtistName = styled.Text`
 
 const Vibe = () => {
   const { name } = useLocalSearchParams();
-  const { vibes, setSelectedPlayable } = useVibeState();
+  const { vibes, setSelectedPlayable, removePlayable } = useVibeState();
   const { play } = usePlaybackState();
   const router = useRouter();
 
@@ -82,6 +82,23 @@ const Vibe = () => {
           <PressablePlayable
             key={playable.spId}
             onPress={() => onSelect(playable)}
+            onLongPress={() => {
+              Alert.alert(
+                "Remove playable",
+                `Are you sure you want to remove '${playable.title}' from ${vibe.title}?`,
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Remove",
+                    onPress: () => removePlayable(vibe.title, playable.spId),
+                    style: "default",
+                  },
+                ]
+              );
+            }}
           >
             <Artwork url={playable.artworkUrl} />
             <Details>
