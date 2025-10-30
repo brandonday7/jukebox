@@ -3,7 +3,7 @@ import { styled } from "styled-components/native";
 const SHADOW_STYLES = {
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
+  shadowOpacity: 0.4,
 };
 
 const Root = styled.View`

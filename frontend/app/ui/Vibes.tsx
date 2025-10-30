@@ -32,7 +32,12 @@ const PressableVibe = styled.TouchableOpacity`
   justify-content: center;
   shadow-color: "#000";
   shadow-opacity: 0.3;
-  shadow-radius: 3;
+  shadow-radius: 3px;
+`;
+
+const DummyVibe = styled.View`
+  flex-grow: 1;
+  max-width: 170px;
 `;
 
 const VibeText = styled.Text`
@@ -93,6 +98,7 @@ const Vibes = () => {
               <VibeText>{v.title}</VibeText>
             </PressableVibe>
           ))}
+          {vibes.length % 2 === 1 ? <DummyVibe /> : null}
         </VibesContainer>
       ) : null}
     </Root>

@@ -8,20 +8,16 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 
 const Root = styled.ScrollView`
-  flex: 1;
   background-color: white;
-  padding-top: 15px;
 `;
 
 const PlayablesContainer = styled.View`
-  flex: 1;
-  width: 100%;
-  justify-content: center;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
+  padding-vertical: 15px;
   gap: 15px;
-  align-items: center;
 `;
 
 const PressablePlayable = styled.TouchableOpacity`
@@ -29,13 +25,18 @@ const PressablePlayable = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
   gap: 15px;
-  width: 170px;
+  max-width: 170px;
+`;
+
+const DummyPlayable = styled.View`
+  flex-grow: 1;
+  max-width: 170px;
 `;
 
 const Details = styled.View`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
 `;
 
 const PlayableName = styled.Text`
@@ -84,11 +85,12 @@ const Vibe = () => {
           >
             <Artwork url={playable.artworkUrl} />
             <Details>
-              <PlayableName>{playable.title}</PlayableName>
-              <ArtistName>{playable.artistName}</ArtistName>
+              <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
+              <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
             </Details>
           </PressablePlayable>
         ))}
+        {playables.length % 2 === 1 ? <DummyPlayable /> : null}
       </PlayablesContainer>
     </Root>
   );
