@@ -2,9 +2,6 @@ import { usePlaybackState } from "@/state/playbackState";
 import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import { useVibeState } from "@/state/vibesState";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import type { RefObject } from "react";
 
 const Root = styled.View`
   display: flex;
@@ -54,11 +51,7 @@ const Button = styled.TouchableOpacity`
   justify-content: center;
 `;
 
-interface Props {
-  bottomSheetRef: RefObject<BottomSheet>;
-}
-
-const PlayerSheet = ({ bottomSheetRef }: Props) => {
+const PlayerSheet = () => {
   const { playing, play, pause, back, next } = usePlaybackState();
   const { selectedPlayable } = useVibeState();
 
@@ -67,53 +60,39 @@ const PlayerSheet = ({ bottomSheetRef }: Props) => {
   }
 
   return (
-    <GestureHandlerRootView>
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={["100%"]}
-        enablePanDownToClose
-      >
-        <BottomSheetView>
-          <Root>
-            <Artwork
-              url={selectedPlayable.artworkUrl}
-              size={250}
-              title={`${selectedPlayable.title} - ${selectedPlayable.artistName}`}
-            />
-            <Details>
-              <PlayableName>{selectedPlayable.title}</PlayableName>
-              <ArtistName>{selectedPlayable.artistName}</ArtistName>
-            </Details>
-            <Controls>
-              <Button onPress={() => back()}>
-                <StyledText>Back</StyledText>
-              </Button>
-              <Button
-                disabled={!selectedPlayable}
-                onPress={() => {
-                  if (playing === true) {
-                    pause();
-                  } else if (playing === false && selectedPlayable) {
-                    play(selectedPlayable.type, selectedPlayable.spId);
-                  }
-                }}
-              >
-                <StyledText>
-                  {playing === true
-                    ? "Pause"
-                    : playing === false
-                    ? "Play"
-                    : "..."}
-                </StyledText>
-              </Button>
-              <Button onPress={() => next()}>
-                <StyledText>Next</StyledText>
-              </Button>
-            </Controls>
-          </Root>
-        </BottomSheetView>
-      </BottomSheet>
-    </GestureHandlerRootView>
+    <Root>
+      <Artwork
+        url={selectedPlayable.artworkUrl}
+        size={250}
+        title={`${selectedPlayable.title} - ${selectedPlayable.artistName}`}
+      />
+      <Details>
+        <PlayableName>{selectedPlayable.title}</PlayableName>
+        <ArtistName>{selectedPlayable.artistName}</ArtistName>
+      </Details>
+      <Controls>
+        <Button onPress={() => back()}>
+          <StyledText>Back</StyledText>
+        </Button>
+        <Button
+          disabled={!selectedPlayable}
+          onPress={() => {
+            if (playing === true) {
+              pause();
+            } else if (playing === false && selectedPlayable) {
+              play(selectedPlayable.type, selectedPlayable.spId);
+            }
+          }}
+        >
+          <StyledText>
+            {playing === true ? "Pause" : playing === false ? "Play" : "..."}
+          </StyledText>
+        </Button>
+        <Button onPress={() => next()}>
+          <StyledText>Next</StyledText>
+        </Button>
+      </Controls>
+    </Root>
   );
 };
 

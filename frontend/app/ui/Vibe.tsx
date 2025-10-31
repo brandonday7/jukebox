@@ -1,6 +1,6 @@
 import { usePlaybackState } from "@/state/playbackState";
 import { useVibeState } from "@/state/vibesState";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Alert, Text } from "react-native";
 import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
@@ -8,6 +8,7 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import ColorHash from "color-hash";
 import { toHSLA } from "./helpers";
+import { usePlayerSheet } from "./contexts/PlayerSheetContext";
 
 const colorHash = new ColorHash();
 
@@ -57,12 +58,12 @@ const Vibe = () => {
   const { name } = useLocalSearchParams();
   const { vibes, setSelectedPlayable, removePlayable } = useVibeState();
   const { play } = usePlaybackState();
-  const router = useRouter();
+  const { openSheet } = usePlayerSheet();
 
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
     setSelectedPlayable(playable);
-    router.push("/vibes/player");
+    openSheet();
   };
 
   const vibe = vibes?.find((v) => v.title === name);
