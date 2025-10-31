@@ -3,74 +3,88 @@ import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import { useVibeState } from "@/state/vibesState";
 import colorHash, { toHSLA } from "./helpers/color";
+import { useEffect } from "react";
+import { usePlayer } from "./contexts/PlayerSheetContext";
 
-const Root = styled.View<{ color: string }>`
+const Root = styled.View`
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
   padding-top: 100px;
-  background-color: ${({ color }) => color};
 `;
 
 const Details = styled.View`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   padding-top: 20px;
 `;
 
 const PlayableName = styled.Text`
-  color: black;
-  font-size: 20px;
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
+  text-align: center;
 `;
 
 const ArtistName = styled.Text`
-  color: #444;
-  font-size: 16px;
+  color: white;
+  font-size: 18px;
+  font-weight: 300;
+  text-align: center;
 `;
 
 const Controls = styled.View`
   display: flex;
   flex-direction: row;
   width: 100%;
-  justify-content: space-between;
+  justify-content: space-around;
   padding: 90px 50px 20px 50px;
 `;
 
 const StyledText = styled.Text`
   font-size: 16px;
+  font-weight: 500;
   color: white;
 `;
 
 const Button = styled.TouchableOpacity`
-  width: 75px;
-  height: 75px;
+  width: 80px;
+  height: 80px;
   border-radius: 100px;
-  background-color: #444;
   display: flex;
   align-items: center;
   justify-content: center;
+  outline-width: 2px;
+  outline-color: white;
 `;
 
-const PlayerSheet = () => {
-  const { playing, play, pause, back, next } = usePlaybackState();
+const Player = () => {
+  const { playing, play, pause, back } = usePlaybackState();
   const { selectedPlayable } = useVibeState();
+  const { setBgColor } = usePlayer();
 
-  if (!selectedPlayable) {
+  const colorValues = selectedPlayable
+    ? colorHash.hsl(selectedPlayable.title)
+    : null;
+
+  useEffect(() => {
+    if (colorValues) {
+      setBgColor(toHSLA(...colorValues, 1));
+    }
+  }, [colorValues, setBgColor]);
+
+  if (!selectedPlayable || !colorValues) {
     return null;
   }
 
-  const color = colorHash.hsl(
-    `${selectedPlayable.title} - ${selectedPlayable.artistName}`
-  );
-
   return (
-    <Root color={toHSLA(...color, 0.5)}>
+    <Root>
       <Artwork
         url={selectedPlayable.artworkUrl}
         size={250}
-        title={`${selectedPlayable.title} - ${selectedPlayable.artistName}`}
+        title={selectedPlayable.title}
       />
       <Details>
         <PlayableName>{selectedPlayable.title}</PlayableName>
@@ -94,12 +108,9 @@ const PlayerSheet = () => {
             {playing === true ? "Pause" : playing === false ? "Play" : "..."}
           </StyledText>
         </Button>
-        <Button onPress={() => next()}>
-          <StyledText>Next</StyledText>
-        </Button>
       </Controls>
     </Root>
   );
 };
 
-export default PlayerSheet;
+export default Player;

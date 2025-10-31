@@ -7,7 +7,7 @@ import Artwork from "./common/Artwork";
 import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { toHSLA } from "./helpers/color";
-import { usePlayerSheet } from "./contexts/PlayerSheetContext";
+import { usePlayer } from "./contexts/PlayerSheetContext";
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -55,12 +55,12 @@ const Vibe = () => {
   const { name } = useLocalSearchParams();
   const { vibes, setSelectedPlayable, removePlayable } = useVibeState();
   const { play } = usePlaybackState();
-  const { openSheet } = usePlayerSheet();
+  const { open } = usePlayer();
 
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
     setSelectedPlayable(playable);
-    openSheet();
+    open();
   };
 
   const vibe = vibes?.find((v) => v.title === name);
@@ -70,10 +70,10 @@ const Vibe = () => {
   }
 
   const { playables } = vibe;
-  const color = colorHash.hsl(vibe.title);
+  const colorValues = colorHash.hsl(vibe.title);
 
   return (
-    <Root color={toHSLA(...color, 0.5)}>
+    <Root color={toHSLA(...colorValues, 0.5)}>
       <Header
         title={vibe.title}
         mixItUp={() =>
@@ -103,10 +103,7 @@ const Vibe = () => {
               );
             }}
           >
-            <Artwork
-              url={playable.artworkUrl}
-              title={`${playable.title} - ${playable.artistName}`}
-            />
+            <Artwork url={playable.artworkUrl} title={playable.title} />
             <Details>
               <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
               <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
