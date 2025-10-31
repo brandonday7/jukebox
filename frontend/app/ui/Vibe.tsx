@@ -6,11 +6,8 @@ import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import Header from "./common/Header";
 import type { PlayableData } from "@/api";
-import ColorHash from "color-hash";
-import { toHSLA } from "./helpers";
+import colorHash, { toHSLA } from "./helpers/color";
 import { usePlayerSheet } from "./contexts/PlayerSheetContext";
-
-const colorHash = new ColorHash();
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};

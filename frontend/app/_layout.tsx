@@ -1,13 +1,13 @@
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { PlayerSheetProvider } from "./ui/contexts/PlayerSheetContext";
+import PlayerSheetContext from "./ui/contexts/PlayerSheetContext";
 
 const RootLayout = () => {
   return (
     <GestureHandlerRootView>
-      <PlayerSheetProvider>
+      <PlayerSheetContext>
         <Stack screenOptions={{ headerShown: false }} />
-      </PlayerSheetProvider>
+      </PlayerSheetContext>
     </GestureHandlerRootView>
   );
 };

@@ -2,13 +2,15 @@ import { usePlaybackState } from "@/state/playbackState";
 import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import { useVibeState } from "@/state/vibesState";
+import colorHash, { toHSLA } from "./helpers/color";
 
-const Root = styled.View`
+const Root = styled.View<{ color: string }>`
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
   padding-top: 100px;
+  background-color: ${({ color }) => color};
 `;
 
 const Details = styled.View`
@@ -59,8 +61,12 @@ const PlayerSheet = () => {
     return null;
   }
 
+  const color = colorHash.hsl(
+    `${selectedPlayable.title} - ${selectedPlayable.artistName}`
+  );
+
   return (
-    <Root>
+    <Root color={toHSLA(...color, 0.5)}>
       <Artwork
         url={selectedPlayable.artworkUrl}
         size={250}

@@ -1,9 +1,5 @@
 import { styled } from "styled-components/native";
-
-import ColorHash from "color-hash";
-import { toHSLA } from "../helpers";
-
-const colorHash = new ColorHash();
+import colorHash, { toHSLA } from "../helpers/color";
 
 const SHADOW_STYLES = {
   shadowColor: "#000",

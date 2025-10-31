@@ -37,6 +37,8 @@ export const PlayerSheetProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+export default PlayerSheetProvider;
+
 export const usePlayerSheet = () => {
   const context = useContext(PlayerSheetContext);
   if (!context) {
