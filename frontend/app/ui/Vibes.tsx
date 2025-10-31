@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useVibeState } from "@/state/vibesState";
 import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
 import Header from "./common/Header";
-import { Alert } from "react-native";
+import { Alert, Text } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 const Root = styled.ScrollView`
   flex: 1;
@@ -45,6 +47,7 @@ const Vibes = () => {
   } = useVibeState();
   const [selectedVibe, setSelectedVibe] = useState<VibeData>();
   const { push } = useRouter();
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     if (!vibes) {
@@ -73,50 +76,62 @@ const Vibes = () => {
 
   const onSelect = (vibe: VibeData) => {
     setSelectedVibe(vibe);
-    push(`/vibes/${vibe.title}`);
+    bottomSheetRef.current?.expand();
+    // push(`/vibes/${vibe.title}`);
   };
 
   return (
-    <Root>
-      <Header
-        title="Vibes"
-        mixItUp={() =>
-          vibes
-            ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
-            : null
-        }
-      />
-      {vibes ? (
-        <VibesContainer>
-          {vibes.map((v) => (
-            <PressableVibe
-              key={v.title}
-              onPress={() => onSelect(v)}
-              onLongPress={() => {
-                Alert.alert(
-                  "Delete vibe",
-                  `Are you sure you want to delete '${v.title}' from your library?`,
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Delete",
-                      onPress: () => removeVibe(v.title),
-                      style: "default",
-                    },
-                  ]
-                );
-              }}
-            >
-              <BlankArtwork title={v.title} />
-            </PressableVibe>
-          ))}
-          {vibes.length % 2 === 1 ? <DummyVibe /> : null}
-        </VibesContainer>
-      ) : null}
-    </Root>
+    <GestureHandlerRootView>
+      <Root>
+        <Header
+          title="Vibes"
+          mixItUp={() =>
+            vibes
+              ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
+              : null
+          }
+        />
+        {vibes ? (
+          <VibesContainer>
+            {vibes.map((v) => (
+              <PressableVibe
+                key={v.title}
+                onPress={() => onSelect(v)}
+                onLongPress={() => {
+                  Alert.alert(
+                    "Delete vibe",
+                    `Are you sure you want to delete '${v.title}' from your library?`,
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Delete",
+                        onPress: () => removeVibe(v.title),
+                        style: "default",
+                      },
+                    ]
+                  );
+                }}
+              >
+                <BlankArtwork title={v.title} />
+              </PressableVibe>
+            ))}
+            {vibes.length % 2 === 1 ? <DummyVibe /> : null}
+          </VibesContainer>
+        ) : null}
+      </Root>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={["100%"]}
+        enablePanDownToClose
+      >
+        <BottomSheetView>
+          <Text>Awesome 🎉</Text>
+        </BottomSheetView>
+      </BottomSheet>
+    </GestureHandlerRootView>
   );
 };
 
