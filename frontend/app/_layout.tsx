@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import PlayerSheetContext from "./ui/contexts/PlayerSheetContext";
+import PlayerSheetContext from "./ui/Player/PlayerContext";
 
 const RootLayout = () => {
   return (

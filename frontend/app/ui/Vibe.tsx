@@ -6,8 +6,8 @@ import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import Header from "./common/Header";
 import type { PlayableData } from "@/api";
-import colorHash, { toHSLA } from "./helpers/color";
-import { usePlayer } from "./contexts/PlayerSheetContext";
+import colorHash, { lighter } from "./helpers/color";
+import { usePlayer } from "./Player/PlayerContext";
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -18,8 +18,9 @@ const PlayablesContainer = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  padding-vertical: 15px;
+  padding-top: 15px;
   gap: 15px;
+  padding-bottom: 80px;
 `;
 
 const PressablePlayable = styled.TouchableOpacity`
@@ -53,7 +54,8 @@ const ArtistName = styled.Text`
 
 const Vibe = () => {
   const { name } = useLocalSearchParams();
-  const { vibes, setSelectedPlayable, removePlayable } = useVibeState();
+  const { vibes, setSelectedPlayable, removePlayable, selectedPlayable } =
+    useVibeState();
   const { play } = usePlaybackState();
   const { open } = usePlayer();
 
@@ -70,10 +72,12 @@ const Vibe = () => {
   }
 
   const { playables } = vibe;
-  const colorValues = colorHash.hsl(vibe.title);
+  const colorValues = selectedPlayable
+    ? colorHash.hsl(selectedPlayable.title)
+    : null;
 
   return (
-    <Root color={toHSLA(...colorValues, 0.5)}>
+    <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
       <Header
         title={vibe.title}
         mixItUp={() =>

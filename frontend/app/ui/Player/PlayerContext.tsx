@@ -6,7 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import Player from "../Player";
+import Player from ".";
+import Opener from "./Opener";
 
 interface PlayerSheetContextType {
   open: () => void;
@@ -31,6 +32,7 @@ export const PlayerContext = ({ children }: { children: ReactNode }) => {
   return (
     <PlayerSheetContext.Provider value={{ open, close, setBgColor }}>
       {children}
+      <Opener />
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={[1, "100%"]}

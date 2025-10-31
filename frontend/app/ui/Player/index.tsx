@@ -1,10 +1,10 @@
 import { usePlaybackState } from "@/state/playbackState";
 import { styled } from "styled-components/native";
-import Artwork from "./common/Artwork";
+import Artwork from "../common/Artwork";
 import { useVibeState } from "@/state/vibesState";
-import colorHash, { toHSLA } from "./helpers/color";
+import colorHash, { toHSLA } from "../helpers/color";
 import { useEffect } from "react";
-import { usePlayer } from "./contexts/PlayerSheetContext";
+import { usePlayer } from "./PlayerContext";
 
 const Root = styled.View`
   display: flex;

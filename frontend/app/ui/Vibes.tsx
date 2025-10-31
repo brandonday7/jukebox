@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useVibeState } from "@/state/vibesState";
 import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
@@ -6,11 +6,13 @@ import { useRouter } from "expo-router";
 import Header from "./common/Header";
 import { Alert } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
+import colorHash, { lighter } from "./helpers/color";
 
-const Root = styled.ScrollView`
+const Root = styled.ScrollView<{ color: string }>`
   flex: 1;
   background-color: white;
   padding-top: 15px;
+  background-color: ${({ color }) => color};
 `;
 
 const VibesContainer = styled.View`
@@ -22,6 +24,7 @@ const VibesContainer = styled.View`
   flex-wrap: wrap;
   gap: 15px;
   align-items: center;
+  padding-bottom: 80px;
 `;
 
 const PressableVibe = styled.TouchableOpacity`
@@ -36,14 +39,7 @@ const DummyVibe = styled.View`
 `;
 
 const Vibes = () => {
-  const {
-    fetchVibes,
-    vibes,
-    selectedPlayable,
-    setSelectedPlayable,
-    removeVibe,
-  } = useVibeState();
-  const [selectedVibe, setSelectedVibe] = useState<VibeData>();
+  const { fetchVibes, vibes, removeVibe, selectedPlayable } = useVibeState();
   const { push } = useRouter();
 
   useEffect(() => {
@@ -52,32 +48,16 @@ const Vibes = () => {
     }
   }, [vibes, fetchVibes]);
 
-  // If the selected vibe or playable has been removed, un-select them.
-  useEffect(() => {
-    if (
-      vibes &&
-      selectedVibe &&
-      !vibes.find((v) => v.title === selectedVibe.title)
-    ) {
-      setSelectedVibe(undefined);
-    }
-
-    if (
-      selectedVibe &&
-      selectedPlayable &&
-      !selectedVibe.playables.find((p) => p.spId === selectedPlayable.spId)
-    ) {
-      setSelectedPlayable(undefined);
-    }
-  }, [vibes, selectedVibe, selectedPlayable, setSelectedPlayable]);
-
   const onSelect = (vibe: VibeData) => {
-    setSelectedVibe(vibe);
     push(`/vibes/${vibe.title}`);
   };
 
+  const colorValues = selectedPlayable
+    ? colorHash.hsl(selectedPlayable.title)
+    : null;
+
   return (
-    <Root>
+    <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
       <Header
         title="Vibes"
         mixItUp={() =>
