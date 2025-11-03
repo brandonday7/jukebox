@@ -13,14 +13,14 @@ const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
 `;
 
-const PlayablesContainer = styled.View`
+const PlayablesContainer = styled.View<{ playing: boolean }>`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   padding-top: 15px;
   gap: 15px;
-  padding-bottom: 80px;
+  padding-bottom: ${({ playing }) => (playing ? 120 : 40)}px;
 `;
 
 const PressablePlayable = styled.TouchableOpacity`
@@ -84,7 +84,7 @@ const Vibe = () => {
           onSelect(playables[Math.floor(Math.random() * playables.length)])
         }
       />
-      <PlayablesContainer>
+      <PlayablesContainer playing={!!selectedPlayable}>
         {playables.map((playable) => (
           <PressablePlayable
             key={playable.spId}
@@ -114,7 +114,15 @@ const Vibe = () => {
             </Details>
           </PressablePlayable>
         ))}
-        {playables.length % 2 === 1 ? <DummyPlayable /> : null}
+        <PressablePlayable
+          style={{ marginTop: 10 }}
+          onPress={() => console.log("create")}
+        >
+          <Artwork title="+ Add" />
+          <PlayableName numberOfLines={1}></PlayableName>
+          <ArtistName numberOfLines={1}></ArtistName>
+        </PressablePlayable>
+        {(playables.length + 1) % 2 === 1 ? <DummyPlayable /> : null}
       </PlayablesContainer>
     </Root>
   );

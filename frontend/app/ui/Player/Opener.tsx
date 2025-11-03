@@ -7,14 +7,14 @@ import { usePlayer } from "./PlayerContext";
 
 const Root = styled.TouchableOpacity<{ color: string }>`
   position: absolute;
-  bottom: 82px;
+  bottom: 0px;
   left: 0;
   right: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
-  padding: 12px 15px;
+  gap: 12px;
+  padding: 20px 25px 30px 25px;
   background-color: ${({ color }) => color};
   shadow-color: "#444";
   shadow-opacity: 0.2;
@@ -61,7 +61,7 @@ const Opener = () => {
     <Root onPress={() => open()} color={lighter(...colorValues, 0.1)}>
       <Artwork
         url={selectedPlayable.artworkUrl}
-        size={40}
+        size={50}
         title={selectedPlayable.title}
       />
       <Details>

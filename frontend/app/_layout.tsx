@@ -6,7 +6,7 @@ const RootLayout = () => {
   return (
     <GestureHandlerRootView>
       <PlayerSheetContext>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack />
       </PlayerSheetContext>
     </GestureHandlerRootView>
   );

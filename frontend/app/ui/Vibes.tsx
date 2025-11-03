@@ -15,7 +15,7 @@ const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
 `;
 
-const VibesContainer = styled.View`
+const VibesContainer = styled.View<{ playing: boolean }>`
   flex: 1;
   width: 100%;
   justify-content: center;
@@ -24,7 +24,7 @@ const VibesContainer = styled.View`
   flex-wrap: wrap;
   gap: 15px;
   align-items: center;
-  padding-bottom: 80px;
+  padding-bottom: ${({ playing }) => (playing ? 120 : 40)}px;
 `;
 
 const PressableVibe = styled.TouchableOpacity`
@@ -67,7 +67,7 @@ const Vibes = () => {
         }
       />
       {vibes ? (
-        <VibesContainer>
+        <VibesContainer playing={!!selectedPlayable}>
           {vibes.map((v) => (
             <PressableVibe
               key={v.title}
@@ -93,7 +93,10 @@ const Vibes = () => {
               <BlankArtwork title={v.title} />
             </PressableVibe>
           ))}
-          {vibes.length % 2 === 1 ? <DummyVibe /> : null}
+          <PressableVibe onPress={() => console.log("open sheet")}>
+            <BlankArtwork title="+ Create" />
+          </PressableVibe>
+          {(vibes.length + 1) % 2 === 1 ? <DummyVibe /> : null}
         </VibesContainer>
       ) : null}
     </Root>
