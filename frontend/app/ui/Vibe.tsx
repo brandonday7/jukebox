@@ -8,6 +8,9 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { lighter } from "./helpers/color";
 import { usePlayer } from "./Player/PlayerContext";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { useRef } from "react";
+import Editor from "./Editor";
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -58,6 +61,7 @@ const Vibe = () => {
     useVibeState();
   const { play } = usePlaybackState();
   const { open } = usePlayer();
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
@@ -77,54 +81,65 @@ const Vibe = () => {
     : null;
 
   return (
-    <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
-      <Header
-        title={vibe.title}
-        mixItUp={() =>
-          onSelect(playables[Math.floor(Math.random() * playables.length)])
-        }
-      />
-      <PlayablesContainer playing={!!selectedPlayable}>
-        {playables.map((playable) => (
-          <PressablePlayable
-            key={playable.spId}
-            onPress={() => onSelect(playable)}
-            onLongPress={() => {
-              Alert.alert(
-                "Remove playable",
-                `Are you sure you want to remove '${playable.title}' from ${vibe.title}?`,
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Remove",
-                    onPress: () => removePlayable(vibe.title, playable.spId),
-                    style: "default",
-                  },
-                ]
-              );
-            }}
-          >
-            <Artwork url={playable.artworkUrl} title={playable.title} />
+    <>
+      <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
+        <Header
+          title={vibe.title}
+          mixItUp={() =>
+            onSelect(playables[Math.floor(Math.random() * playables.length)])
+          }
+        />
+        <PlayablesContainer playing={!!selectedPlayable}>
+          {playables.map((playable) => (
+            <PressablePlayable
+              key={playable.spId}
+              onPress={() => onSelect(playable)}
+              onLongPress={() => {
+                Alert.alert(
+                  "Remove playable",
+                  `Are you sure you want to remove '${playable.title}' from ${vibe.title}?`,
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Remove",
+                      onPress: () => removePlayable(vibe.title, playable.spId),
+                      style: "default",
+                    },
+                  ]
+                );
+              }}
+            >
+              <Artwork url={playable.artworkUrl} title={playable.title} />
+              <Details>
+                <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
+                <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
+              </Details>
+            </PressablePlayable>
+          ))}
+          <PressablePlayable onPress={() => bottomSheetRef.current?.expand()}>
+            <Artwork title="+ Add" />
             <Details>
-              <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
-              <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
+              <PlayableName numberOfLines={1}></PlayableName>
+              <ArtistName numberOfLines={1}></ArtistName>
             </Details>
           </PressablePlayable>
-        ))}
-        <PressablePlayable
-          style={{ marginTop: 10 }}
-          onPress={() => console.log("create")}
-        >
-          <Artwork title="+ Add" />
-          <PlayableName numberOfLines={1}></PlayableName>
-          <ArtistName numberOfLines={1}></ArtistName>
-        </PressablePlayable>
-        {(playables.length + 1) % 2 === 1 ? <DummyPlayable /> : null}
-      </PlayablesContainer>
-    </Root>
+          {(playables.length + 1) % 2 === 1 ? <DummyPlayable /> : null}
+        </PlayablesContainer>
+      </Root>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={[1, "95%"]}
+        style={{ paddingTop: 15 }}
+        index={-1}
+      >
+        <BottomSheetView>
+          <Editor initialPage="selectFormat" vibeTitle={vibe.title} />
+        </BottomSheetView>
+      </BottomSheet>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useVibeState } from "@/state/vibesState";
 import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
@@ -7,6 +7,8 @@ import Header from "./common/Header";
 import { Alert } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
 import colorHash, { lighter } from "./helpers/color";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import Editor from "./Editor";
 
 const Root = styled.ScrollView<{ color: string }>`
   flex: 1;
@@ -41,6 +43,7 @@ const DummyVibe = styled.View`
 const Vibes = () => {
   const { fetchVibes, vibes, removeVibe, selectedPlayable } = useVibeState();
   const { push } = useRouter();
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     if (!vibes) {
@@ -57,49 +60,61 @@ const Vibes = () => {
     : null;
 
   return (
-    <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
-      <Header
-        title="Vibes"
-        mixItUp={() =>
-          vibes
-            ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
-            : null
-        }
-      />
-      {vibes ? (
-        <VibesContainer playing={!!selectedPlayable}>
-          {vibes.map((v) => (
-            <PressableVibe
-              key={v.title}
-              onPress={() => onSelect(v)}
-              onLongPress={() => {
-                Alert.alert(
-                  "Delete vibe",
-                  `Are you sure you want to delete '${v.title}' from your library?`,
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Delete",
-                      onPress: () => removeVibe(v.title),
-                      style: "default",
-                    },
-                  ]
-                );
-              }}
-            >
-              <BlankArtwork title={v.title} />
+    <>
+      <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
+        <Header
+          title="Vibes"
+          mixItUp={() =>
+            vibes
+              ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
+              : null
+          }
+        />
+        {vibes ? (
+          <VibesContainer playing={!!selectedPlayable}>
+            {vibes.map((v) => (
+              <PressableVibe
+                key={v.title}
+                onPress={() => onSelect(v)}
+                onLongPress={() => {
+                  Alert.alert(
+                    "Delete vibe",
+                    `Are you sure you want to delete '${v.title}' from your library?`,
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Delete",
+                        onPress: () => removeVibe(v.title),
+                        style: "default",
+                      },
+                    ]
+                  );
+                }}
+              >
+                <BlankArtwork title={v.title} />
+              </PressableVibe>
+            ))}
+            <PressableVibe onPress={() => bottomSheetRef.current?.expand()}>
+              <BlankArtwork title="+ Create" />
             </PressableVibe>
-          ))}
-          <PressableVibe onPress={() => console.log("open sheet")}>
-            <BlankArtwork title="+ Create" />
-          </PressableVibe>
-          {(vibes.length + 1) % 2 === 1 ? <DummyVibe /> : null}
-        </VibesContainer>
-      ) : null}
-    </Root>
+            {(vibes.length + 1) % 2 === 1 ? <DummyVibe /> : null}
+          </VibesContainer>
+        ) : null}
+      </Root>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={[1, "95%"]}
+        style={{ paddingTop: 15 }}
+        index={-1}
+      >
+        <BottomSheetView>
+          <Editor initialPage="title" />
+        </BottomSheetView>
+      </BottomSheet>
+    </>
   );
 };
 
