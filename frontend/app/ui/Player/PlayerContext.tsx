@@ -1,25 +1,20 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import {
-  createContext,
-  useContext,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useRef, type ReactNode } from "react";
 import Player from ".";
 import Opener from "./Opener";
+import { useThemeState } from "@/state/themeState";
+import { toHSLA } from "../helpers/color";
 
 interface PlayerSheetContextType {
   open: () => void;
   close: () => void;
-  setBgColor(color: string): void;
 }
 
 const PlayerSheetContext = createContext<PlayerSheetContextType | null>(null);
 
 export const PlayerContext = ({ children }: { children: ReactNode }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const [bgColor, setBgColor] = useState("black");
+  const { colorValues, defaultColor } = useThemeState();
 
   const open = () => {
     bottomSheetRef.current?.expand();
@@ -30,7 +25,7 @@ export const PlayerContext = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <PlayerSheetContext.Provider value={{ open, close, setBgColor }}>
+    <PlayerSheetContext.Provider value={{ open, close }}>
       {children}
       <Opener />
       <BottomSheet
@@ -38,7 +33,11 @@ export const PlayerContext = ({ children }: { children: ReactNode }) => {
         snapPoints={[1, "100%"]}
         index={-1}
         style={{ paddingTop: 75 }}
-        backgroundStyle={{ backgroundColor: bgColor }}
+        backgroundStyle={{
+          backgroundColor: colorValues
+            ? toHSLA(...colorValues, 1)
+            : defaultColor,
+        }}
       >
         <BottomSheetView>
           <Player />

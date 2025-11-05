@@ -2,11 +2,10 @@ import type { PlayableData } from "@/api";
 import { useState } from "react";
 import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
-import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 const Root = styled.View`
   flex: 1;
-  padding: 20px;
+  padding: 20px 20px 80px 20px;
 `;
 
 const Heading = styled.Text`
@@ -38,6 +37,7 @@ const Options = styled.View`
   flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
+  padding-bottom: 20px;
 `;
 
 const ArtworkContainer = styled.View`
@@ -104,45 +104,39 @@ const SearchPlayables = ({ onSubmit }: Props) => {
       <Input
         value={search}
         onChangeText={setSearchText}
-        placeholder="Enter artist name or playlist URL..."
+        placeholder="Enter artist name or album/playlist URL..."
         autoCorrect={false}
         autoFocus
       />
-      <BottomSheetScrollView>
-        <Options>
-          {PLAYABLES.map((playable) => {
-            const selected = !!playables.find((p) => p.spId === playable.spId);
+      <Options>
+        {PLAYABLES.map((playable) => {
+          const selected = !!playables.find((p) => p.spId === playable.spId);
 
-            return (
-              <PressableOption
-                key={playable.spId}
-                onPress={() =>
-                  selected
-                    ? playables.filter((p) => p.spId !== playable.spId)
-                    : setPlayables([...playables, playable])
-                }
-              >
-                <ArtworkContainer>
-                  <Artwork title={playable.title} url={playable.artworkUrl} />
-                  {selected && (
-                    <CheckmarkOverlay>
-                      <CheckmarkText>✓</CheckmarkText>
-                    </CheckmarkOverlay>
-                  )}
-                </ArtworkContainer>
-                <Details>
-                  <PlayableName numberOfLines={1}>
-                    {playable.title}
-                  </PlayableName>
-                  <ArtistName numberOfLines={1}>
-                    {playable.artistName}
-                  </ArtistName>
-                </Details>
-              </PressableOption>
-            );
-          })}
-        </Options>
-      </BottomSheetScrollView>
+          return (
+            <PressableOption
+              key={playable.spId}
+              onPress={() =>
+                selected
+                  ? playables.filter((p) => p.spId !== playable.spId)
+                  : setPlayables([...playables, playable])
+              }
+            >
+              <ArtworkContainer>
+                <Artwork title={playable.title} url={playable.artworkUrl} />
+                {selected && (
+                  <CheckmarkOverlay>
+                    <CheckmarkText>✓</CheckmarkText>
+                  </CheckmarkOverlay>
+                )}
+              </ArtworkContainer>
+              <Details>
+                <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
+                <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
+              </Details>
+            </PressableOption>
+          );
+        })}
+      </Options>
 
       <SubmitButton
         onPress={() => (playables?.length ? onSubmit(playables) : null)}

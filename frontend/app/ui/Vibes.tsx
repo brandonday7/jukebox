@@ -6,9 +6,10 @@ import { useRouter } from "expo-router";
 import Header from "./common/Header";
 import { Alert } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
-import colorHash, { lighter } from "./helpers/color";
+import { lighter } from "./helpers/color";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import Editor from "./Editor";
+import { useThemeState } from "@/state/themeState";
 
 const Root = styled.ScrollView<{ color: string }>`
   flex: 1;
@@ -42,6 +43,7 @@ const DummyVibe = styled.View`
 
 const Vibes = () => {
   const { fetchVibes, vibes, removeVibe, selectedPlayable } = useVibeState();
+  const { colorValues, defaultColor } = useThemeState();
   const { push } = useRouter();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -55,13 +57,9 @@ const Vibes = () => {
     push(`/vibes/${vibe.title}`);
   };
 
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable.title)
-    : null;
-
   return (
     <>
-      <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
+      <Root color={colorValues ? lighter(...colorValues, 0.2) : defaultColor}>
         <Header
           title="Vibes"
           mixItUp={() =>
@@ -109,6 +107,11 @@ const Vibes = () => {
         snapPoints={[1, "95%"]}
         style={{ paddingTop: 15 }}
         index={-1}
+        backgroundStyle={{
+          backgroundColor: colorValues
+            ? lighter(...colorValues, 0.1)
+            : defaultColor,
+        }}
       >
         <BottomSheetView>
           <Editor initialPage="title" />

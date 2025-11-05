@@ -1,7 +1,7 @@
-import { useVibeState } from "@/state/vibesState";
 import { Stack } from "expo-router";
 import { styled } from "styled-components/native";
-import colorHash, { lighter } from "../helpers/color";
+import { lighter } from "../helpers/color";
+import { useThemeState } from "@/state/themeState";
 
 const MixItUp = styled.TouchableOpacity``;
 
@@ -16,13 +16,9 @@ interface Props {
 }
 
 const Header = ({ title, mixItUp }: Props) => {
-  const { selectedPlayable } = useVibeState();
+  const { colorValues, defaultColor } = useThemeState();
 
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable?.title)
-    : null;
-
-  const color = colorValues ? lighter(...colorValues, 0.1) : "#fff";
+  const color = colorValues ? lighter(...colorValues, 0.1) : defaultColor;
 
   return (
     <Stack.Screen

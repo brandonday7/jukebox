@@ -2,16 +2,14 @@ import { usePlaybackState } from "@/state/playbackState";
 import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
 import { useVibeState } from "@/state/vibesState";
-import colorHash, { toHSLA } from "../helpers/color";
-import { useEffect } from "react";
-import { usePlayer } from "./PlayerContext";
+import { useThemeState } from "@/state/themeState";
 
 const Root = styled.View`
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
-  padding-top: 100px;
+  padding: 100px 20px 0 20px;
 `;
 
 const Details = styled.View`
@@ -63,17 +61,7 @@ const Button = styled.TouchableOpacity`
 const Player = () => {
   const { playing, play, pause, back } = usePlaybackState();
   const { selectedPlayable } = useVibeState();
-  const { setBgColor } = usePlayer();
-
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable.title)
-    : null;
-
-  useEffect(() => {
-    if (colorValues) {
-      setBgColor(toHSLA(...colorValues, 1));
-    }
-  }, [colorValues, setBgColor]);
+  const { colorValues } = useThemeState();
 
   if (!selectedPlayable || !colorValues) {
     return null;

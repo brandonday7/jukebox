@@ -1,9 +1,9 @@
 import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
 import { useVibeState } from "@/state/vibesState";
-import colorHash, { lighter, toHSLA } from "../helpers/color";
-import { useEffect } from "react";
+import { lighter } from "../helpers/color";
 import { usePlayer } from "./PlayerContext";
+import { useThemeState } from "@/state/themeState";
 
 const Root = styled.TouchableOpacity<{ color: string }>`
   position: absolute;
@@ -41,17 +41,8 @@ const ArtistName = styled.Text`
 
 const Opener = () => {
   const { selectedPlayable } = useVibeState();
-  const { setBgColor, open } = usePlayer();
-
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable.title)
-    : null;
-
-  useEffect(() => {
-    if (colorValues) {
-      setBgColor(toHSLA(...colorValues, 1));
-    }
-  }, [colorValues, setBgColor]);
+  const { colorValues } = useThemeState();
+  const { open } = usePlayer();
 
   if (!selectedPlayable || !colorValues) {
     return null;

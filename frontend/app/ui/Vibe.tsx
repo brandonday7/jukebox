@@ -8,9 +8,10 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { lighter } from "./helpers/color";
 import { usePlayer } from "./Player/PlayerContext";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRef } from "react";
 import Editor from "./Editor";
+import { useThemeState } from "@/state/themeState";
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -59,6 +60,7 @@ const Vibe = () => {
   const { name } = useLocalSearchParams();
   const { vibes, setSelectedPlayable, removePlayable, selectedPlayable } =
     useVibeState();
+  const { colorValues, setColorValues, defaultColor } = useThemeState();
   const { play } = usePlaybackState();
   const { open } = usePlayer();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -66,6 +68,7 @@ const Vibe = () => {
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
     setSelectedPlayable(playable);
+    setColorValues(colorHash.hsl(playable.title));
     open();
   };
 
@@ -76,9 +79,6 @@ const Vibe = () => {
   }
 
   const { playables } = vibe;
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable.title)
-    : null;
 
   return (
     <>
@@ -134,10 +134,15 @@ const Vibe = () => {
         snapPoints={[1, "95%"]}
         style={{ paddingTop: 15 }}
         index={-1}
+        backgroundStyle={{
+          backgroundColor: colorValues
+            ? lighter(...colorValues, 0.1)
+            : defaultColor,
+        }}
       >
-        <BottomSheetView>
+        <BottomSheetScrollView>
           <Editor initialPage="selectFormat" vibeTitle={vibe.title} />
-        </BottomSheetView>
+        </BottomSheetScrollView>
       </BottomSheet>
     </>
   );
