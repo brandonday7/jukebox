@@ -3,9 +3,9 @@ import {
   createOrUpdateSpAccount,
   findVibe,
   findVibes,
-  insertPlayable,
   removePlayable,
   removeVibe,
+  insertPlayables,
 } from "../db/index.ts";
 import type { PlayableData, PlayableType } from "../db/schema.ts";
 import spotifyApi, {
@@ -54,26 +54,27 @@ router.post("/vibe", validateVibe, async (req, res) => {
   res.send({ title: vibe.title, playables: vibe.playables });
 });
 
-router.post("/vibe/insertPlayable", async (req, res) => {
+router.post("/vibe/insertPlayables", async (req, res) => {
   const title = req.body.title as string;
-  const playable = req.body.playable as PlayableData;
+  const playables = req.body.playables as PlayableData[];
   const index = Number(req.body.index);
 
-  if (playable.type === "playlist") {
-    await insertPlayable(title, { ...playable }, index);
-    res.send({ success: true });
-  } else {
+  const albums = playables.filter(({ type }) => type === "album");
+
+  if (albums.length) {
     await validateAccessToken(PLAYER_ACCOUNT_NAME);
-    const artworkUrl = (await getArtworkUrlsBySpId([playable.spId]))[
-      playable.spId
-    ];
-    const playables = await insertPlayable(
-      title,
-      { ...playable, artworkUrl },
-      index
-    );
-    res.send({ playables });
   }
+
+  const artworkUrlsBySpId = await getArtworkUrlsBySpId(
+    albums.map(({ spId }) => spId)
+  );
+  const playablesToInsert = playables.map((p) =>
+    artworkUrlsBySpId[p.spId]
+      ? { ...p, artworkUrl: artworkUrlsBySpId[p.spId] }
+      : p
+  );
+  const newPlayables = await insertPlayables(title, playablesToInsert, index);
+  res.send({ playables: newPlayables });
 });
 
 router.delete("/vibe/removePlayable", async (req, res) => {

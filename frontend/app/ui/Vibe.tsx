@@ -8,9 +8,8 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { lighter } from "./helpers/color";
 import { usePlayer } from "./Player/PlayerContext";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRef } from "react";
-import Editor from "./Editor";
+import Editor, { type BottomSheetRef } from "./Editor";
 import { useThemeState } from "@/state/themeState";
 
 const Root = styled.ScrollView<{ color: string }>`
@@ -60,10 +59,10 @@ const Vibe = () => {
   const { name } = useLocalSearchParams();
   const { vibes, setSelectedPlayable, removePlayable, selectedPlayable } =
     useVibeState();
-  const { colorValues, setColorValues, defaultColor } = useThemeState();
+  const { colorValues, setColorValues } = useThemeState();
   const { play } = usePlaybackState();
   const { open } = usePlayer();
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
@@ -119,7 +118,7 @@ const Vibe = () => {
               </Details>
             </PressablePlayable>
           ))}
-          <PressablePlayable onPress={() => bottomSheetRef.current?.expand()}>
+          <PressablePlayable onPress={() => bottomSheetRef.current?.open()}>
             <Artwork title="+ Add" />
             <Details>
               <PlayableName numberOfLines={1}></PlayableName>
@@ -129,21 +128,11 @@ const Vibe = () => {
           {(playables.length + 1) % 2 === 1 ? <DummyPlayable /> : null}
         </PlayablesContainer>
       </Root>
-      <BottomSheet
+      <Editor
+        initialPage="selectFormat"
+        vibeTitle={vibe.title}
         ref={bottomSheetRef}
-        snapPoints={[1, "95%"]}
-        style={{ paddingTop: 15 }}
-        index={-1}
-        backgroundStyle={{
-          backgroundColor: colorValues
-            ? lighter(...colorValues, 0.1)
-            : defaultColor,
-        }}
-      >
-        <BottomSheetScrollView>
-          <Editor initialPage="selectFormat" vibeTitle={vibe.title} />
-        </BottomSheetScrollView>
-      </BottomSheet>
+      />
     </>
   );
 };

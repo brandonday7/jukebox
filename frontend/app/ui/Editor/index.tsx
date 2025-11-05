@@ -1,96 +1,127 @@
 import { useVibeState } from "@/state/vibesState";
-import { useState, type RefObject } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import Title from "./Title";
 import InputCsv from "./InputCsv";
 import SelectFormat from "./SelectFormat";
 import SearchPlayables from "./SearchPlayables";
-import type BottomSheet from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { TextButton } from "../common/Button";
 import { styled } from "styled-components/native";
+import { lighter } from "../helpers/color";
+import { useThemeState } from "@/state/themeState";
 
 export type Page = "title" | "selectFormat" | "csv" | "search";
+
+export interface BottomSheetRef {
+  open: () => void;
+  close: () => void;
+}
 
 interface Props {
   initialPage: Page;
   vibeTitle?: string;
-  bottomSheetRef?: RefObject<BottomSheet | null>;
 }
 
-const Editor = ({ vibeTitle, initialPage, bottomSheetRef }: Props) => {
-  const { insertPlayable, createVibe, vibes } = useVibeState();
+const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
+  { initialPage, vibeTitle },
+  ref
+) {
+  const { insertPlayables, createVibe, vibes } = useVibeState();
+  const { colorValues, defaultColor } = useThemeState();
   const [title, setTitle] = useState(vibeTitle);
+  const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState<Page>(initialPage);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const existingVibe = vibes?.find((v) => v.title === title);
 
-  const reset = () => {
-    setTitle("");
-    setPage(initialPage);
-    bottomSheetRef?.current?.close();
-  };
-
-  if (page === "title") {
-    return (
-      <Title
-        onSubmit={(t) => {
-          setTitle(t);
-          setPage("selectFormat");
-        }}
-      />
-    );
-  }
-
-  if (page === "selectFormat") {
-    return (
-      <>
-        <Back onPress={() => setPage("title")} />
-        <SelectFormat
-          onSubmit={(selection) => {
-            setPage(selection);
-          }}
-        />
-      </>
-    );
-  }
-
-  if (page === "csv") {
-    return (
-      <>
-        <Back onPress={() => setPage("selectFormat")} />
-        <InputCsv
-          onSubmit={(playables) => {
-            if (title) {
-              if (!existingVibe || playables.length > 1) {
-                createVibe(title, playables);
-              } else {
-                insertPlayable(title, playables[0]);
-              }
-            }
-            reset();
-          }}
-        />
-      </>
-    );
-  }
+  useImperativeHandle(ref, () => ({
+    open: () => {
+      bottomSheetRef.current?.expand();
+    },
+    close: () => {
+      bottomSheetRef.current?.close();
+    },
+  }));
 
   return (
-    <>
-      <Back onPress={() => setPage("selectFormat")} />
-      <SearchPlayables
-        onSubmit={(playables) => {
-          if (title) {
-            if (!existingVibe || playables.length > 1) {
-              createVibe(title, playables);
-            } else {
-              insertPlayable(title, playables[0]);
-            }
-          }
-          reset();
-        }}
-      />
-    </>
+    <BottomSheet
+      ref={bottomSheetRef}
+      snapPoints={[1, "95%"]}
+      style={{ paddingTop: 15 }}
+      index={-1}
+      backgroundStyle={{
+        backgroundColor: colorValues
+          ? lighter(...colorValues, 0.1)
+          : defaultColor,
+      }}
+      onChange={(val) => {
+        if (val <= 0) {
+          setTitle(vibeTitle);
+          setPage(initialPage);
+          setIsOpen(false);
+        } else {
+          setIsOpen(true);
+        }
+      }}
+    >
+      <BottomSheetScrollView>
+        {page === "title" ? (
+          <Title
+            isOpen={isOpen}
+            onSubmit={(t) => {
+              setTitle(t);
+              setPage("selectFormat");
+            }}
+          />
+        ) : page === "selectFormat" ? (
+          <>
+            {initialPage === "title" && (
+              <Back onPress={() => setPage("title")} />
+            )}
+            <SelectFormat
+              onSubmit={(selection) => {
+                setPage(selection);
+              }}
+            />
+          </>
+        ) : page === "csv" ? (
+          <>
+            <Back onPress={() => setPage("selectFormat")} />
+            <InputCsv
+              onSubmit={(playables) => {
+                if (title) {
+                  if (!existingVibe) {
+                    createVibe(title, playables);
+                  } else {
+                    insertPlayables(title, playables);
+                  }
+                }
+                bottomSheetRef.current?.close();
+              }}
+            />
+          </>
+        ) : page === "search" ? (
+          <>
+            <Back onPress={() => setPage("selectFormat")} />
+            <SearchPlayables
+              onSubmit={(playables) => {
+                if (title) {
+                  if (!existingVibe) {
+                    createVibe(title, playables);
+                  } else {
+                    insertPlayables(title, playables);
+                  }
+                }
+                bottomSheetRef.current?.close();
+              }}
+            />
+          </>
+        ) : null}
+      </BottomSheetScrollView>
+    </BottomSheet>
   );
-};
+});
 
 export default Editor;
 

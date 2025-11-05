@@ -7,8 +7,7 @@ import Header from "./common/Header";
 import { Alert } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
 import { lighter } from "./helpers/color";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import Editor from "./Editor";
+import Editor, { type BottomSheetRef } from "./Editor";
 import { useThemeState } from "@/state/themeState";
 
 const Root = styled.ScrollView<{ color: string }>`
@@ -45,7 +44,7 @@ const Vibes = () => {
   const { fetchVibes, vibes, removeVibe, selectedPlayable } = useVibeState();
   const { colorValues, defaultColor } = useThemeState();
   const { push } = useRouter();
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   useEffect(() => {
     if (!vibes) {
@@ -95,28 +94,14 @@ const Vibes = () => {
                 <BlankArtwork title={v.title} />
               </PressableVibe>
             ))}
-            <PressableVibe onPress={() => bottomSheetRef.current?.expand()}>
+            <PressableVibe onPress={() => bottomSheetRef.current?.open()}>
               <BlankArtwork title="+ Create" />
             </PressableVibe>
             {(vibes.length + 1) % 2 === 1 ? <DummyVibe /> : null}
           </VibesContainer>
         ) : null}
       </Root>
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={[1, "95%"]}
-        style={{ paddingTop: 15 }}
-        index={-1}
-        backgroundStyle={{
-          backgroundColor: colorValues
-            ? lighter(...colorValues, 0.1)
-            : defaultColor,
-        }}
-      >
-        <BottomSheetScrollView>
-          <Editor initialPage="title" bottomSheetRef={bottomSheetRef} />
-        </BottomSheetScrollView>
-      </BottomSheet>
+      <Editor initialPage="title" ref={bottomSheetRef} />
     </>
   );
 };

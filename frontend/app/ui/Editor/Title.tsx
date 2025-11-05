@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components/native";
 import Button from "../common/Button";
+import { TextInput } from "react-native";
 
 const Root = styled.View`
   flex: 1;
@@ -13,32 +14,44 @@ const Heading = styled.Text`
   margin-bottom: 20px;
 `;
 
-const Input = styled.TextInput`
+const InputWrapper = styled.View`
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 15px;
-  font-size: 16px;
   margin-bottom: 20px;
 `;
 
 interface Props {
+  isOpen: boolean;
   onSubmit(title: string): void;
 }
 
-const Title = ({ onSubmit }: Props) => {
+const Title = ({ onSubmit, isOpen }: Props) => {
   const [title, setTitle] = useState("");
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      inputRef.current?.focus();
+    } else {
+      inputRef.current?.blur();
+    }
+  }, [isOpen]);
 
   return (
     <Root>
       <Heading>What is the name of your new vibe?</Heading>
-      <Input
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Enter vibe name..."
-        autoCapitalize="words"
-        autoCorrect={false}
-        autoFocus
-      />
+      <InputWrapper>
+        <TextInput
+          ref={inputRef}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Enter vibe name..."
+          autoCapitalize="words"
+          autoCorrect={false}
+          style={{ fontSize: 16 }}
+        />
+      </InputWrapper>
       <Button
         onPress={() => onSubmit(title)}
         disabled={!title.trim()}

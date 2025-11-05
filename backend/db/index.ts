@@ -79,16 +79,16 @@ export const createOrUpdateVibe = async (
   }
 };
 
-export const insertPlayable = async (
+export const insertPlayables = async (
   title: string,
-  playable: PlayableData,
+  playables: PlayableData[],
   index?: number
 ) => {
   const vibe = await findVibe(title);
 
   if (vibe) {
     const newPlayables = vibe.playables;
-    newPlayables.splice(index || newPlayables.length, 0, playable);
+    newPlayables.splice(index || newPlayables.length, 0, ...playables);
     vibe.playables = newPlayables;
     await vibe.save();
     return vibe.playables;
