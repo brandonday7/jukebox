@@ -7,7 +7,7 @@ import Header from "./common/Header";
 import { Alert } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
 import { lighter } from "./helpers/color";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Editor from "./Editor";
 import { useThemeState } from "@/state/themeState";
 
@@ -113,9 +113,9 @@ const Vibes = () => {
             : defaultColor,
         }}
       >
-        <BottomSheetView>
-          <Editor initialPage="title" />
-        </BottomSheetView>
+        <BottomSheetScrollView>
+          <Editor initialPage="title" bottomSheetRef={bottomSheetRef} />
+        </BottomSheetScrollView>
       </BottomSheet>
     </>
   );

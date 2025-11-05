@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { styled } from "styled-components/native";
+import Button from "../common/Button";
 
 const Root = styled.View`
   flex: 1;
@@ -20,19 +21,6 @@ const Input = styled.TextInput`
   margin-bottom: 20px;
 `;
 
-const SubmitButton = styled.TouchableOpacity<{ disabled: boolean }>`
-  background-color: ${({ disabled }) => (disabled ? "#cccccc" : "#007AFF")};
-  padding: 15px;
-  border-radius: 8px;
-  align-items: center;
-`;
-
-const SubmitButtonText = styled.Text`
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-`;
-
 interface Props {
   onSubmit(title: string): void;
 }
@@ -51,9 +39,11 @@ const Title = ({ onSubmit }: Props) => {
         autoCorrect={false}
         autoFocus
       />
-      <SubmitButton onPress={() => onSubmit(title)} disabled={!title.trim()}>
-        <SubmitButtonText>Create Vibe</SubmitButtonText>
-      </SubmitButton>
+      <Button
+        onPress={() => onSubmit(title)}
+        disabled={!title.trim()}
+        title="Create Vibe"
+      />
     </Root>
   );
 };

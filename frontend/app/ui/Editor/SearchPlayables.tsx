@@ -2,6 +2,7 @@ import type { PlayableData } from "@/api";
 import { useState } from "react";
 import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
+import Button from "../common/Button";
 
 const Root = styled.View`
   flex: 1;
@@ -77,19 +78,6 @@ const ArtistName = styled.Text`
   font-size: 14px;
 `;
 
-const SubmitButton = styled.TouchableOpacity<{ disabled: boolean }>`
-  background-color: ${({ disabled }) => (disabled ? "#cccccc" : "#007AFF")};
-  padding: 15px;
-  border-radius: 8px;
-  align-items: center;
-`;
-
-const SubmitButtonText = styled.Text`
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-`;
-
 interface Props {
   onSubmit(playables: PlayableData[]): void;
 }
@@ -138,12 +126,17 @@ const SearchPlayables = ({ onSubmit }: Props) => {
         })}
       </Options>
 
-      <SubmitButton
-        onPress={() => (playables?.length ? onSubmit(playables) : null)}
+      <Button
+        onPress={() => {
+          if (playables.length) {
+            onSubmit(playables);
+            setSearchText("");
+            setPlayables([]);
+          }
+        }}
         disabled={!playables?.length}
-      >
-        <SubmitButtonText>Done</SubmitButtonText>
-      </SubmitButton>
+        title="Done"
+      />
     </Root>
   );
 };

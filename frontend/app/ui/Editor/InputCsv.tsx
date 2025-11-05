@@ -1,6 +1,7 @@
 import type { PlayableData } from "@/api";
 import { useEffect, useState } from "react";
 import { styled } from "styled-components/native";
+import Button from "../common/Button";
 
 const Root = styled.View`
   flex: 1;
@@ -19,19 +20,6 @@ const Input = styled.TextInput`
   padding: 15px;
   font-size: 16px;
   margin-bottom: 20px;
-`;
-
-const SubmitButton = styled.TouchableOpacity<{ disabled: boolean }>`
-  background-color: ${({ disabled }) => (disabled ? "#cccccc" : "#007AFF")};
-  padding: 15px;
-  border-radius: 8px;
-  align-items: center;
-`;
-
-const SubmitButtonText = styled.Text`
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
 `;
 
 interface Props {
@@ -55,18 +43,23 @@ const InputCsv = ({ onSubmit }: Props) => {
     <Root>
       <Heading>CSV Insert:</Heading>
       <Input
+        multiline
         value={playablesString}
         onChangeText={setPlayablesString}
         placeholder="Paste rows..."
         autoCorrect={false}
         autoFocus
       />
-      <SubmitButton
-        onPress={() => (playables?.length ? onSubmit(playables) : null)}
+      <Button
+        onPress={() => {
+          if (playables?.length) {
+            onSubmit(playables);
+            setPlayablesString("");
+          }
+        }}
         disabled={!playables?.length}
-      >
-        <SubmitButtonText>Done</SubmitButtonText>
-      </SubmitButton>
+        title="Done"
+      />
     </Root>
   );
 };
