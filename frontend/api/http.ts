@@ -12,11 +12,11 @@ export const get = async <T>(
     if (result.ok) {
       return await result.json();
     } else {
-      throw new Error(`Error: ${result.status}`);
+      throw new Error(`${result.status} error`);
     }
   } catch (error) {
     console.error(error);
-    // throw error;
+    return {} as T;
   }
 };
 
@@ -35,11 +35,11 @@ export const post = async <T>(
     if (result.ok) {
       return await result.json();
     } else {
-      throw new Error(`Error: ${result.status}`);
+      throw new Error(`${result.status} error`);
     }
   } catch (error) {
     console.error(error);
-    // throw error;
+    return {} as T;
   }
 };
 
@@ -58,10 +58,10 @@ export const del = async <T>(
     if (result.ok) {
       return await result.json();
     } else {
-      throw new Error(`Error: ${result.status}`);
+      throw new Error(`${result.status} error`);
     }
   } catch (error) {
     console.error(error);
-    // throw error;
+    return {} as T;
   }
 };

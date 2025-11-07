@@ -9,6 +9,7 @@ import { TextButton } from "../common/Button";
 import { styled } from "styled-components/native";
 import { lighter } from "../helpers/color";
 import { useThemeState } from "@/state/themeState";
+import { useSearchState } from "@/state/searchState";
 
 export type Page = "title" | "selectFormat" | "csv" | "search";
 
@@ -28,6 +29,7 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
 ) {
   const { insertPlayables, createVibe, vibes } = useVibeState();
   const { colorValues, defaultColor } = useThemeState();
+  const { reset: resetSearch } = useSearchState();
   const [title, setTitle] = useState(vibeTitle);
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState<Page>(initialPage);
@@ -60,6 +62,7 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
           setTitle(vibeTitle);
           setPage(initialPage);
           setIsOpen(false);
+          resetSearch();
         } else {
           setIsOpen(true);
         }
@@ -103,7 +106,12 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
           </>
         ) : page === "search" ? (
           <>
-            <Back onPress={() => setPage("selectFormat")} />
+            <Back
+              onPress={() => {
+                setPage("selectFormat");
+                resetSearch();
+              }}
+            />
             <SearchPlayables
               onSubmit={(playables) => {
                 if (title) {

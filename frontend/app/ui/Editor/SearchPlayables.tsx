@@ -1,8 +1,9 @@
 import type { PlayableData } from "@/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
 import Button from "../common/Button";
+import { useSearchState } from "@/state/searchState";
 
 const Root = styled.View`
   flex: 1;
@@ -40,6 +41,9 @@ const Options = styled.View`
   gap: 15px;
   padding-bottom: 20px;
 `;
+
+const Artists = styled(Options)``;
+const Artist = styled(PressableOption)``;
 
 const ArtworkContainer = styled.View`
   position: relative;
@@ -83,47 +87,87 @@ interface Props {
 }
 
 const SearchPlayables = ({ onSubmit }: Props) => {
-  const [search, setSearchText] = useState("");
+  const {
+    fetchArtistSearchResults,
+    playableSearchResults,
+    artistSearchResults,
+  } = useSearchState();
+  const [searchText, setSearchText] = useState("");
   const [playables, setPlayables] = useState<PlayableData[]>([]);
+
+  useEffect(() => {
+    fetchArtistSearchResults(searchText);
+  }, [searchText, fetchArtistSearchResults]);
 
   return (
     <Root>
       <Heading>Search for an artist or playlist:</Heading>
       <Input
-        value={search}
+        value={searchText}
         onChangeText={setSearchText}
         placeholder="Enter artist name or album/playlist URL..."
         autoCorrect={false}
         autoFocus
       />
-      <Options>
-        {PLAYABLES.map((playable) => {
-          const selected = !!playables.find((p) => p.spId === playable.spId);
+      <Artists>
+        {playableSearchResults === undefined &&
+        artistSearchResults !== undefined &&
+        artistSearchResults !== "loading"
+          ? artistSearchResults.map((artist) => (
+              <Artist
+                key={artist.spId}
+                onPress={() => console.log(artist.name)}
+              >
+                <Artwork url={artist.imageUrl} title={artist.name} />
+                <Details>
+                  <ArtistName>{artist.name}</ArtistName>
+                </Details>
+              </Artist>
+            ))
+          : artistSearchResults === "loading"
+          ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
+              <Artwork key={index} url="" title="" />
+            ))
+          : null}
+      </Artists>
 
-          return (
-            <PressableOption
-              key={playable.spId}
-              onPress={() =>
-                selected
-                  ? playables.filter((p) => p.spId !== playable.spId)
-                  : setPlayables([...playables, playable])
-              }
-            >
-              <ArtworkContainer>
-                <Artwork title={playable.title} url={playable.artworkUrl} />
-                {selected && (
-                  <CheckmarkOverlay>
-                    <CheckmarkText>✓</CheckmarkText>
-                  </CheckmarkOverlay>
-                )}
-              </ArtworkContainer>
-              <Details>
-                <PlayableName numberOfLines={1}>{playable.title}</PlayableName>
-                <ArtistName numberOfLines={1}>{playable.artistName}</ArtistName>
-              </Details>
-            </PressableOption>
-          );
-        })}
+      <Options>
+        {playableSearchResults !== undefined &&
+        playableSearchResults !== "loading"
+          ? playableSearchResults.map((playable) => {
+              const selected = !!playables.find(
+                (p) => p.spId === playable.spId
+              );
+
+              return (
+                <PressableOption
+                  key={playable.spId}
+                  onPress={() =>
+                    selected
+                      ? playables.filter((p) => p.spId !== playable.spId)
+                      : setPlayables([...playables, playable])
+                  }
+                >
+                  <ArtworkContainer>
+                    <Artwork title={playable.title} url={playable.artworkUrl} />
+                    {selected && (
+                      <CheckmarkOverlay>
+                        <CheckmarkText>✓</CheckmarkText>
+                      </CheckmarkOverlay>
+                    )}
+                  </ArtworkContainer>
+                  <Details>
+                    <PlayableName numberOfLines={1}>
+                      {playable.title}
+                    </PlayableName>
+                    <ArtistName numberOfLines={1}>
+                      {playable.artistName}
+                    </ArtistName>
+                  </Details>
+                </PressableOption>
+              );
+            })
+          : null}
       </Options>
 
       <Button
@@ -142,116 +186,3 @@ const SearchPlayables = ({ onSubmit }: Props) => {
 };
 
 export default SearchPlayables;
-
-const PLAYABLES: PlayableData[] = [
-  {
-    type: "album",
-    title: "Ambient 2: Plateaux of Mirror",
-    artistName: "Brian Eno & Harold Budd",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273eba05344ff7ca99e2fd35545",
-    spId: "5ma9r5NFV0poevmydI2qgO",
-  },
-  {
-    type: "album",
-    title: "The Wind",
-    artistName: "Ann Annie",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b2736db70afe2a3be544bd30c59f",
-    spId: "3p3aeKnW3SPIIOMhvF5FjL",
-  },
-  {
-    type: "album",
-    title: "re:member",
-    artistName: "Ólafur Arnalds",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b2735c207f23ab7902473230ec0f",
-    spId: "6JpQGIi2he6iskzR4aLwPG",
-  },
-  {
-    type: "album",
-    title: "Music For Psychedelic Therapy",
-    artistName: "Jon Hopkins",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b27393aef79359f962008a3652e5",
-    spId: "2zY5p176SfmupXceLKT6bH",
-  },
-  {
-    type: "album",
-    title: "Piano Versions",
-    artistName: "Jon Hopkins",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273cc525c01a9227a3657662fb3",
-    spId: "1vJp2Gd1xz0TqnQs0vCr1I",
-  },
-  {
-    type: "album",
-    title: "Immunity",
-    artistName: "Jon Hopkins",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b27313112e7032a7954a0b51f833",
-    spId: "0Dg1KwgmtUzeMQonDCUFhQ",
-  },
-  {
-    type: "album",
-    title: "Music for Nine Post Cards",
-    artistName: "Hiroshi Yoshimura",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273c94d03978dce81c7cbb937b2",
-    spId: "2vgc3dNLfceYv2k1vxK2zA",
-  },
-  {
-    type: "album",
-    title: "Green",
-    artistName: "Hiroshi Yoshimura",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273f5c039e15a8c177829ce1252",
-    spId: "1tA76N9gawQrNcDkhGXx1A",
-  },
-  {
-    type: "album",
-    title: "Secret Life",
-    artistName: "Fred again.. & Brian Eno",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273a9b0cf4827dd4bc73f2f0699",
-    spId: "1FJVbtVFLARPKbn1HepNh1",
-  },
-  {
-    type: "album",
-    title: "Normal People",
-    artistName: "Stephen Rennicks",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b2736434917990a2c6dabb441860",
-    spId: "3WsKQ06VJYFnl5msx295V9",
-  },
-  {
-    type: "album",
-    title: "Five Easy Hotdogs",
-    artistName: "Mac DeMarco",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b273f4ec5161a2cedca8eecb01c0",
-    spId: "25uSuCBWf1D8XZ5gC3tik1",
-  },
-  {
-    type: "album",
-    title: "These Semi Feelings, They Are Everywhere",
-    artistName: "dné",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b2730c409a6beffe036695f28687",
-    spId: "0Kf95Rn5K6HNqYTfOYvsNy",
-  },
-  {
-    type: "playlist",
-    title: "Ambient baby",
-    artistName: "Nick Vereshchak",
-    spId: "3WIhNenICxhIckz9DktgYK",
-  },
-  {
-    type: "album",
-    title: "Motion",
-    artistName: "Peter Sandberg",
-    artworkUrl:
-      "https://i.scdn.co/image/ab67616d0000b27326b91f8f75b95978e0ff0541",
-    spId: "1gS96GdBcmp3BGrdHQLGrp",
-  },
-];

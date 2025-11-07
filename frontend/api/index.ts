@@ -18,6 +18,12 @@ export interface PlayableData {
   spId: string;
 }
 
+export interface Artist {
+  name: string;
+  imageUrl: string;
+  spId: string;
+}
+
 export const getVibes = async () => get<VibeData[]>(makeUrl("/vibes"));
 
 export const play = async (type: PlayableType, spId: string) =>
@@ -45,3 +51,6 @@ export const insertPlayables = async (
 
 export const removePlayable = async (title: string, spId: string) =>
   del(makeUrl("/vibe/removePlayable"), { title, spId });
+
+export const searchArtists = async (searchText: string) =>
+  get<{ artists: Artist[] }>(makeUrl("/searchArtists"), { query: searchText });
