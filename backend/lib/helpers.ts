@@ -10,7 +10,7 @@ export const isDefined = (value: unknown) => {
   return true;
 };
 
-export const logError = (error: Error) => console.log(pretty(error));
+export const logError = (error: Error) => console.warn(pretty(error));
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

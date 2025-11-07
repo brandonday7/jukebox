@@ -34,7 +34,7 @@ export const activateAndRetry = async (
   if (activated) {
     await retry();
   } else {
-    console.log("Error: No playback devices found");
+    console.warn("Error: No playback devices found");
   }
 };
 
@@ -50,7 +50,7 @@ const activateDevice = async (deviceId?: string) => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     return true;
   }
-  console.log(`No device activated`);
+  console.warn(`No device activated`);
   return false;
 };
 

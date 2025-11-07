@@ -95,7 +95,7 @@ router.get("/login", (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
 
-// Step 2: Handle callback and get tokens
+// OAuth Step 2: Handle callback and get tokens
 router.get("/callback", async (req, res) => {
   const { code } = req.query;
 
@@ -122,7 +122,6 @@ router.get("/callback", async (req, res) => {
   }
 });
 
-// Playback control functions
 router.post("/play", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
@@ -148,7 +147,7 @@ router.post("/play", async (req, res) => {
   }
 });
 
-router.post("/pause", async (req, res) => {
+router.post("/pause", async (_req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
@@ -159,7 +158,7 @@ router.post("/pause", async (req, res) => {
   }
 });
 
-router.post("/back", async (req, res) => {
+router.post("/back", async (_req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
@@ -170,12 +169,32 @@ router.post("/back", async (req, res) => {
   }
 });
 
-router.post("/next", async (req, res) => {
+router.post("/next", async (_req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
     await spotifyApi.skipToNext();
     res.send({ playing: true });
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/searchArtists", async (req, res) => {
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+
+  const query = req.query.query as string;
+
+  try {
+    const { body } = await spotifyApi.searchArtists(query);
+    const artists = body.artists.items.length
+      ? body.artists.items.map(({ name, id, images }) => ({
+          name,
+          spId: id,
+          imageUrl: images.length ? images[0].url : "",
+        }))
+      : [];
+    res.send({ artists });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }

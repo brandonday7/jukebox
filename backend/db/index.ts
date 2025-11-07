@@ -52,7 +52,7 @@ export const findVibe = async (title: string, log?: boolean) => {
     return vibe;
   }
 
-  console.log(`Vibe with name '${title}' not found!`);
+  console.warn(`Vibe with name '${title}' not found!`);
 };
 
 export const createOrUpdateVibe = async (
@@ -61,7 +61,7 @@ export const createOrUpdateVibe = async (
   hidden?: boolean
 ) => {
   if (!playables && !hidden) {
-    console.log(`Nothing to update in ${title}.`);
+    console.warn(`Nothing to update in ${title}.`);
     return;
   }
 
@@ -93,7 +93,7 @@ export const insertPlayables = async (
     await vibe.save();
     return vibe.playables;
   } else {
-    console.log(
+    console.warn(
       `Vibe entry with title '${title}' not found! No changes have been made.`
     );
   }
@@ -109,13 +109,13 @@ export const removePlayable = async (vibeTitle: string, spId: string) => {
     await vibe.save();
 
     if (vibe.playables.length === initialLength) {
-      console.log(
+      console.warn(
         `Playable entry with spId '${spId}' not found! No changes have been made.`
       );
       return;
     }
   } else {
-    console.log(
+    console.warn(
       `Vibe entry with title '${vibeTitle}' not found! No changes have been made.`
     );
   }
@@ -127,7 +127,7 @@ export const removeVibe = async (title: string) => {
   if (deleted.deletedCount === 1) {
     console.log(`Successfully deleted '${title}' vibe!`);
   } else {
-    console.log(`No vibe '${title}' found! No changes have been made.`);
+    console.warn(`No vibe '${title}' found! No changes have been made.`);
   }
 };
 
@@ -143,7 +143,7 @@ export const createOrUpdateSpAccount = async (account: SpAccountData) => {
   try {
     await SpAccount.findOneAndUpdate(filter, toUpdate, options);
   } catch (error) {
-    console.log(pretty(error));
+    console.error(pretty(error));
   }
 };
 
@@ -153,6 +153,6 @@ export const getSpAccount = async (userName: string) => {
   if (spAccount) {
     return spAccount;
   } else {
-    console.log(`No account with name: ${userName} found!`);
+    console.warn(`No account with name: ${userName} found!`);
   }
 };
