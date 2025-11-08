@@ -4,7 +4,7 @@ import Title from "./Title";
 import InputCsv from "./InputCsv";
 import SelectFormat from "./SelectFormat";
 import SearchPlayables from "./SearchPlayables";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { TextButton } from "../common/Button";
 import { styled } from "styled-components/native";
 import { lighter } from "../helpers/color";
@@ -68,65 +68,61 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
         }
       }}
     >
-      <BottomSheetScrollView>
-        {page === "title" ? (
-          <Title
-            isOpen={isOpen}
-            onSubmit={(t) => {
-              setTitle(t);
-              setPage("selectFormat");
+      {page === "title" ? (
+        <Title
+          isOpen={isOpen}
+          onSubmit={(t) => {
+            setTitle(t);
+            setPage("selectFormat");
+          }}
+        />
+      ) : page === "selectFormat" ? (
+        <>
+          {initialPage === "title" && <Back onPress={() => setPage("title")} />}
+          <SelectFormat
+            onSubmit={(selection) => {
+              setPage(selection);
             }}
           />
-        ) : page === "selectFormat" ? (
-          <>
-            {initialPage === "title" && (
-              <Back onPress={() => setPage("title")} />
-            )}
-            <SelectFormat
-              onSubmit={(selection) => {
-                setPage(selection);
-              }}
-            />
-          </>
-        ) : page === "csv" ? (
-          <>
-            <Back onPress={() => setPage("selectFormat")} />
-            <InputCsv
-              onSubmit={(playables) => {
-                if (title) {
-                  if (!existingVibe) {
-                    createVibe(title, playables);
-                  } else {
-                    insertPlayables(title, playables);
-                  }
+        </>
+      ) : page === "csv" ? (
+        <>
+          <Back onPress={() => setPage("selectFormat")} />
+          <InputCsv
+            onSubmit={(playables) => {
+              if (title) {
+                if (!existingVibe) {
+                  createVibe(title, playables);
+                } else {
+                  insertPlayables(title, playables);
                 }
-                bottomSheetRef.current?.close();
-              }}
-            />
-          </>
-        ) : page === "search" ? (
-          <>
-            <Back
-              onPress={() => {
-                setPage("selectFormat");
-                resetSearch();
-              }}
-            />
-            <SearchPlayables
-              onSubmit={(playables) => {
-                if (title) {
-                  if (!existingVibe) {
-                    createVibe(title, playables);
-                  } else {
-                    insertPlayables(title, playables);
-                  }
+              }
+              bottomSheetRef.current?.close();
+            }}
+          />
+        </>
+      ) : page === "search" ? (
+        <>
+          <Back
+            onPress={() => {
+              setPage("selectFormat");
+              resetSearch();
+            }}
+          />
+          <SearchPlayables
+            onSubmit={(playables) => {
+              if (title) {
+                if (!existingVibe) {
+                  createVibe(title, playables);
+                } else {
+                  insertPlayables(title, playables);
                 }
-                bottomSheetRef.current?.close();
-              }}
-            />
-          </>
-        ) : null}
-      </BottomSheetScrollView>
+              }
+              bottomSheetRef.current?.close();
+            }}
+          />
+        </>
+      ) : null}
     </BottomSheet>
   );
 });
@@ -134,8 +130,7 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
 export default Editor;
 
 const StyledTextButton = styled(TextButton)`
-  padding: 20px;
-  padding-left: 40px;
+  padding: 40px;
   margin: -20px;
 `;
 

@@ -2,6 +2,7 @@ import type { PlayableData } from "@/api";
 import { useEffect, useState } from "react";
 import { styled } from "styled-components/native";
 import Button from "../common/Button";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 
 const Root = styled.View`
   flex: 1;
@@ -40,27 +41,29 @@ const InputCsv = ({ onSubmit }: Props) => {
   }, [playablesString]);
 
   return (
-    <Root>
-      <Heading>CSV Insert:</Heading>
-      <Input
-        multiline
-        value={playablesString}
-        onChangeText={setPlayablesString}
-        placeholder="Paste rows..."
-        autoCorrect={false}
-        autoFocus
-      />
-      <Button
-        onPress={() => {
-          if (playables?.length) {
-            onSubmit(playables);
-            setPlayablesString("");
-          }
-        }}
-        disabled={!playables?.length}
-        title="Done"
-      />
-    </Root>
+    <BottomSheetView>
+      <Root>
+        <Heading>CSV Insert:</Heading>
+        <Input
+          multiline
+          value={playablesString}
+          onChangeText={setPlayablesString}
+          placeholder="Paste rows..."
+          autoCorrect={false}
+          autoFocus
+        />
+        <Button
+          onPress={() => {
+            if (playables?.length) {
+              onSubmit(playables);
+              setPlayablesString("");
+            }
+          }}
+          disabled={!playables?.length}
+          title="Done"
+        />
+      </Root>
+    </BottomSheetView>
   );
 };
 

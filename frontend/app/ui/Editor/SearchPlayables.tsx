@@ -4,10 +4,10 @@ import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
 import Button from "../common/Button";
 import { useSearchState } from "@/state/searchState";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
-const Root = styled.View`
-  flex: 1;
-  padding: 20px 20px 80px 20px;
+const Root = styled.ScrollView`
+  padding: 20px 20px 130px 20px;
 `;
 
 const Heading = styled.Text`
@@ -105,6 +105,16 @@ const DummyOption = styled.View`
   max-width: 170px;
 `;
 
+const DoneContainer = styled.View`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background-color: white;
+  padding: 20px;
+`;
+
 interface Props {
   onSubmit(playables: PlayableData[]): void;
 }
@@ -119,132 +129,149 @@ const SearchPlayables = ({ onSubmit }: Props) => {
   } = useSearchState();
   const [searchText, setSearchText] = useState("");
   const [selectedArtist, setSelectedArtist] = useState<string>();
-  const [playables, setPlayables] = useState<PlayableData[]>([]);
+  const [selectedPlayables, setSelectedPlayables] = useState<PlayableData[]>(
+    []
+  );
 
   useEffect(() => {
     fetchArtistSearchResults(searchText);
   }, [searchText, fetchArtistSearchResults]);
 
   return (
-    <Root>
-      {selectedArtist ? (
-        <>
-          <ArtistHeading>
-            <Heading>{selectedArtist}</Heading>
-            <ClearContainer
-              onPress={() => {
-                setSelectedArtist(undefined);
-                setSearchText("");
-                reset();
-              }}
-            >
-              <Clear>X</Clear>
-            </ClearContainer>
-          </ArtistHeading>
-        </>
-      ) : (
-        <>
-          <Heading>Search for an artist or playlist:</Heading>
-          <Input
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholder="Enter artist name or album/playlist URL..."
-            autoCorrect={false}
-            autoFocus
-          />
-        </>
-      )}
-      <Artists>
-        {playableSearchResults === undefined &&
-        artistSearchResults !== undefined &&
-        artistSearchResults !== "loading"
-          ? artistSearchResults.map((artist) => (
-              <Artist
-                key={artist.spId}
-                onPress={() => {
-                  setSelectedArtist(artist.name);
-                  fetchArtistAlbums(artist.spId, artist.name);
-                }}
-              >
-                <Artwork url={artist.imageUrl} title={artist.name} />
-                <Details>
-                  <ArtistName>{artist.name}</ArtistName>
-                </Details>
-              </Artist>
-            ))
-          : artistSearchResults === "loading"
-          ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
-              <Artwork key={index} url="" title="" />
-            ))
-          : null}
-        {playableSearchResults === undefined &&
-        artistSearchResults !== undefined &&
-        artistSearchResults !== "loading" &&
-        artistSearchResults.length % 2 === 1 ? (
-          <DummyOption />
-        ) : null}
-      </Artists>
-
-      <Options>
-        {playableSearchResults !== undefined &&
-        playableSearchResults !== "loading"
-          ? playableSearchResults.map((playable) => {
-              const selected = !!playables.find(
-                (p) => p.spId === playable.spId
-              );
-
-              return (
-                <PressableOption
-                  key={playable.spId}
-                  onPress={() =>
-                    selected
-                      ? playables.filter((p) => p.spId !== playable.spId)
-                      : setPlayables([...playables, playable])
-                  }
+    <>
+      <BottomSheetScrollView>
+        <Root>
+          {selectedArtist ? (
+            <>
+              <ArtistHeading>
+                <Heading>{selectedArtist}</Heading>
+                <ClearContainer
+                  onPress={() => {
+                    setSelectedArtist(undefined);
+                    setSearchText("");
+                    reset();
+                  }}
                 >
-                  <ArtworkContainer>
-                    <Artwork title={playable.title} url={playable.artworkUrl} />
-                    {selected && (
-                      <CheckmarkOverlay>
-                        <CheckmarkText>✓</CheckmarkText>
-                      </CheckmarkOverlay>
-                    )}
-                  </ArtworkContainer>
-                  <Details>
-                    <PlayableName numberOfLines={1}>
-                      {playable.title}
-                    </PlayableName>
-                    <ArtistName numberOfLines={1}>
-                      {playable.artistName}
-                    </ArtistName>
-                  </Details>
-                </PressableOption>
-              );
-            })
-          : playableSearchResults === "loading"
-          ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
-              <Artwork key={index} url="" title=" " />
-            ))
-          : null}
-        {playableSearchResults !== "loading" &&
-        playableSearchResults !== undefined &&
-        playableSearchResults.length % 2 === 1 ? (
-          <DummyOption />
-        ) : null}
-      </Options>
+                  <Clear>X</Clear>
+                </ClearContainer>
+              </ArtistHeading>
+            </>
+          ) : (
+            <>
+              <Heading>Search for an artist or playlist:</Heading>
+              <Input
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholder="Enter artist name or album/playlist URL..."
+                autoCorrect={false}
+                autoFocus
+              />
+            </>
+          )}
+          <Artists>
+            {playableSearchResults === undefined &&
+            artistSearchResults !== undefined &&
+            artistSearchResults !== "loading"
+              ? artistSearchResults.map((artist) => (
+                  <Artist
+                    key={artist.spId}
+                    onPress={() => {
+                      setSelectedArtist(artist.name);
+                      fetchArtistAlbums(artist.spId, artist.name);
+                    }}
+                  >
+                    <Artwork url={artist.imageUrl} title={artist.name} />
+                    <Details>
+                      <ArtistName>{artist.name}</ArtistName>
+                    </Details>
+                  </Artist>
+                ))
+              : artistSearchResults === "loading"
+              ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
+                  <Artwork key={index} url="" title="" />
+                ))
+              : null}
+            {playableSearchResults === undefined &&
+            artistSearchResults !== undefined &&
+            artistSearchResults !== "loading" &&
+            artistSearchResults.length % 2 === 1 ? (
+              <DummyOption />
+            ) : null}
+          </Artists>
 
-      <Button
-        onPress={() => {
-          if (playables.length) {
-            onSubmit(playables);
-            setSearchText("");
-            setPlayables([]);
-          }
-        }}
-        disabled={!playables?.length}
-        title="Done"
-      />
-    </Root>
+          <Options>
+            {playableSearchResults !== undefined &&
+            playableSearchResults !== "loading"
+              ? playableSearchResults.map((playable) => {
+                  const selected = !!selectedPlayables.find(
+                    (p) => p.spId === playable.spId
+                  );
+
+                  return (
+                    <PressableOption
+                      key={playable.spId}
+                      onPress={() =>
+                        selected
+                          ? selectedPlayables.filter(
+                              (p) => p.spId !== playable.spId
+                            )
+                          : setSelectedPlayables([
+                              ...selectedPlayables,
+                              playable,
+                            ])
+                      }
+                    >
+                      <ArtworkContainer>
+                        <Artwork
+                          title={playable.title}
+                          url={playable.artworkUrl}
+                        />
+                        {selected && (
+                          <CheckmarkOverlay>
+                            <CheckmarkText>✓</CheckmarkText>
+                          </CheckmarkOverlay>
+                        )}
+                      </ArtworkContainer>
+                      <Details>
+                        <PlayableName numberOfLines={1}>
+                          {playable.title}
+                        </PlayableName>
+                        <ArtistName numberOfLines={1}>
+                          {playable.artistName}
+                        </ArtistName>
+                      </Details>
+                    </PressableOption>
+                  );
+                })
+              : playableSearchResults === "loading"
+              ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
+                  <Artwork key={index} url="" title=" " />
+                ))
+              : null}
+            {playableSearchResults !== "loading" &&
+            playableSearchResults !== undefined &&
+            playableSearchResults.length % 2 === 1 ? (
+              <DummyOption />
+            ) : null}
+          </Options>
+        </Root>
+      </BottomSheetScrollView>
+      {playableSearchResults?.length ? (
+        <DoneContainer>
+          <Button
+            onPress={() => {
+              if (selectedPlayables.length) {
+                onSubmit(selectedPlayables);
+                setSearchText("");
+                setSelectedPlayables([]);
+              }
+            }}
+            disabled={!selectedPlayables?.length}
+            title="Done"
+          />
+        </DoneContainer>
+      ) : null}
+    </>
   );
 };
 

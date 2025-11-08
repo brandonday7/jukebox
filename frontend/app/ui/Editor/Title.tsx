@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components/native";
 import Button from "../common/Button";
 import { TextInput } from "react-native";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 
 const Root = styled.View`
   flex: 1;
@@ -39,25 +40,27 @@ const Title = ({ onSubmit, isOpen }: Props) => {
   }, [isOpen]);
 
   return (
-    <Root>
-      <Heading>What is the name of your new vibe?</Heading>
-      <InputWrapper>
-        <TextInput
-          ref={inputRef}
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Enter vibe name..."
-          autoCapitalize="words"
-          autoCorrect={false}
-          style={{ fontSize: 16 }}
+    <BottomSheetView>
+      <Root>
+        <Heading>What is the name of your new vibe?</Heading>
+        <InputWrapper>
+          <TextInput
+            ref={inputRef}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Enter vibe name..."
+            autoCapitalize="words"
+            autoCorrect={false}
+            style={{ fontSize: 16 }}
+          />
+        </InputWrapper>
+        <Button
+          onPress={() => onSubmit(title)}
+          disabled={!title.trim()}
+          title="Create Vibe"
         />
-      </InputWrapper>
-      <Button
-        onPress={() => onSubmit(title)}
-        disabled={!title.trim()}
-        title="Create Vibe"
-      />
-    </Root>
+      </Root>
+    </BottomSheetView>
   );
 };
 

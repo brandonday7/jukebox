@@ -1,6 +1,7 @@
 import { styled } from "styled-components/native";
 import type { Page } from ".";
 import Button from "../common/Button";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 
 const Root = styled.View`
   flex: 1;
@@ -25,21 +26,23 @@ interface Props {
 
 const SelectFormat = ({ onSubmit }: Props) => {
   return (
-    <Root>
-      <Title>How would you like to add playables?</Title>
-      <ButtonContainer>
-        <Button
-          onPress={() => onSubmit("search")}
-          title="Search"
-          description="Search for albums manually"
-        />
-        <Button
-          onPress={() => onSubmit("csv")}
-          title="CSV Upload"
-          description="Import from a CSV file"
-        />
-      </ButtonContainer>
-    </Root>
+    <BottomSheetView>
+      <Root>
+        <Title>How would you like to add playables?</Title>
+        <ButtonContainer>
+          <Button
+            onPress={() => onSubmit("search")}
+            title="Search"
+            description="Search for albums manually"
+          />
+          <Button
+            onPress={() => onSubmit("csv")}
+            title="CSV Upload"
+            description="Import from a CSV file"
+          />
+        </ButtonContainer>
+      </Root>
+    </BottomSheetView>
   );
 };
 
