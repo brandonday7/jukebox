@@ -54,3 +54,9 @@ export const removePlayable = async (title: string, spId: string) =>
 
 export const searchArtists = async (searchText: string) =>
   get<{ artists: Artist[] }>(makeUrl("/searchArtists"), { query: searchText });
+
+export const getArtistAlbums = async (spId: string, artistName: string) =>
+  get<{ albums: PlayableData[] }>(makeUrl("/artistAlbums"), {
+    spId,
+    artistName,
+  });

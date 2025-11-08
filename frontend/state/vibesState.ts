@@ -32,12 +32,12 @@ export const useVibeState = create<VibeState>((set) => ({
     set(() => ({ vibes }));
   },
   removeVibe: async (title) => {
-    await deleteVibe(title);
     set(({ vibes }) => ({ vibes: vibes?.filter((v) => v.title !== title) }));
+    await deleteVibe(title);
   },
   createVibe: async (title, playables) => {
-    const vibe = await createVibe(title, playables);
     set(({ vibes }) => ({ vibes: [...(vibes || []), vibe] }));
+    const vibe = await createVibe(title, playables);
   },
   insertPlayables: async (title, playables, index) => {
     const { playables: newPlayables } = await insertPlayables(
@@ -52,7 +52,6 @@ export const useVibeState = create<VibeState>((set) => ({
     }));
   },
   removePlayable: async (title, spId) => {
-    await removePlayable(title, spId);
     set(({ vibes = [] }) => {
       const playables =
         vibes
@@ -62,6 +61,7 @@ export const useVibeState = create<VibeState>((set) => ({
         vibes: vibes.map((v) => (v.title === title ? { ...v, playables } : v)),
       };
     });
+    await removePlayable(title, spId);
   },
   setSelectedPlayable: (playable) => {
     set(() => ({ selectedPlayable: playable }));

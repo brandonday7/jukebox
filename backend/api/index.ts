@@ -11,6 +11,7 @@ import type { PlayableData, PlayableType } from "../db/schema.ts";
 import spotifyApi, {
   activateAndRetry,
   generateSpUri,
+  getAllArtistAlbums,
   getArtworkUrlsBySpId,
   PLAYER_ACCOUNT_NAME,
   scopes,
@@ -195,6 +196,20 @@ router.get("/searchArtists", async (req, res) => {
         }))
       : [];
     res.send({ artists });
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/artistAlbums", async (req, res) => {
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+
+  const spId = req.query.spId as string;
+  const artistName = req.query.artistName as string;
+
+  try {
+    const albums = await getAllArtistAlbums(spId, artistName);
+    res.send({ albums });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }

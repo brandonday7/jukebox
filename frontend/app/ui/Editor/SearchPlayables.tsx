@@ -13,7 +13,25 @@ const Root = styled.View`
 const Heading = styled.Text`
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+`;
+
+const ArtistHeading = styled.View`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+`;
+
+const ClearContainer = styled.TouchableOpacity`
+  padding: 20px;
+  margin: -20px;
+`;
+
+const Clear = styled.Text`
+  font-size: 17px;
+  font-weight: 400;
+  margin-bottom: 15px;
 `;
 
 const Input = styled.TextInput`
@@ -82,6 +100,11 @@ const ArtistName = styled.Text`
   font-size: 14px;
 `;
 
+const DummyOption = styled.View`
+  flex-grow: 1;
+  max-width: 170px;
+`;
+
 interface Props {
   onSubmit(playables: PlayableData[]): void;
 }
@@ -91,8 +114,11 @@ const SearchPlayables = ({ onSubmit }: Props) => {
     fetchArtistSearchResults,
     playableSearchResults,
     artistSearchResults,
+    fetchArtistAlbums,
+    reset,
   } = useSearchState();
   const [searchText, setSearchText] = useState("");
+  const [selectedArtist, setSelectedArtist] = useState<string>();
   const [playables, setPlayables] = useState<PlayableData[]>([]);
 
   useEffect(() => {
@@ -101,14 +127,33 @@ const SearchPlayables = ({ onSubmit }: Props) => {
 
   return (
     <Root>
-      <Heading>Search for an artist or playlist:</Heading>
-      <Input
-        value={searchText}
-        onChangeText={setSearchText}
-        placeholder="Enter artist name or album/playlist URL..."
-        autoCorrect={false}
-        autoFocus
-      />
+      {selectedArtist ? (
+        <>
+          <ArtistHeading>
+            <Heading>{selectedArtist}</Heading>
+            <ClearContainer
+              onPress={() => {
+                setSelectedArtist(undefined);
+                setSearchText("");
+                reset();
+              }}
+            >
+              <Clear>X</Clear>
+            </ClearContainer>
+          </ArtistHeading>
+        </>
+      ) : (
+        <>
+          <Heading>Search for an artist or playlist:</Heading>
+          <Input
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Enter artist name or album/playlist URL..."
+            autoCorrect={false}
+            autoFocus
+          />
+        </>
+      )}
       <Artists>
         {playableSearchResults === undefined &&
         artistSearchResults !== undefined &&
@@ -116,7 +161,10 @@ const SearchPlayables = ({ onSubmit }: Props) => {
           ? artistSearchResults.map((artist) => (
               <Artist
                 key={artist.spId}
-                onPress={() => console.log(artist.name)}
+                onPress={() => {
+                  setSelectedArtist(artist.name);
+                  fetchArtistAlbums(artist.spId, artist.name);
+                }}
               >
                 <Artwork url={artist.imageUrl} title={artist.name} />
                 <Details>
@@ -129,6 +177,12 @@ const SearchPlayables = ({ onSubmit }: Props) => {
               <Artwork key={index} url="" title="" />
             ))
           : null}
+        {playableSearchResults === undefined &&
+        artistSearchResults !== undefined &&
+        artistSearchResults !== "loading" &&
+        artistSearchResults.length % 2 === 1 ? (
+          <DummyOption />
+        ) : null}
       </Artists>
 
       <Options>
@@ -167,7 +221,16 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                 </PressableOption>
               );
             })
+          : playableSearchResults === "loading"
+          ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
+              <Artwork key={index} url="" title=" " />
+            ))
           : null}
+        {playableSearchResults !== "loading" &&
+        playableSearchResults !== undefined &&
+        playableSearchResults.length % 2 === 1 ? (
+          <DummyOption />
+        ) : null}
       </Options>
 
       <Button

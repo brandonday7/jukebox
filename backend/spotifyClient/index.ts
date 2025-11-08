@@ -104,3 +104,38 @@ export const getArtworkUrlsBySpId = async (spIds: string[]) => {
   }, {} as Record<string, string>);
   return artworkUrlsBySpId;
 };
+
+export const getAllArtistAlbums = async (spId: string, artistName: string) => {
+  const limit = 50;
+  let i = 0;
+  let albums = [];
+  let hasMore = true;
+
+  while (hasMore) {
+    const { body } = await spotifyApi.getArtistAlbums(spId, {
+      limit,
+      offset: i,
+    });
+    const albumSet = body.items
+      .filter(({ album_type }) => album_type === "album")
+      .map(({ id, name, images }) => ({
+        type: "album",
+        title: name,
+        artistName,
+        artworkUrl: images.length ? images[0].url : "",
+        spId: id,
+      }));
+
+    albums = albums.concat(albumSet);
+
+    if (body.total >= limit + i) {
+      i += limit;
+
+      sleep(500);
+    } else {
+      hasMore = false;
+    }
+  }
+
+  return albums;
+};

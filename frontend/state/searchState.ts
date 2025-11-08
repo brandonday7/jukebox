@@ -1,4 +1,9 @@
-import { searchArtists, type Artist, type PlayableData } from "@/api";
+import {
+  getArtistAlbums,
+  searchArtists,
+  type Artist,
+  type PlayableData,
+} from "@/api";
 import debounce from "@/lib/debounce";
 import { create } from "zustand";
 
@@ -8,7 +13,7 @@ interface SearchState {
   playableSearchResults?: PlayableData[] | "loading";
   fetchArtistSearchResults(searchText: string): void;
   reset(): void;
-  //   fetchPlayableSearchResults(searchText: string): void;
+  fetchArtistAlbums(spId: string, artistName: string): void;
 }
 
 export const useSearchState = create<SearchState>((set, get) => {
@@ -33,20 +38,16 @@ export const useSearchState = create<SearchState>((set, get) => {
       set(() => ({ artistSearchResults: "loading", searchText }));
       debouncedArtistSearch(searchText);
     },
+    fetchArtistAlbums: async (spId, artistName) => {
+      set(() => ({ playableSearchResults: "loading", searchText: "" }));
+      const { albums } = await getArtistAlbums(spId, artistName);
+      set(() => ({ playableSearchResults: albums }));
+    },
     reset: () =>
       set(() => ({
         searchText: "",
         artistSearchResults: undefined,
         playableSearchResults: undefined,
       })),
-
-    //   fetchPlayableSearchResults: async (searchText) => {
-    //     set(() => ({ playableSearchResults: "loading", searchText }));
-    //     const playableSearchResults = await searchPlayables(searchText);
-    //     const searchTextRefreshed = get().searchText;
-    //     if (searchText === searchTextRefreshed) {
-    //       set(() => ({ playableSearchResults }));
-    //     }
-    //   },
   };
 });
