@@ -26,15 +26,21 @@ interface Props {
   title: string;
   url?: string;
   size?: number;
+  showTitle?: boolean;
 }
 
-const Artwork = ({ title, url, size = DEFAULT_SIZE }: Props) => {
+const Artwork = ({
+  title,
+  url,
+  size = DEFAULT_SIZE,
+  showTitle = true,
+}: Props) => {
   return (
     <Root style={SHADOW_STYLES}>
       {url ? (
         <AlbumArt source={{ uri: url }} size={size} />
       ) : (
-        <BlankArtwork size={size} title={title} />
+        <BlankArtwork size={size} title={title} showTitle={showTitle} />
       )}
     </Root>
   );
@@ -62,17 +68,19 @@ const BlankTitle = styled.Text`
 interface BlankArtworkProps {
   title?: string;
   size?: number;
+  showTitle?: boolean;
 }
 
 export const BlankArtwork = ({
   title = "",
   size = DEFAULT_SIZE,
+  showTitle = true,
 }: BlankArtworkProps) => {
   const color = toHSLA(...colorHash.hsl(title), 1);
 
   return (
     <BlankRoot size={size} color={color}>
-      <BlankTitle>{title}</BlankTitle>
+      {showTitle ? <BlankTitle>{title}</BlankTitle> : null}
     </BlankRoot>
   );
 };

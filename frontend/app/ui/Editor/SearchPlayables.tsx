@@ -125,6 +125,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
     playableSearchResults,
     artistSearchResults,
     fetchArtistAlbums,
+    fetchPlaylist,
     reset,
   } = useSearchState();
   const [searchText, setSearchText] = useState("");
@@ -134,8 +135,17 @@ const SearchPlayables = ({ onSubmit }: Props) => {
   );
 
   useEffect(() => {
-    fetchArtistSearchResults(searchText);
-  }, [searchText, fetchArtistSearchResults]);
+    if (searchText.startsWith("https://open.spotify.com/playlist/")) {
+      const regex = /\/playlist\/([a-zA-Z0-9]+)/;
+      const match = searchText.match(regex);
+      const spId = match ? match[1] : null;
+      if (spId) {
+        fetchPlaylist(spId);
+      }
+    } else {
+      fetchArtistSearchResults(searchText);
+    }
+  }, [searchText, fetchArtistSearchResults, fetchPlaylist]);
 
   return (
     <>

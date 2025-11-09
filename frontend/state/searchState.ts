@@ -1,5 +1,6 @@
 import {
   getArtistAlbums,
+  getPlaylist,
   searchArtists,
   type Artist,
   type PlayableData,
@@ -12,8 +13,9 @@ interface SearchState {
   artistSearchResults?: Artist[] | "loading";
   playableSearchResults?: PlayableData[] | "loading";
   fetchArtistSearchResults(searchText: string): void;
-  reset(): void;
   fetchArtistAlbums(spId: string, artistName: string): void;
+  fetchPlaylist(spId: string): void;
+  reset(): void;
 }
 
 export const useSearchState = create<SearchState>((set, get) => {
@@ -42,6 +44,11 @@ export const useSearchState = create<SearchState>((set, get) => {
       set(() => ({ playableSearchResults: "loading", searchText: "" }));
       const { albums } = await getArtistAlbums(spId, artistName);
       set(() => ({ playableSearchResults: albums }));
+    },
+    fetchPlaylist: async (spId) => {
+      set(() => ({ playableSearchResults: "loading", searchText: "" }));
+      const { playlist } = await getPlaylist(spId);
+      set(() => ({ playableSearchResults: [playlist] }));
     },
     reset: () =>
       set(() => ({

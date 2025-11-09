@@ -54,6 +54,7 @@ const Opener = () => {
         url={selectedPlayable.artworkUrl}
         size={50}
         title={selectedPlayable.title}
+        showTitle={false}
       />
       <Details>
         <PlayableName>{selectedPlayable.title}</PlayableName>

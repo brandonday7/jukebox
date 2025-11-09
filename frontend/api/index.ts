@@ -60,3 +60,8 @@ export const getArtistAlbums = async (spId: string, artistName: string) =>
     spId,
     artistName,
   });
+
+export const getPlaylist = async (spId: string) =>
+  get<{ playlist: PlayableData }>(makeUrl("/searchPlaylist"), {
+    spId,
+  });

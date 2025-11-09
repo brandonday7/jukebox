@@ -185,6 +185,7 @@ router.get("/searchArtists", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   const query = req.query.query as string;
+  console.log("hi mom and dad", query);
 
   try {
     const { body } = await spotifyApi.searchArtists(query);
@@ -210,6 +211,26 @@ router.get("/artistAlbums", async (req, res) => {
   try {
     const albums = await getAllArtistAlbums(spId, artistName);
     res.send({ albums });
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/searchPlaylist", async (req, res) => {
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+
+  const spId = req.query.spId as string;
+
+  try {
+    const { body } = await spotifyApi.getPlaylist(spId);
+    const playlist = {
+      type: "playlist",
+      title: body.name,
+      artistName: body.owner.display_name,
+      artworkUrl: "",
+      spId: body.id,
+    };
+    res.send({ playlist });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
