@@ -11,7 +11,7 @@ const Root = styled.View`
 const Title = styled.Text`
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-vertical: 30px;
 `;
 
 const ButtonContainer = styled.View`

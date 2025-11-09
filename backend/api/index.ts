@@ -166,6 +166,10 @@ router.post("/back", async (_req, res) => {
     await spotifyApi.skipToPrevious();
     res.send({ playing: true });
   } catch (err) {
+    if (err.body.error.message.startsWith("Player command failed")) {
+      res.send({ playing: true });
+      return;
+    }
     res.status(500).send("Error: " + err.message);
   }
 });
@@ -177,6 +181,10 @@ router.post("/next", async (_req, res) => {
     await spotifyApi.skipToNext();
     res.send({ playing: true });
   } catch (err) {
+    if (err.body.error.message.startsWith("Player command failed")) {
+      res.send({ playing: true });
+      return;
+    }
     res.status(500).send("Error: " + err.message);
   }
 });
@@ -185,7 +193,6 @@ router.get("/searchArtists", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   const query = req.query.query as string;
-  console.log("hi mom and dad", query);
 
   try {
     const { body } = await spotifyApi.searchArtists(query);

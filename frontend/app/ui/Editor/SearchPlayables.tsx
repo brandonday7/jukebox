@@ -5,9 +5,13 @@ import Artwork from "../common/Artwork";
 import Button from "../common/Button";
 import { useSearchState } from "@/state/searchState";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import {} from "@/state/playbackState";
+import { useVibeState } from "@/state/vibesState";
+import { lighter } from "../helpers/color";
+import { useThemeState } from "@/state/themeState";
 
-const Root = styled.ScrollView`
-  padding: 20px 20px 130px 20px;
+const Root = styled.ScrollView<{ playing: boolean }>`
+  padding: 20px 20px ${({ playing }) => (playing ? 220 : 130)}px 20px;
 `;
 
 const Heading = styled.Text`
@@ -105,13 +109,13 @@ const DummyOption = styled.View`
   max-width: 170px;
 `;
 
-const DoneContainer = styled.View`
+const DoneContainer = styled.View<{ playing: boolean; color: string }>`
   position: absolute;
-  bottom: 0;
+  bottom: ${({ playing }) => (playing ? 90 : 0)}px;
   left: 0;
   right: 0;
   height: 200px;
-  background-color: white;
+  background-color: ${({ color }) => color};
   padding: 20px;
 `;
 
@@ -128,6 +132,8 @@ const SearchPlayables = ({ onSubmit }: Props) => {
     fetchPlaylist,
     reset,
   } = useSearchState();
+  const { selectedPlayable: currentlyPlayingPlayable } = useVibeState();
+  const { colorValues } = useThemeState();
   const [searchText, setSearchText] = useState("");
   const [selectedArtist, setSelectedArtist] = useState<string>();
   const [selectedPlayables, setSelectedPlayables] = useState<PlayableData[]>(
@@ -150,7 +156,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
   return (
     <>
       <BottomSheetScrollView>
-        <Root>
+        <Root playing={!!currentlyPlayingPlayable}>
           {selectedArtist ? (
             <>
               <ArtistHeading>
@@ -267,7 +273,10 @@ const SearchPlayables = ({ onSubmit }: Props) => {
         </Root>
       </BottomSheetScrollView>
       {playableSearchResults?.length ? (
-        <DoneContainer>
+        <DoneContainer
+          playing={!!currentlyPlayingPlayable}
+          color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}
+        >
           <Button
             onPress={() => {
               if (selectedPlayables.length) {
