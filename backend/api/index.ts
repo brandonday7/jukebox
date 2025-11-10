@@ -126,13 +126,13 @@ router.get("/callback", async (req, res) => {
 router.post("/play", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
+  const type = req.body.type as PlayableType;
+  const spId = req.body.spId as string;
+  const context =
+    type && spId ? { context_uri: generateSpUri(type, spId) } : undefined;
+
   const play = async () => {
-    await spotifyApi.play({
-      context_uri: generateSpUri(
-        req.body.type as PlayableType,
-        req.body.spId as string
-      ),
-    });
+    await spotifyApi.play(context);
     res.send({ playing: true });
   };
 
@@ -143,6 +143,10 @@ router.post("/play", async (req, res) => {
     if (error.reason === "NO_ACTIVE_DEVICE") {
       await activateAndRetry(play, PLAYER_ACCOUNT_NAME);
     } else {
+      if (err.body.error.message.startsWith("Player command failed")) {
+        res.send({ playing: true });
+        return;
+      }
       res.status(500).send("Error: " + err.message);
     }
   }
@@ -155,6 +159,10 @@ router.post("/pause", async (_req, res) => {
     await spotifyApi.pause();
     res.send({ playing: false });
   } catch (err) {
+    if (err.body.error.message.startsWith("Player command failed")) {
+      res.send({ playing: false });
+      return;
+    }
     res.status(500).send("Error: " + err.message);
   }
 });

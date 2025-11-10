@@ -26,7 +26,7 @@ export interface Artist {
 
 export const getVibes = async () => get<VibeData[]>(makeUrl("/vibes"));
 
-export const play = async (type: PlayableType, spId: string) =>
+export const play = async (type?: PlayableType, spId?: string) =>
   post<{ playing: boolean }>(makeUrl("/play"), { type, spId });
 export const pause = async () => post<{ playing: boolean }>(makeUrl("/pause"));
 export const back = async () => post<{ playing: boolean }>(makeUrl("/back"));

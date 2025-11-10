@@ -88,7 +88,8 @@ const Player = () => {
             if (playing === true) {
               pause();
             } else if (playing === false && selectedPlayable) {
-              play(selectedPlayable.type, selectedPlayable.spId);
+              // Resume playback, don't pass params
+              play();
             }
           }}
         >

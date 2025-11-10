@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 interface PlaybackState {
   playing: boolean | "loading";
-  play(type: PlayableType, spId: string): void;
+  play(type?: PlayableType, spId?: string): void;
   pause(): void;
   back(): void;
   next(): void;
