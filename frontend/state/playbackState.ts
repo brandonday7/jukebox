@@ -12,23 +12,39 @@ interface PlaybackState {
 export const usePlaybackState = create<PlaybackState>((set) => ({
   playing: false,
   play: async (type, spId) => {
-    set(() => ({ playing: "loading" }));
-    const { playing } = await play(type, spId);
-    set(() => ({ playing }));
+    try {
+      set(() => ({ playing: "loading" }));
+      const { playing } = await play(type, spId);
+      set(() => ({ playing }));
+    } catch {
+      set(() => ({ playing: false }));
+    }
   },
   pause: async () => {
-    set(() => ({ playing: "loading" }));
-    const { playing } = await pause();
-    set(() => ({ playing }));
+    try {
+      set(() => ({ playing: "loading" }));
+      const { playing } = await pause();
+      set(() => ({ playing }));
+    } catch {
+      set(() => ({ playing: true }));
+    }
   },
   back: async () => {
-    set(() => ({ playing: "loading" }));
-    const { playing } = await back();
-    set(() => ({ playing }));
+    try {
+      set(() => ({ playing: "loading" }));
+      const { playing } = await back();
+      set(() => ({ playing }));
+    } catch {
+      set(() => ({ playing: false }));
+    }
   },
   next: async () => {
-    set(() => ({ playing: "loading" }));
-    const { playing } = await next();
-    set(() => ({ playing }));
+    try {
+      set(() => ({ playing: "loading" }));
+      const { playing } = await next();
+      set(() => ({ playing }));
+    } catch {
+      set(() => ({ playing: false }));
+    }
   },
 }));

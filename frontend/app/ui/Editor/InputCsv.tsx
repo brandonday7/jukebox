@@ -12,7 +12,7 @@ const Root = styled.View`
 const Heading = styled.Text`
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-vertical: 20px;
 `;
 
 const Input = styled.TextInput`

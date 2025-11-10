@@ -37,18 +37,30 @@ export const useSearchState = create<SearchState>((set, get) => {
         return;
       }
 
-      set(() => ({ artistSearchResults: "loading", searchText }));
-      debouncedArtistSearch(searchText);
+      try {
+        set(() => ({ artistSearchResults: "loading", searchText }));
+        debouncedArtistSearch(searchText);
+      } catch {
+        set(() => ({ artistSearchResults: [] }));
+      }
     },
     fetchArtistAlbums: async (spId, artistName) => {
-      set(() => ({ playableSearchResults: "loading", searchText: "" }));
-      const { albums } = await getArtistAlbums(spId, artistName);
-      set(() => ({ playableSearchResults: albums }));
+      try {
+        set(() => ({ playableSearchResults: "loading", searchText: "" }));
+        const { albums } = await getArtistAlbums(spId, artistName);
+        set(() => ({ playableSearchResults: albums }));
+      } catch {
+        set(() => ({ playableSearchResults: [] }));
+      }
     },
     fetchPlaylist: async (spId) => {
-      set(() => ({ playableSearchResults: "loading", searchText: "" }));
-      const { playlist } = await getPlaylist(spId);
-      set(() => ({ playableSearchResults: [playlist] }));
+      try {
+        set(() => ({ playableSearchResults: "loading", searchText: "" }));
+        const { playlist } = await getPlaylist(spId);
+        set(() => ({ playableSearchResults: [playlist] }));
+      } catch {
+        set(() => ({ playableSearchResults: [] }));
+      }
     },
     reset: () =>
       set(() => ({

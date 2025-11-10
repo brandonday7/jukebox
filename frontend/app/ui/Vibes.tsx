@@ -61,10 +61,10 @@ const Vibes = () => {
       <Root color={colorValues ? lighter(...colorValues, 0.2) : defaultColor}>
         <Header
           title="Vibes"
-          mixItUp={() =>
-            vibes
-              ? onSelect(vibes[Math.floor(Math.random() * vibes.length)])
-              : null
+          mixItUp={
+            vibes?.length
+              ? () => onSelect(vibes[Math.floor(Math.random() * vibes.length)])
+              : undefined
           }
         />
         {vibes ? (

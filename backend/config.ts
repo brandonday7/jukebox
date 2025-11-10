@@ -9,3 +9,4 @@ export const DB_PASSWORD = process.env.DB_PASSWORD;
 export const DB_NAME = process.env.DB_NAME;
 export const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 export const SPOTIFY_SECRET = process.env.SPOTIFY_SECRET;
+export const API_KEY = process.env.API_KEY;

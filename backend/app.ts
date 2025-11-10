@@ -7,13 +7,16 @@ app.use(express.json());
 
 app.use(cors());
 
-// Or enable CORS for specific origin
-// app.use(
-//   cors({
-//     origin: "http://localhost:8081", // Your Expo web URL
-//     credentials: true,
-//   })
-// );
+const authMiddleware = (req, res, next) => {
+  const apiKey = req.headers["x-api-key"];
+  if (!apiKey || apiKey !== process.env.API_KEY) {
+    console.log(process.env.API_KEY);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+};
+
+app.use(authMiddleware);
 
 app.use("/", router);
 
