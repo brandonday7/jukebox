@@ -41,7 +41,7 @@ const Clear = styled.Text`
 `;
 
 const Input = styled.TextInput`
-  border: 1px solid #e0e0e0;
+  border: 1px solid black;
   border-radius: 8px;
   padding: 15px;
   font-size: 16px;
@@ -182,6 +182,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                 placeholder="Enter artist name or album/playlist URL..."
                 autoCorrect={false}
                 autoFocus
+                placeholderTextColor="#444"
               />
             </>
           )}
