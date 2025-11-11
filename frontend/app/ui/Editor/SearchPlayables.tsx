@@ -10,6 +10,8 @@ import { useVibeState } from "@/state/vibesState";
 import { lighter } from "../helpers/color";
 import { useThemeState } from "@/state/themeState";
 
+const SIZE = 165;
+
 const Root = styled.ScrollView<{ playing: boolean }>`
   padding: 20px 20px ${({ playing }) => (playing ? 220 : 130)}px 20px;
 `;
@@ -51,7 +53,6 @@ const PressableOption = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
   gap: 15px;
-  max-width: 170px;
   position: relative;
 `;
 
@@ -106,7 +107,7 @@ const ArtistName = styled.Text`
 
 const DummyOption = styled.View`
   flex-grow: 1;
-  max-width: 170px;
+  max-width: ${SIZE};
 `;
 
 const DoneContainer = styled.View<{ playing: boolean; color: string }>`
@@ -196,7 +197,11 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                       fetchArtistAlbums(artist.spId, artist.name);
                     }}
                   >
-                    <Artwork url={artist.imageUrl} title={artist.name} />
+                    <Artwork
+                      url={artist.imageUrl}
+                      title={artist.name}
+                      size={SIZE}
+                    />
                     <Details>
                       <ArtistName>{artist.name}</ArtistName>
                     </Details>
@@ -204,7 +209,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                 ))
               : artistSearchResults === "loading"
               ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
-                  <Artwork key={index} url="" title="" />
+                  <Artwork key={index} url="" title="" size={SIZE} />
                 ))
               : null}
             {playableSearchResults === undefined &&
@@ -241,6 +246,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                         <Artwork
                           title={playable.title}
                           url={playable.artworkUrl}
+                          size={SIZE}
                         />
                         {selected && (
                           <CheckmarkOverlay>
