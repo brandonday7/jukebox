@@ -18,6 +18,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Note that this will prevent the ability to login with another account
+// When it's time to allow that, this will have to be made more specific
 app.use(authMiddleware);
 
 app.use("/", router);
