@@ -6,25 +6,33 @@ import {
   removePlayable,
   removeVibe,
   insertPlayables,
-} from "../db/index.ts";
-import type { PlayableData, PlayableType } from "../db/schema.ts";
+} from "../db/index.js";
+import type { PlayableData, PlayableType } from "../db/schema.js";
 import spotifyApi, {
   activateAndRetry,
   generateSpUri,
   getAllArtistAlbums,
   getArtworkUrlsBySpId,
   PLAYER_ACCOUNT_NAME,
-  scopes,
+  SCOPES,
   validateAccessToken,
-} from "../spotifyClient/index.ts";
-import { validateVibe } from "./validators.ts";
+} from "../spotifyClient/index.js";
+import { validateVibe } from "./validators.js";
 import express from "express";
+import crypto from "crypto";
 const router = express.Router();
 
+interface SpotifyErrorBody {
+  error: {
+    status: number;
+    message: string;
+    reason: "NO_ACTIVE_DEVICE" | string;
+  };
+}
+
 interface SpotifyError extends Error {
-  status: number;
-  message: string;
-  reason: "NO_ACTIVE_DEVICE" | string;
+  body: SpotifyErrorBody;
+  statusCode: number;
 }
 
 router.get("/vibes", async (_req, res) => {
@@ -52,7 +60,9 @@ router.post("/vibe", validateVibe, async (req, res) => {
     artworkUrl: artworkUrlsBySpId[p.spId],
   }));
   const vibe = await createOrUpdateVibe(title, playables, hidden);
-  res.send({ title: vibe.title, playables: vibe.playables });
+  if (vibe) {
+    res.send({ title: vibe.title, playables: vibe.playables });
+  }
 });
 
 router.post("/vibe/insertPlayables", async (req, res) => {
@@ -92,16 +102,21 @@ router.delete("/vibe", async (req, res) => {
 });
 
 // Spotify
-router.get("/login", (req, res) => {
-  res.redirect(spotifyApi.createAuthorizeURL(scopes));
+router.get("/login", (_req, res) => {
+  const state = crypto.randomBytes(16).toString("hex");
+  res.redirect(spotifyApi.createAuthorizeURL(SCOPES, state));
 });
 
 // OAuth Step 2: Handle callback and get tokens
 router.get("/callback", async (req, res) => {
-  const { code } = req.query;
+  const { code, state } = req.query;
+
+  if (!state) {
+    return res.status(403).send("Invalid state");
+  }
 
   try {
-    const data = await spotifyApi.authorizationCodeGrant(code);
+    const data = await spotifyApi.authorizationCodeGrant(code as string);
 
     const { access_token, refresh_token, expires_in } = data.body;
 
@@ -111,14 +126,15 @@ router.get("/callback", async (req, res) => {
     const me = await spotifyApi.getMe();
 
     await createOrUpdateSpAccount({
-      userName: me.body.display_name,
+      userName: me.body.display_name || "",
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: Date.now() + expires_in * 1000,
     });
 
     res.send("Successfully authenticated! You can close this window.");
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     res.send("Error during authentication: " + err.message);
   }
 });
@@ -138,8 +154,9 @@ router.post("/play", async (req, res) => {
 
   try {
     await play();
-  } catch (err) {
-    const error = err.body.error as SpotifyError;
+  } catch (e) {
+    const err = e as SpotifyError;
+    const error = err.body.error;
     if (error.reason === "NO_ACTIVE_DEVICE") {
       await activateAndRetry(play, PLAYER_ACCOUNT_NAME);
     } else {
@@ -158,7 +175,8 @@ router.post("/pause", async (_req, res) => {
   try {
     await spotifyApi.pause();
     res.send({ playing: false });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     if (err.body.error.message.startsWith("Player command failed")) {
       res.send({ playing: false });
       return;
@@ -173,7 +191,8 @@ router.post("/back", async (_req, res) => {
   try {
     await spotifyApi.skipToPrevious();
     res.send({ playing: true });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     if (err.body.error.message.startsWith("Player command failed")) {
       res.send({ playing: true });
       return;
@@ -188,7 +207,8 @@ router.post("/next", async (_req, res) => {
   try {
     await spotifyApi.skipToNext();
     res.send({ playing: true });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     if (err.body.error.message.startsWith("Player command failed")) {
       res.send({ playing: true });
       return;
@@ -204,7 +224,7 @@ router.get("/searchArtists", async (req, res) => {
 
   try {
     const { body } = await spotifyApi.searchArtists(query);
-    const artists = body.artists.items.length
+    const artists = body.artists?.items.length
       ? body.artists.items.map(({ name, id, images }) => ({
           name,
           spId: id,
@@ -212,7 +232,8 @@ router.get("/searchArtists", async (req, res) => {
         }))
       : [];
     res.send({ artists });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     res.status(500).send("Error: " + err.message);
   }
 });
@@ -226,7 +247,8 @@ router.get("/artistAlbums", async (req, res) => {
   try {
     const albums = await getAllArtistAlbums(spId, artistName);
     res.send({ albums });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     res.status(500).send("Error: " + err.message);
   }
 });
@@ -246,7 +268,8 @@ router.get("/searchPlaylist", async (req, res) => {
       spId: body.id,
     };
     res.send({ playlist });
-  } catch (err) {
+  } catch (e) {
+    const err = e as SpotifyError;
     res.status(500).send("Error: " + err.message);
   }
 });

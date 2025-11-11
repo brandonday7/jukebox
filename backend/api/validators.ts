@@ -1,8 +1,13 @@
-import type { PlayableData } from "../db/schema";
-import { isDefined } from "../lib/helpers.ts";
+import type { PlayableData, VibeData } from "../db/schema.js";
+import { isDefined } from "../lib/helpers.js";
+import { Request, Response, NextFunction } from "express";
 
-export const validateVibe = (req, res, next) => {
-  const data = req.body;
+export const validateVibe = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const data = req.body as VibeData;
 
   if (
     typeof data.title !== "string" ||
@@ -28,7 +33,11 @@ export const isValidPlayable = (playable: PlayableData): boolean => {
   );
 };
 
-export const validatePlayable = (req, res, next) => {
+export const validatePlayable = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const data = req.body;
   if (!isValidPlayable(data)) {
     return res.status(400).json({

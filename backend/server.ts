@@ -1,6 +1,6 @@
-import { connect, disconnect } from "./db/index.ts";
-import { PORT } from "./config.ts";
-import app from "./app.ts";
+import { connect, disconnect } from "./db/index.js";
+import { PORT } from "./config.js";
+import app from "./app.js";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -1,9 +1,15 @@
-import { SPOTIFY_CLIENT_ID, SPOTIFY_SECRET } from "../config.ts";
+import { SPOTIFY_CLIENT_ID, SPOTIFY_SECRET } from "../config.js";
 
 import SpotifyWebApi from "spotify-web-api-node";
-import { createOrUpdateSpAccount, getSpAccount } from "../db/index.ts";
-import type { PlayableType } from "../db/schema.ts";
-import { sleep } from "../lib/helpers.ts";
+import { createOrUpdateSpAccount, getSpAccount } from "../db/index.js";
+import type { PlayableData, PlayableType } from "../db/schema.js";
+import { sleep } from "../lib/helpers.js";
+
+interface SpAccount {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+}
 
 const spotifyApi = new SpotifyWebApi({
   clientId: SPOTIFY_CLIENT_ID,
@@ -11,7 +17,7 @@ const spotifyApi = new SpotifyWebApi({
   redirectUri: "http://127.0.0.1:3000/callback",
 });
 
-export const scopes = [
+export const SCOPES = [
   "user-modify-playback-state",
   "user-read-playback-state",
   "user-read-currently-playing",
@@ -26,15 +32,18 @@ export default spotifyApi;
 
 export const activateAndRetry = async (
   retry: () => Promise<void>,
-  accountName?: string
+  accountName: string
 ) => {
   const deviceId = (await getSpAccount(accountName))?.defaultDeviceId;
-  const activated = await activateDevice(deviceId);
 
-  if (activated) {
-    await retry();
-  } else {
-    console.warn("Error: No playback devices found");
+  if (deviceId) {
+    const activated = await activateDevice(deviceId);
+
+    if (activated) {
+      await retry();
+    } else {
+      console.warn("Error: No playback devices found");
+    }
   }
 };
 
@@ -55,7 +64,7 @@ const activateDevice = async (deviceId?: string) => {
 };
 
 export const validateAccessToken = async (accountName: string) => {
-  const spAccount = await getSpAccount(accountName);
+  const spAccount = (await getSpAccount(accountName)) as SpAccount;
 
   const { accessToken, refreshToken, expiresAt } = spAccount;
   spotifyApi.setAccessToken(accessToken);
@@ -65,7 +74,7 @@ export const validateAccessToken = async (accountName: string) => {
   if (now >= expiresAt) {
     const data = await spotifyApi.refreshAccessToken();
     const access_token = data.body["access_token"];
-    const refresh_token = data.body["refresh_token"];
+    const refresh_token = data.body["refresh_token"] || "";
     const expires_in = data.body["expires_in"];
 
     spotifyApi.setAccessToken(access_token);
@@ -108,7 +117,7 @@ export const getArtworkUrlsBySpId = async (spIds: string[]) => {
 export const getAllArtistAlbums = async (spId: string, artistName: string) => {
   const limit = 50;
   let i = 0;
-  let albums = [];
+  let albums: PlayableData[] = [];
   let hasMore = true;
 
   while (hasMore) {
@@ -118,13 +127,16 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
     });
     const albumSet = body.items
       .filter(({ album_type }) => album_type === "album")
-      .map(({ id, name, images }) => ({
-        type: "album",
-        title: name,
-        artistName,
-        artworkUrl: images.length ? images[0].url : "",
-        spId: id,
-      }));
+      .map(
+        ({ id, name, images }) =>
+          ({
+            type: "album",
+            title: name,
+            artistName,
+            artworkUrl: images.length ? images[0].url : "",
+            spId: id,
+          } as PlayableData)
+      );
 
     albums = albums.concat(albumSet);
 

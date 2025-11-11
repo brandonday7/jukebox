@@ -1,11 +1,11 @@
-import { DB_HOST, DB_NAME, DB_PASSWORD, DB_USER } from "../config.ts";
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_USER } from "../config.js";
 import {
   SpAccount,
   Vibe,
   type PlayableData,
   type SpAccountData,
-} from "./schema.ts";
-import { isDefined, logError, pretty } from "../lib/helpers.ts";
+} from "./schema.js";
+import { isDefined, logError, pretty } from "../lib/helpers.js";
 import mongoose from "mongoose";
 
 const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster`;
@@ -15,7 +15,7 @@ export const connect = async () => {
     console.log("Connecting to database...");
     await mongoose.connect(URI, { bufferCommands: false });
   } catch (error) {
-    logError(error);
+    logError(error as Error);
   }
 };
 
@@ -75,7 +75,7 @@ export const createOrUpdateVibe = async (
     const vibe = await Vibe.findOneAndUpdate(filter, toUpdate, options);
     return vibe;
   } catch (error) {
-    logError(error);
+    logError(error as Error);
   }
 };
 
