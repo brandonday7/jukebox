@@ -41,7 +41,7 @@ const Clear = styled.Text`
 `;
 
 const Input = styled.TextInput`
-  border: 1px solid black;
+  border: 1px solid #444;
   border-radius: 8px;
   padding: 15px;
   font-size: 16px;
@@ -107,7 +107,7 @@ const ArtistName = styled.Text`
 
 const DummyOption = styled.View`
   flex-grow: 1;
-  max-width: ${SIZE};
+  max-width: ${SIZE}px;
 `;
 
 const DoneContainer = styled.View<{ playing: boolean; color: string }>`

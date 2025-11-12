@@ -48,8 +48,8 @@ export const useVibeState = create<VibeState>((set, get) => ({
   createVibe: async (title, playables) => {
     const prevVibes = get().vibes;
     try {
-      set(({ vibes }) => ({ vibes: [...(vibes || []), vibe] }));
       const vibe = await createVibe(title, playables);
+      set(({ vibes }) => ({ vibes: [...(vibes || []), vibe] }));
     } catch {
       set(() => ({ vibes: prevVibes }));
     }

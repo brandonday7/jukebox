@@ -59,6 +59,7 @@ router.post("/vibe", validateVibe, async (req, res) => {
     ...p,
     artworkUrl: artworkUrlsBySpId[p.spId],
   }));
+
   const vibe = await createOrUpdateVibe(title, playables, hidden);
   if (vibe) {
     res.send({ title: vibe.title, playables: vibe.playables });

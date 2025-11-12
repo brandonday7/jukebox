@@ -16,7 +16,7 @@ const Heading = styled.Text`
 `;
 
 const InputWrapper = styled.View`
-  border: 1px solid #e0e0e0;
+  border: 1px solid #444;
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
@@ -52,6 +52,7 @@ const Title = ({ onSubmit, isOpen }: Props) => {
             autoCapitalize="words"
             autoCorrect={false}
             style={{ fontSize: 16 }}
+            placeholderTextColor="#444"
           />
         </InputWrapper>
         <Button

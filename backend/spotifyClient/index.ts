@@ -67,24 +67,23 @@ export const validateAccessToken = async (accountName: string) => {
   const spAccount = (await getSpAccount(accountName)) as SpAccount;
 
   const { accessToken, refreshToken, expiresAt } = spAccount;
+
   spotifyApi.setAccessToken(accessToken);
   spotifyApi.setRefreshToken(refreshToken);
 
   const now = Date.now();
   if (now >= expiresAt) {
     const data = await spotifyApi.refreshAccessToken();
-    const access_token = data.body["access_token"];
-    const refresh_token = data.body["refresh_token"] || "";
-    const expires_in = data.body["expires_in"];
+    const accessToken = data.body["access_token"];
+    const expiresIn = data.body["expires_in"];
 
-    spotifyApi.setAccessToken(access_token);
-    spotifyApi.setRefreshToken(refresh_token);
+    spotifyApi.setAccessToken(accessToken);
 
     await createOrUpdateSpAccount({
       userName: accountName,
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: Date.now() + expires_in * 1000,
+      accessToken,
+      refreshToken,
+      expiresAt: Date.now() + expiresIn * 1000,
     });
     console.log("Access token refreshed!");
   }
