@@ -6,10 +6,12 @@ import {
   removePlayable,
   removeVibe,
   insertPlayables,
+  updateDefaultDeviceId,
 } from "../db/index.js";
 import type { PlayableData, PlayableType } from "../db/schema.js";
 import spotifyApi, {
   activateAndRetry,
+  activateDevice,
   generateSpUri,
   getAllArtistAlbums,
   getArtworkUrlsBySpId,
@@ -269,6 +271,40 @@ router.get("/searchPlaylist", async (req, res) => {
       spId: body.id,
     };
     res.send({ playlist });
+  } catch (e) {
+    const err = e as SpotifyError;
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.get("/devices", async (req, res) => {
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+
+  try {
+    const devicesRaw = (await spotifyApi.getMyDevices()).body.devices;
+    const devices = devicesRaw.map(({ id, is_active, name, type }) => ({
+      id,
+      name,
+      type,
+      isActive: is_active,
+    }));
+    res.send(devices);
+  } catch (e) {
+    const err = e as SpotifyError;
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+router.post("/defaultDevice", async (req, res) => {
+  await validateAccessToken(PLAYER_ACCOUNT_NAME);
+
+  const deviceId = req.body.deviceId as string;
+
+  try {
+    await updateDefaultDeviceId(PLAYER_ACCOUNT_NAME, deviceId);
+    await activateDevice(deviceId);
+    await spotifyApi.play();
+    res.send({ success: true });
   } catch (e) {
     const err = e as SpotifyError;
     res.status(500).send("Error: " + err.message);

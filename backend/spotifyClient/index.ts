@@ -47,7 +47,7 @@ export const activateAndRetry = async (
   }
 };
 
-const activateDevice = async (deviceId?: string) => {
+export const activateDevice = async (deviceId?: string) => {
   const deviceIdToActivate =
     deviceId ?? (await spotifyApi.getMyDevices()).body.devices[0]?.id;
 

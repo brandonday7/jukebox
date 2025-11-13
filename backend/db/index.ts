@@ -156,3 +156,19 @@ export const getSpAccount = async (userName: string) => {
     console.warn(`No account with name: ${userName} found!`);
   }
 };
+
+export const updateDefaultDeviceId = async (
+  userName: string,
+  defaultDeviceId: string
+) => {
+  const filter = { userName };
+  const toUpdate = {
+    defaultDeviceId,
+  };
+
+  try {
+    await SpAccount.findOneAndUpdate(filter, toUpdate);
+  } catch (error) {
+    console.error(pretty(error));
+  }
+};
