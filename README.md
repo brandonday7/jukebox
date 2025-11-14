@@ -43,9 +43,10 @@ npm install
 npx expo start
 ```
 
-Press i to open the iOS simulator.
+Press `i` to open the iOS simulator.
 
-Environment Variables
+### Environment Variables
+
 Create a .env file in the backend with:
 
 ```
