@@ -4,7 +4,7 @@ import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
 import Header from "./common/Header";
-import { Alert } from "react-native";
+import { Alert, Text } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
 import { lighter } from "./helpers/color";
 import Editor, { type BottomSheetRef } from "./Editor";
@@ -100,6 +100,9 @@ const Vibes = () => {
             {(vibes.length + 1) % 2 === 1 ? <DummyVibe /> : null}
           </VibesContainer>
         ) : null}
+        <Text style={{ margin: 30, marginTop: 0 }}>
+          API: {process.env.EXPO_PUBLIC_API_KEY}
+        </Text>
       </Root>
       <Editor initialPage="title" ref={bottomSheetRef} />
     </>
