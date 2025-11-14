@@ -37,6 +37,10 @@ interface SpotifyError extends Error {
   statusCode: number;
 }
 
+router.get("/ping", async (_req, res) => {
+  res.send({ awake: true });
+});
+
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
   res.send(vibes);

@@ -54,6 +54,7 @@ const PressableOption = styled.TouchableOpacity`
   justify-content: center;
   gap: 15px;
   position: relative;
+  max-width: ${SIZE};
 `;
 
 const Options = styled.View`
@@ -204,7 +205,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                       size={SIZE}
                     />
                     <Details>
-                      <ArtistName>{artist.name}</ArtistName>
+                      <ArtistName numberOfLines={1}>{artist.name}</ArtistName>
                     </Details>
                   </Artist>
                 ))

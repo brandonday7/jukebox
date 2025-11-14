@@ -32,6 +32,8 @@ export interface Device {
   type: "Computer" | "TV" | "Smartphone";
 }
 
+export const wakeServer = async () => get<{ awake: boolean }>(makeUrl("/ping"));
+
 export const getVibes = async () => get<VibeData[]>(makeUrl("/vibes"));
 
 export const play = async (type?: PlayableType, spId?: string) =>
