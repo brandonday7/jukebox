@@ -6,10 +6,12 @@ Jukebox is a small app that lets you connect your Spotify account and organize m
 
 ## Features
 
-- Connect your Spotify account to pull in your library.
+- Connect your Spotify account, which will carry out search and playback requests.
 - Create and edit Vibes made up of albums and playlists.
 - Browse and rediscover music from your collection.
 - Keep mood-based groups of music all in one place.
+- In the Vibes view, press the 💿 to select a vibe at random
+- In the Vibe view, press the 💿 to select an album at random
 
 ---
 
