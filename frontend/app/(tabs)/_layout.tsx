@@ -1,18 +1,14 @@
-import { useVibeState } from "@/state/vibesState";
 import { Tabs } from "expo-router";
-import colorHash, { lighter } from "../ui/helpers/color";
+import { lighter } from "../ui/helpers/color";
 import { styled } from "styled-components/native";
+import { useThemeState } from "@/state/themeState";
 
 const StyledText = styled.Text`
   margin-top: 10px;
 `;
 
 export default function TabLayout() {
-  const { selectedPlayable } = useVibeState();
-
-  const colorValues = selectedPlayable
-    ? colorHash.hsl(selectedPlayable?.title)
-    : null;
+  const { colorValues } = useThemeState();
 
   const color = colorValues ? lighter(...colorValues, 0.05) : "#fff";
 
