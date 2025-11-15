@@ -34,7 +34,7 @@ const SystemContext = ({ children }: Props) => {
     }
   }, [awake, setCountdown, countdown]);
 
-  if (!awake && countdown < 57) {
+  if (!awake && countdown < 47) {
     return (
       <>
         <LoadingMessage>
