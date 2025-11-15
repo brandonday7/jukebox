@@ -13,6 +13,7 @@ import { useThemeState } from "@/state/themeState";
 const SIZE = 165;
 
 const Root = styled.ScrollView<{ playing: boolean }>`
+  flex: 1;
   padding: 20px 20px ${({ playing }) => (playing ? 220 : 130)}px 20px;
 `;
 
@@ -113,7 +114,7 @@ const DummyOption = styled.View`
 
 const DoneContainer = styled.View<{ playing: boolean; color: string }>`
   position: absolute;
-  bottom: ${({ playing }) => (playing ? 90 : 0)}px;
+  bottom: ${({ playing }) => (playing ? 55 : 0)}px;
   left: 0;
   right: 0;
   height: 200px;
@@ -157,7 +158,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
 
   return (
     <>
-      <BottomSheetScrollView>
+      <BottomSheetScrollView keyboardShouldPersistTaps="handled">
         <Root playing={!!currentlyPlayingPlayable}>
           {selectedArtist ? (
             <>
@@ -235,8 +236,10 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                       key={playable.spId}
                       onPress={() =>
                         selected
-                          ? selectedPlayables.filter(
-                              (p) => p.spId !== playable.spId
+                          ? setSelectedPlayables(
+                              selectedPlayables.filter(
+                                (p) => p.spId !== playable.spId
+                              )
                             )
                           : setSelectedPlayables([
                               ...selectedPlayables,
@@ -269,7 +272,7 @@ const SearchPlayables = ({ onSubmit }: Props) => {
                 })
               : playableSearchResults === "loading"
               ? Array.from({ length: 20 }, (_, i) => i).map((index) => (
-                  <Artwork key={index} url="" title=" " />
+                  <Artwork key={index} url="" title=" " size={SIZE} />
                 ))
               : null}
             {playableSearchResults !== "loading" &&

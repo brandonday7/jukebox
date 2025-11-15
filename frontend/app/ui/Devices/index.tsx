@@ -7,21 +7,20 @@ import Button from "../common/Button";
 import { useFocusEffect } from "expo-router";
 import { useThemeState } from "@/state/themeState";
 import { lighter } from "../helpers/color";
-import { usePlaybackState } from "@/state/playbackState";
+import { Linking } from "react-native";
+import { openSpotifyLink } from "../helpers/spotify";
 
 const StyledScrollView = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
-  padding-bottom: 80px;
+  padding-bottom: 100px;
 `;
 
-const Root = styled.View<{ playing: boolean }>`
+const Root = styled.View`
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
-
-  padding: 50px 20px 0 20px;
-  padding-bottom: ${({ playing }) => (playing ? 95 : 15)}px;
+  padding: 50px 20px 15px 20px;
 `;
 
 const HeadingWrapper = styled.View`
@@ -87,11 +86,33 @@ const StyledButton = styled(Button)`
   width: 200px;
 `;
 
+const Disclaimer = styled.View`
+  gap: 10px;
+  padding: 30px 50px 70px 50px;
+`;
+
+const DisclaimerText = styled.Text`
+  text-align: center;
+  font-size: 11px;
+`;
+
+const SpotifyApp = styled.TouchableOpacity`
+  display: flex;
+  width: 110px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #1db954;
+  margin: auto;
+`;
+const SpotifyAppText = styled.Text`
+  color: white;
+  text-align: center;
+  font-weight: 700;
+`;
+
 const Devices = () => {
   const { devices, fetchDevices, setDefaultDevice, clearDevices } =
     useUserState();
-  const { playing: playingRaw } = usePlaybackState();
-  const playing = playingRaw === true;
   const { colorValues, defaultColor } = useThemeState();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>();
   const [defaultDeviceId, setDefaultDeviceId] = useState<string>();
@@ -122,7 +143,7 @@ const Devices = () => {
   const color = colorValues ? lighter(...colorValues, 0.2) : defaultColor;
   if (!devices || devices === "loading") {
     return (
-      <Root playing={playing}>
+      <Root>
         <Header title="Devices" />
       </Root>
     );
@@ -130,7 +151,7 @@ const Devices = () => {
 
   return (
     <StyledScrollView color={color}>
-      <Root playing={playing}>
+      <Root>
         <Header title="Devices" />
         <HeadingWrapper>
           <Heading>Select a device:</Heading>
@@ -164,6 +185,19 @@ const Devices = () => {
             }
           }}
         />
+        <Disclaimer>
+          <DisclaimerText>
+            Not seeing your device? You may need to make your device
+            discoverable by opening Spotify
+          </DisclaimerText>
+          <SpotifyApp onPress={() => Linking.openURL(openSpotifyLink())}>
+            <SpotifyAppText>Spotify app</SpotifyAppText>
+          </SpotifyApp>
+          <DisclaimerText>
+            (it helps us discover your device if you initiate a few seconds of
+            playback and then return here)
+          </DisclaimerText>
+        </Disclaimer>
       </Root>
     </StyledScrollView>
   );

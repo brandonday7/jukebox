@@ -10,7 +10,7 @@ interface SystemState {
 
 export const useSystemState = create<SystemState>((set) => ({
   awake: false,
-  countdown: 60,
+  countdown: 50,
   awakeServer: async () => {
     set(() => ({ awake: false }));
     const { awake } = await wakeServer();

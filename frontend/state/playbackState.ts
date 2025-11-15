@@ -1,4 +1,5 @@
 import { back, next, pause, play, type PlayableType } from "@/api";
+import { openSpotifyLink } from "@/app/ui/helpers/spotify";
 import { Alert, Linking } from "react-native";
 import { create } from "zustand";
 
@@ -25,7 +26,7 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
         [
           {
             text: "Open Spotify app",
-            onPress: () => Linking.openURL(getSpotifyLink(type, spId)),
+            onPress: () => Linking.openURL(openSpotifyLink(type, spId)),
             style: "default",
           },
           {
@@ -64,8 +65,3 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
     }
   },
 }));
-
-const getSpotifyLink = (type?: PlayableType, spId?: string) =>
-  type && spId
-    ? `https://open.spotify.com/${type}/${spId}`
-    : "https://open.spotify.com";

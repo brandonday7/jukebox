@@ -51,6 +51,7 @@ const InputCsv = ({ onSubmit }: Props) => {
           placeholder="Paste rows..."
           autoCorrect={false}
           autoFocus
+          style={{ maxHeight: 75 }}
         />
         <Button
           onPress={() => {

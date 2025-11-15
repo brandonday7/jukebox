@@ -42,11 +42,15 @@ const SystemContext = ({ children }: Props) => {
             Jukebox is connecting to its free server, which needs to restart
             after long periods of inactivity.
           </LoadingText>
-          <LoadingText>
-            This may take up to {countdown}{" "}
-            {countdown === 1 ? "second" : "seconds"}
-            ...
-          </LoadingText>
+          {countdown > 1 ? (
+            <LoadingText>
+              This may take up to {countdown} seconds ...
+            </LoadingText>
+          ) : countdown === 1 ? (
+            <LoadingText>This may take up to 1 second</LoadingText>
+          ) : (
+            <LoadingText>This is taking longer than usual...</LoadingText>
+          )}
         </LoadingMessage>
       </>
     );
