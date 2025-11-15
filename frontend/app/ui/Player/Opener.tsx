@@ -7,14 +7,14 @@ import { useThemeState } from "@/state/themeState";
 
 const Root = styled.TouchableOpacity<{ color: string }>`
   position: absolute;
-  bottom: 0px;
+  bottom: 82px;
   left: 0;
   right: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 12px;
-  padding: 20px 25px 30px 25px;
+  padding: 12px 15px;
   background-color: ${({ color }) => color};
   shadow-color: "#444";
   shadow-opacity: 0.2;
