@@ -1,7 +1,7 @@
 import { Redirect } from "expo-router";
 
 const Index = () => {
-  return <Redirect href="/vibes" />;
+  return <Redirect href="/(tabs)/vibes" />;
 };
 
 export default Index;

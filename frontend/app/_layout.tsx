@@ -8,7 +8,7 @@ const RootLayout = () => {
     <SystemContext>
       <GestureHandlerRootView>
         <PlayerSheetContext>
-          <Stack />
+          <Stack screenOptions={{ headerShown: false }} />
         </PlayerSheetContext>
       </GestureHandlerRootView>
     </SystemContext>

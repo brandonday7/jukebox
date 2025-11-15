@@ -26,7 +26,7 @@ const VibesContainer = styled.View<{ playing: boolean }>`
   flex-wrap: wrap;
   gap: 15px;
   align-items: center;
-  padding-bottom: ${({ playing }) => (playing ? 120 : 40)}px;
+  padding-bottom: ${({ playing }) => (playing ? 95 : 15)}px;
 `;
 
 const PressableVibe = styled.TouchableOpacity`

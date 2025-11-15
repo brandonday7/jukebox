@@ -23,7 +23,7 @@ const PlayablesContainer = styled.View<{ playing: boolean }>`
   justify-content: center;
   padding-top: 15px;
   gap: 15px;
-  padding-bottom: ${({ playing }) => (playing ? 120 : 40)}px;
+  padding-bottom: ${({ playing }) => (playing ? 40 : 15)}px;
 `;
 
 const PressablePlayable = styled.TouchableOpacity`
