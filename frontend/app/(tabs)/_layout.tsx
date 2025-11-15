@@ -3,8 +3,9 @@ import { lighter } from "../ui/helpers/color";
 import { styled } from "styled-components/native";
 import { useThemeState } from "@/state/themeState";
 
-const StyledText = styled.Text`
+const StyledText = styled.Text<{ focused: boolean }>`
   margin-top: 10px;
+  opacity: ${({ focused }) => (focused ? 1 : 0.5)};
 `;
 
 export default function TabLayout() {
@@ -20,22 +21,27 @@ export default function TabLayout() {
           backgroundColor: color,
           borderTopWidth: 1,
         },
+        tabBarIconStyle: { marginBottom: 8 },
         tabBarActiveTintColor: "black",
-        tabBarInactiveTintColor: "black",
+        tabBarInactiveTintColor: "#aaa",
       }}
     >
       <Tabs.Screen
         name="vibes"
         options={{
           title: "Vibes",
-          tabBarIcon: ({ color }) => <StyledText>🎵</StyledText>,
+          tabBarIcon: ({ focused }) => (
+            <StyledText focused={focused}>🎵</StyledText>
+          ),
         }}
       />
       <Tabs.Screen
         name="devices"
         options={{
           title: "Devices",
-          tabBarIcon: ({ color }) => <StyledText>📱</StyledText>,
+          tabBarIcon: ({ focused }) => (
+            <StyledText focused={focused}>📱</StyledText>
+          ),
         }}
       />
     </Tabs>
