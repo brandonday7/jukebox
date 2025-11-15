@@ -3,20 +3,18 @@ import { create } from "zustand";
 
 interface SystemState {
   awake: boolean;
-  timeWaiting?: number;
+  countdown: number;
   awakeServer(): void;
-  setTimeWaiting(timeWaiting: number): void;
+  setCountdown(countdown: number): void;
 }
 
 export const useSystemState = create<SystemState>((set) => ({
-  awake: true,
-  serverLastAwoken: undefined,
+  awake: false,
+  countdown: 60,
   awakeServer: async () => {
-    set(() => ({ timeWaiting: 1 }));
+    set(() => ({ awake: false }));
     const { awake } = await wakeServer();
-    set(() => ({ awake, timeWaiting: undefined }));
+    set(() => ({ awake }));
   },
-  setTimeWaiting: (timeWaiting) => {
-    set(() => ({ timeWaiting }));
-  },
+  setCountdown: (countdown) => set(() => ({ countdown })),
 }));
