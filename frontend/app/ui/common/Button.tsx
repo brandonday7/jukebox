@@ -2,14 +2,14 @@ import type { ViewStyle } from "react-native";
 import { styled } from "styled-components/native";
 
 const Root = styled.TouchableOpacity<{ disabled?: boolean }>`
-  background-color: ${({ disabled }) => (disabled ? "#cccccc" : "#007AFF")};
+  background-color: ${({ disabled }) => (disabled ? "#eee" : "#007AFF")};
   padding: 20px;
   border-radius: 8px;
   align-items: center;
 `;
 
-const ButtonText = styled.Text`
-  color: white;
+const ButtonText = styled.Text<{ disabled?: boolean }>`
+  color: ${({ disabled }) => (disabled ? "#aaa" : "white")};
   font-size: 18px;
   font-weight: 600;
 `;
@@ -31,7 +31,7 @@ interface Props {
 
 const Button = ({ onPress, disabled, title, description, style }: Props) => (
   <Root style={style} onPress={onPress} disabled={disabled}>
-    <ButtonText>{title}</ButtonText>
+    <ButtonText disabled={disabled}>{title}</ButtonText>
     {description ? <ButtonDescription>{description}</ButtonDescription> : null}
   </Root>
 );

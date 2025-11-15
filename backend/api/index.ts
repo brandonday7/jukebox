@@ -7,6 +7,7 @@ import {
   removeVibe,
   insertPlayables,
   updateDefaultDeviceId,
+  getSpAccount,
 } from "../db/index.js";
 import type { PlayableData, PlayableType } from "../db/schema.js";
 import spotifyApi, {
@@ -285,12 +286,15 @@ router.get("/devices", async (req, res) => {
   await validateAccessToken(PLAYER_ACCOUNT_NAME);
 
   try {
+    const spAccount = await getSpAccount(PLAYER_ACCOUNT_NAME);
+    const defaultDeviceId = spAccount?.defaultDeviceId;
     const devicesRaw = (await spotifyApi.getMyDevices()).body.devices;
     const devices = devicesRaw.map(({ id, is_active, name, type }) => ({
       id,
       name,
       type,
       isActive: is_active,
+      isDefault: defaultDeviceId === id,
     }));
     res.send(devices);
   } catch (e) {
@@ -307,7 +311,6 @@ router.post("/defaultDevice", async (req, res) => {
   try {
     await updateDefaultDeviceId(PLAYER_ACCOUNT_NAME, deviceId);
     await activateDevice(deviceId);
-    await spotifyApi.play();
     res.send({ success: true });
   } catch (e) {
     const err = e as SpotifyError;

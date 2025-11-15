@@ -1,7 +1,7 @@
 import { del, get, post } from "./http";
 
-const BASE_URL = "https://jukebox-server-5kap.onrender.com";
-// const BASE_URL = "http://localhost:3000";
+// const BASE_URL = "https://jukebox-server-5kap.onrender.com";
+const BASE_URL = "http://localhost:3000";
 const makeUrl = (endpoint: string) => `${BASE_URL}${endpoint}`;
 
 export interface VibeData {
@@ -30,6 +30,7 @@ export interface Device {
   name: string;
   isActive: boolean;
   type: "Computer" | "TV" | "Smartphone";
+  isDefault: boolean;
 }
 
 export const wakeServer = async () => get<{ awake: boolean }>(makeUrl("/ping"));

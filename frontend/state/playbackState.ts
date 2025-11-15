@@ -1,4 +1,5 @@
 import { back, next, pause, play, type PlayableType } from "@/api";
+import { Alert, Linking } from "react-native";
 import { create } from "zustand";
 
 interface PlaybackState {
@@ -18,6 +19,21 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
       set(() => ({ playing }));
     } catch {
       set(() => ({ playing: false }));
+      Alert.alert(
+        "Device not found",
+        "Spotify has made your playback device inaccessible to our app right now. If the desired playback device is this device, you can start playback from the Spotify app directly. Otherwise, you can change your playback device in the devices tab.",
+        [
+          {
+            text: "Open Spotify app",
+            onPress: () => Linking.openURL(getSpotifyLink(type, spId)),
+            style: "default",
+          },
+          {
+            text: "Close",
+            style: "cancel",
+          },
+        ]
+      );
     }
   },
   pause: async () => {
@@ -48,3 +64,6 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
     }
   },
 }));
+
+const getSpotifyLink = (type?: PlayableType, spId?: string) =>
+  type && spId ? `spotify://${type}:${spId}}` : "spotify://";
