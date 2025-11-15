@@ -21,7 +21,7 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
       set(() => ({ playing: false }));
       Alert.alert(
         "Device not found",
-        "Spotify has made your playback device inaccessible to our app right now. If the desired playback device is this device, you can start playback from the Spotify app directly. Otherwise, you can change your playback device in the devices tab.",
+        "Spotify has made your playback device inaccessible to our app right now. If you wish to listen on this device, you can start playback from the Spotify app directly. Otherwise, you can change the playback device in the devices tab.",
         [
           {
             text: "Open Spotify app",
@@ -66,4 +66,6 @@ export const usePlaybackState = create<PlaybackState>((set) => ({
 }));
 
 const getSpotifyLink = (type?: PlayableType, spId?: string) =>
-  type && spId ? `spotify://${type}:${spId}}` : "spotify://";
+  type && spId
+    ? `https://open.spotify.com/${type}/${spId}`
+    : "https://open.spotify.com";
