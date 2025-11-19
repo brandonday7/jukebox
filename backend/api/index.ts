@@ -19,7 +19,7 @@ import spotifyApi, {
   PLAYER_ACCOUNT_NAME,
   SCOPES,
   validateAccessToken,
-} from "../spotifyClient/index.js";
+} from "../clients/spotify.js";
 import { validateVibe } from "./validators.js";
 import express from "express";
 import crypto from "crypto";

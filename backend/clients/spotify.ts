@@ -113,6 +113,31 @@ export const getArtworkUrlsBySpId = async (spIds: string[]) => {
   return artworkUrlsBySpId;
 };
 
+export const getAlbumsBySpId = async (
+  spIds: string[]
+): Promise<PlayableData[]> => {
+  const limit = 20;
+  let i = 0;
+  const albums = [];
+
+  while (i < spIds.length) {
+    albums.push(
+      ...(await spotifyApi.getAlbums(spIds.slice(i, i + limit))).body.albums
+    );
+    i += limit;
+
+    sleep(500);
+  }
+
+  return albums.map(({ images, id, name, artists }) => ({
+    type: "album",
+    title: name,
+    artistName: artists.length ? artists[0].name : "Unknown artist",
+    artworkUrl: images.length ? images[0].url : "",
+    spId: id,
+  }));
+};
+
 export const getAllArtistAlbums = async (spId: string, artistName: string) => {
   const limit = 50;
   let i = 0;
