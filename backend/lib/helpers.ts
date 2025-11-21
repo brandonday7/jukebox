@@ -14,3 +14,6 @@ export const logError = (error: Error) => console.warn(pretty(error));
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const capitalize = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);

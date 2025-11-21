@@ -1,7 +1,6 @@
 import { connect, disconnect } from "./db/index.js";
 import { PORT } from "./config.js";
 import app from "./app.js";
-import { getLatestLately } from "./clients/lately.js";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -16,5 +15,3 @@ const gracefulShutdown = async () => {
 
 process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
-
-// getLatestLately();

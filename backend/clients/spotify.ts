@@ -22,6 +22,8 @@ export const SCOPES = [
   "user-read-playback-state",
   "user-read-currently-playing",
   "user-read-email",
+  "playlist-modify-public",
+  "playlist-modify-private",
 ];
 
 export const PLAYER_ACCOUNT_NAME = "Brandon Day";
@@ -174,4 +176,47 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
   }
 
   return albums;
+};
+
+export const createPlaylist = async (
+  name: string,
+  description: string,
+  spIds: string[]
+) => {
+  const { body } = await spotifyApi.createPlaylist(name, {
+    description,
+    public: true,
+  });
+  const playlistSpId = body.id;
+
+  await spotifyApi.addTracksToPlaylist(
+    playlistSpId,
+    spIds.map((spId) => `spotify:track:${spId}`)
+  );
+
+  return playlistSpId;
+};
+
+export const updatePlaylistTracks = async (
+  spId: string,
+  trackSpIds: string[],
+  erasePrevious = false
+) => {
+  if (erasePrevious) {
+    const { body: playlist } = await spotifyApi.getPlaylist(spId);
+    sleep(500);
+    await spotifyApi.removeTracksFromPlaylistByPosition(
+      spId,
+      Array.from(Array(10).keys()),
+      playlist.snapshot_id
+    );
+    sleep(500);
+  }
+
+  await spotifyApi.addTracksToPlaylist(
+    spId,
+    trackSpIds.map((spId) => `spotify:track:${spId}`)
+  );
+
+  return spId;
 };
