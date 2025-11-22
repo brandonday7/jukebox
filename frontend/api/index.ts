@@ -1,6 +1,7 @@
 import { del, get, post } from "./http";
 
-const BASE_URL = "https://jukebox-server-5kap.onrender.com";
+// const BASE_URL = "https://jukebox-server-5kap.onrender.com";
+const BASE_URL = "https://jukebox-cmymdq.fly.dev";
 // const BASE_URL = "http://localhost:3000";
 const makeUrl = (endpoint: string) => `${BASE_URL}${endpoint}`;
 
