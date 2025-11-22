@@ -8,7 +8,7 @@ import {
 import { isDefined, logError, pretty } from "../lib/helpers.js";
 import mongoose from "mongoose";
 
-const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster`;
+const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster&family=4`;
 
 export const connect = async () => {
   try {
