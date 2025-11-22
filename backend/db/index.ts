@@ -13,7 +13,12 @@ const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb
 export const connect = async () => {
   try {
     console.log("Connecting to database...");
-    await mongoose.connect(URI, { bufferCommands: false });
+    await mongoose.connect(URI, {
+      bufferCommands: false,
+      ssl: true,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+    });
   } catch (error) {
     logError(error as Error);
   }
