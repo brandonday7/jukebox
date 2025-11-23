@@ -151,8 +151,9 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
       limit,
       offset: i,
     });
+
     const albumSet = body.items
-      .filter(({ album_type }) => album_type === "album")
+      .filter(({ total_tracks }) => total_tracks > 1)
       .map(
         ({ id, name, images }) =>
           ({
