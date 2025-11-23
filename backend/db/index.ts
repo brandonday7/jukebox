@@ -8,17 +8,12 @@ import {
 import { isDefined, logError, pretty } from "../lib/helpers.js";
 import mongoose from "mongoose";
 
-const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster&family=4`;
+const URI = `${DB_HOST}://${DB_USER}:${DB_PASSWORD}@juke-cluster.hiuzhwi.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=juke-cluster`;
 
 export const connect = async () => {
   try {
     console.log("Connecting to database...");
-    await mongoose.connect(URI, {
-      bufferCommands: false,
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-    });
+    await mongoose.connect(URI, { bufferCommands: false });
   } catch (error) {
     logError(error as Error);
   }

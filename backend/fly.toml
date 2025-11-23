@@ -4,7 +4,7 @@
 #
 
 app = 'jukebox-cmymdq'
-primary_region = 'ord'
+primary_region = 'yyz'
 
 [http_service]
   internal_port = 3000
@@ -19,9 +19,3 @@ primary_region = 'ord'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
-
-[experimental]
-  enable_dedicated_egress = true
-
-[env]
-  NODE_OPTIONS = "--dns-result-order=ipv4first"
