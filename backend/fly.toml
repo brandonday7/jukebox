@@ -22,3 +22,6 @@ primary_region = 'ord'
 
 [experimental]
   enable_dedicated_egress = true
+
+[env]
+  NODE_OPTIONS = "--dns-result-order=ipv4first"
