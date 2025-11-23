@@ -75,11 +75,20 @@ const formatPlayables = (playableString: string) => {
   try {
     return rows.map((row) => {
       const fields = row.split("	");
+      const title = fields[0];
+      const artistName = fields[1];
+      const spId = fields[2];
+      const type = fields[3].toLocaleLowerCase();
+
+      if (!title || !artistName || !spId || !type) {
+        throw "Error: title, artistName, spId, and type must be defined.";
+      }
+
       return {
-        type: fields[3].toLocaleLowerCase(),
-        title: fields[0],
-        artistName: fields[1],
-        spId: fields[2],
+        type,
+        title,
+        artistName,
+        spId,
       } as PlayableData;
     });
   } catch {
