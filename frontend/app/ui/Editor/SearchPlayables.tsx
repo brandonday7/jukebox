@@ -159,7 +159,10 @@ const SearchPlayables = ({ onSubmit }: Props) => {
   return (
     <>
       <BottomSheetScrollView keyboardShouldPersistTaps="handled">
-        <Root playing={!!currentlyPlayingPlayable}>
+        <Root
+          playing={!!currentlyPlayingPlayable}
+          keyboardShouldPersistTaps="handled"
+        >
           {selectedArtist ? (
             <>
               <ArtistHeading>
