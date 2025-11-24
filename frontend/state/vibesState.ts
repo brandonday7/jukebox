@@ -1,6 +1,7 @@
 import {
   createVibe,
   deleteVibe,
+  getVibe,
   getVibes,
   insertPlayables,
   removePlayable,
@@ -13,6 +14,7 @@ interface VibeState {
   vibes?: VibeData[];
   selectedPlayable?: PlayableData;
   fetchVibes(): void;
+  fetchVibe(title: string): void;
   removeVibe(title: string): void;
   createVibe(title: string, playables: PlayableData[]): void;
   insertPlayables(
@@ -22,6 +24,7 @@ interface VibeState {
   ): void;
   removePlayable(title: string, spId: string): void;
   setSelectedPlayable(playable?: PlayableData): void;
+  clearVibes(): void;
 }
 
 export const useVibeState = create<VibeState>((set, get) => ({
@@ -31,6 +34,15 @@ export const useVibeState = create<VibeState>((set, get) => ({
     try {
       const vibes = await getVibes();
       set(() => ({ vibes }));
+    } catch {
+      set(() => ({ vibes: [] }));
+    }
+  },
+  fetchVibe: async (title: string) => {
+    try {
+      const vibes = get().vibes;
+      const vibe = await getVibe(title);
+      set(() => ({ vibes: vibes?.map((v) => (v.title === title ? vibe : v)) }));
     } catch {
       set(() => ({ vibes: [] }));
     }
@@ -95,4 +107,5 @@ export const useVibeState = create<VibeState>((set, get) => ({
   setSelectedPlayable: (playable) => {
     set(() => ({ selectedPlayable: playable }));
   },
+  clearVibes: () => set(() => ({ vibes: undefined })),
 }));

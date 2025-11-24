@@ -37,6 +37,8 @@ export interface Device {
 export const wakeServer = async () => get<{ awake: boolean }>(makeUrl("/ping"));
 
 export const getVibes = async () => get<VibeData[]>(makeUrl("/vibes"));
+export const getVibe = async (title: string) =>
+  get<VibeData>(makeUrl(`/vibe/${title}`));
 
 export const play = async (type?: PlayableType, spId?: string) =>
   post<{ playing: boolean }>(makeUrl("/play"), { type, spId });

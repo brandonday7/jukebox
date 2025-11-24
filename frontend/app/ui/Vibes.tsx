@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useVibeState } from "@/state/vibesState";
 import { styled } from "styled-components/native";
 import type { VibeData } from "@/api";
 import { useRouter } from "expo-router";
 import Header from "./common/Header";
-import { Alert } from "react-native";
+import { Alert, RefreshControl } from "react-native";
 import { BlankArtwork } from "./common/Artwork";
 import { lighter } from "./helpers/color";
 import Editor, { type BottomSheetRef } from "./Editor";
@@ -41,9 +41,11 @@ const DummyVibe = styled.View`
 `;
 
 const Vibes = () => {
-  const { fetchVibes, vibes, removeVibe, selectedPlayable } = useVibeState();
+  const { fetchVibes, vibes, removeVibe, selectedPlayable, clearVibes } =
+    useVibeState();
   const { colorValues, defaultColor } = useThemeState();
   const { push } = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   useEffect(() => {
@@ -58,7 +60,19 @@ const Vibes = () => {
 
   return (
     <>
-      <Root color={colorValues ? lighter(...colorValues, 0.2) : defaultColor}>
+      <Root
+        color={colorValues ? lighter(...colorValues, 0.2) : defaultColor}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              clearVibes();
+              setTimeout(() => setRefreshing(false), 500);
+            }}
+          />
+        }
+      >
         <Header
           title="Vibes"
           mixItUp={

@@ -1,14 +1,14 @@
 import { usePlaybackState } from "@/state/playbackState";
 import { useVibeState } from "@/state/vibesState";
 import { useLocalSearchParams } from "expo-router";
-import { Alert, Text } from "react-native";
+import { Alert, RefreshControl, Text } from "react-native";
 import { styled } from "styled-components/native";
 import Artwork from "./common/Artwork";
 import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { lighter } from "./helpers/color";
 import { usePlayer } from "./Player/PlayerContext";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Editor, { type BottomSheetRef } from "./Editor";
 import { useThemeState } from "@/state/themeState";
 
@@ -57,11 +57,17 @@ const ArtistName = styled.Text`
 
 const Vibe = () => {
   const { name } = useLocalSearchParams();
-  const { vibes, setSelectedPlayable, removePlayable, selectedPlayable } =
-    useVibeState();
+  const {
+    vibes,
+    setSelectedPlayable,
+    removePlayable,
+    selectedPlayable,
+    fetchVibe,
+  } = useVibeState();
   const { colorValues, setColorValues } = useThemeState();
   const { play } = usePlaybackState();
   const { open } = usePlayer();
+  const [refreshing, setRefreshing] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   const onSelect = (playable: PlayableData) => {
@@ -81,7 +87,19 @@ const Vibe = () => {
 
   return (
     <>
-      <Root color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}>
+      <Root
+        color={colorValues ? lighter(...colorValues, 0.2) : "#fff"}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchVibe(vibe.title);
+              setTimeout(() => setRefreshing(false), 500);
+            }}
+          />
+        }
+      >
         <Header
           title={vibe.title}
           mixItUp={() =>

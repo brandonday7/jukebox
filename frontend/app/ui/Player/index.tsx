@@ -3,6 +3,8 @@ import { styled } from "styled-components/native";
 import Artwork from "../common/Artwork";
 import { useVibeState } from "@/state/vibesState";
 import { useThemeState } from "@/state/themeState";
+import { Linking, TouchableOpacity } from "react-native";
+import { openSpotifyLink } from "../helpers/spotify";
 
 const Root = styled.View`
   display: flex;
@@ -69,11 +71,19 @@ const Player = () => {
 
   return (
     <Root>
-      <Artwork
-        url={selectedPlayable.artworkUrl}
-        size={250}
-        title={selectedPlayable.title}
-      />
+      <TouchableOpacity
+        onPress={() =>
+          Linking.openURL(
+            openSpotifyLink(selectedPlayable.type, selectedPlayable.spId)
+          )
+        }
+      >
+        <Artwork
+          url={selectedPlayable.artworkUrl}
+          size={250}
+          title={selectedPlayable.title}
+        />
+      </TouchableOpacity>
       <Details>
         <PlayableName>{selectedPlayable.title}</PlayableName>
         <ArtistName>{selectedPlayable.artistName}</ArtistName>

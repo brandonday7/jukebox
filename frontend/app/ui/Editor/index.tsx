@@ -49,7 +49,7 @@ const Editor = forwardRef<BottomSheetRef, Props>(function EditorSheet(
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      snapPoints={[1, "95%"]}
+      snapPoints={[1, "100%"]}
       style={{ paddingTop: 15 }}
       index={-1}
       backgroundStyle={{

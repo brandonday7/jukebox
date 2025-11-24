@@ -7,7 +7,7 @@ import Button from "../common/Button";
 import { useFocusEffect } from "expo-router";
 import { useThemeState } from "@/state/themeState";
 import { lighter } from "../helpers/color";
-import { Linking } from "react-native";
+import { Linking, RefreshControl } from "react-native";
 import { openSpotifyLink } from "../helpers/spotify";
 
 const StyledScrollView = styled.ScrollView<{ color: string }>`
@@ -114,8 +114,24 @@ const Devices = () => {
   const { devices, fetchDevices, setDefaultDevice, clearDevices } =
     useUserState();
   const { colorValues, defaultColor } = useThemeState();
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>();
-  const [defaultDeviceId, setDefaultDeviceId] = useState<string>();
+
+  useEffect(() => {
+    if (devices !== "loading" && !devices) {
+      fetchDevices();
+    }
+  }, [devices, fetchDevices]);
+
+  useEffect(() => {
+    if (devices && devices !== "loading") {
+      const defaultDeviceId = devices.find(({ isDefault }) => isDefault)?.id;
+
+      if (defaultDeviceId) {
+        setSelectedDeviceId(defaultDeviceId);
+      }
+    }
+  }, [devices]);
 
   // Spotify's devices endpoint is pretty flaky. Whenever the screen comes into
   // focus, we'll need to refetch what devices are available in that moment.
@@ -129,75 +145,72 @@ const Devices = () => {
     }, [fetchDevices, clearDevices])
   );
 
-  useEffect(() => {
-    if (devices && devices !== "loading") {
-      const defaultDeviceId = devices.find(({ isDefault }) => isDefault)?.id;
-      setDefaultDeviceId(defaultDeviceId);
-
-      if (defaultDeviceId) {
-        setSelectedDeviceId(defaultDeviceId);
-      }
-    }
-  }, [devices]);
-
   const color = colorValues ? lighter(...colorValues, 0.2) : defaultColor;
-  if (!devices || devices === "loading") {
-    return (
-      <Root>
-        <Header title="Devices" />
-      </Root>
-    );
-  }
 
   return (
-    <StyledScrollView color={color}>
-      <Root>
-        <Header title="Devices" />
-        <HeadingWrapper>
-          <Heading>Select a device:</Heading>
-        </HeadingWrapper>
-        <DeviceList>
-          {devices.map((device) => (
-            <DeviceItem
-              key={device.id}
-              isSelected={selectedDeviceId === device.id}
-              onPress={() => {
-                setSelectedDeviceId(device.id);
-              }}
-            >
-              <DeviceInfo>
-                <DeviceIcon>{getDeviceIcon(device.type)}</DeviceIcon>
-                <DeviceDetails>
-                  <DeviceName>{device.name}</DeviceName>
-                  <DeviceType>{device.type}</DeviceType>
-                </DeviceDetails>
-                {device.isDefault && <DefaultIndicator />}
-              </DeviceInfo>
-            </DeviceItem>
-          ))}
-        </DeviceList>
-        <StyledButton
-          title="Save"
-          disabled={!selectedDeviceId || selectedDeviceId === defaultDeviceId}
-          onPress={() => {
-            if (selectedDeviceId) {
-              setDefaultDevice(selectedDeviceId);
-            }
+    <StyledScrollView
+      color={color}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            clearDevices();
+            setTimeout(() => setRefreshing(false), 500);
           }}
         />
-        <Disclaimer>
-          <DisclaimerText>
-            Not seeing your device? You may need to make your device
-            discoverable by opening Spotify
-          </DisclaimerText>
-          <SpotifyApp onPress={() => Linking.openURL(openSpotifyLink())}>
-            <SpotifyAppText>Spotify app</SpotifyAppText>
-          </SpotifyApp>
-          <DisclaimerText>
-            (it helps us discover your device if you initiate a few seconds of
-            playback and then return here)
-          </DisclaimerText>
-        </Disclaimer>
+      }
+    >
+      <Root>
+        <Header title="Devices" />
+        {devices && devices !== "loading" ? (
+          <>
+            <HeadingWrapper>
+              <Heading>Select a device:</Heading>
+            </HeadingWrapper>
+            <DeviceList>
+              {devices.map((device) => (
+                <DeviceItem
+                  key={device.id}
+                  isSelected={selectedDeviceId === device.id}
+                  onPress={() => {
+                    setSelectedDeviceId(device.id);
+                  }}
+                >
+                  <DeviceInfo>
+                    <DeviceIcon>{getDeviceIcon(device.type)}</DeviceIcon>
+                    <DeviceDetails>
+                      <DeviceName>{device.name}</DeviceName>
+                      <DeviceType>{device.type}</DeviceType>
+                    </DeviceDetails>
+                    {device.isDefault && <DefaultIndicator />}
+                  </DeviceInfo>
+                </DeviceItem>
+              ))}
+            </DeviceList>
+            <StyledButton
+              title="Save"
+              onPress={() => {
+                if (selectedDeviceId) {
+                  setDefaultDevice(selectedDeviceId);
+                }
+              }}
+            />
+            <Disclaimer>
+              <DisclaimerText>
+                Not seeing your device? You may need to make your device
+                discoverable by opening Spotify
+              </DisclaimerText>
+              <SpotifyApp onPress={() => Linking.openURL(openSpotifyLink())}>
+                <SpotifyAppText>Spotify app</SpotifyAppText>
+              </SpotifyApp>
+              <DisclaimerText>
+                (it helps us discover your device if you initiate a few seconds
+                of playback and then return here)
+              </DisclaimerText>
+            </Disclaimer>
+          </>
+        ) : null}
       </Root>
     </StyledScrollView>
   );
