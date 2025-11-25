@@ -1,7 +1,11 @@
 import { SPOTIFY_CLIENT_ID, SPOTIFY_SECRET } from "../config.js";
 
 import SpotifyWebApi from "spotify-web-api-node";
-import { createOrUpdateSpAccount, getSpAccount } from "../db/index.js";
+import {
+  createOrUpdateSpAccount,
+  createOrUpdateVibe,
+  getSpAccount,
+} from "../db/index.js";
 import type { PlayableData, PlayableType } from "../db/schema.js";
 import { sleep } from "../lib/helpers.js";
 
@@ -23,7 +27,7 @@ export const SCOPES = [
   "user-read-currently-playing",
   "user-read-email",
   "playlist-modify-public",
-  "playlist-modify-private",
+  "user-top-read",
 ];
 
 export const PLAYER_ACCOUNT_NAME = "Brandon Day";
@@ -177,6 +181,24 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
   }
 
   return albums;
+};
+
+export const populateTopArtistsVibe = async () => {
+  const { body } = await spotifyApi.getMyTopArtists();
+  const artists = body.items.map((artist) => ({
+    name: artist.name,
+    spId: artist.id,
+  }));
+  const artistAlbums = await Promise.all(
+    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name))
+  );
+
+  await createOrUpdateVibe(
+    "Explore Top Artists",
+    artistAlbums.map(
+      (albums) => albums[Math.floor(Math.random() * albums.length)]
+    )
+  );
 };
 
 export const createPlaylist = async (
