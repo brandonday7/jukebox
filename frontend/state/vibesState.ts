@@ -13,6 +13,8 @@ import { create } from "zustand";
 interface VibeState {
   vibes?: VibeData[];
   selectedPlayable?: PlayableData;
+  recentlySelectedVibes: string[];
+  recentlySelectedPlayables: string[];
   fetchVibes(): void;
   fetchVibe(title: string): void;
   removeVibe(title: string): void;
@@ -25,11 +27,17 @@ interface VibeState {
   removePlayable(title: string, spId: string): void;
   setSelectedPlayable(playable?: PlayableData): void;
   clearVibes(): void;
+  addRecentlySelectedVibe(title: string): void;
+  clearRecentlySelectedVibes(): void;
+  addRecentlySelectedPlayable(title: string): void;
+  clearRecentlySelectedPlayables(): void;
 }
 
 export const useVibeState = create<VibeState>((set, get) => ({
   vibes: undefined,
   selectedPlayable: undefined,
+  recentlySelectedVibes: [],
+  recentlySelectedPlayables: [],
   fetchVibes: async () => {
     try {
       const vibes = await getVibes();
@@ -108,4 +116,19 @@ export const useVibeState = create<VibeState>((set, get) => ({
     set(() => ({ selectedPlayable: playable }));
   },
   clearVibes: () => set(() => ({ vibes: undefined })),
+  addRecentlySelectedVibe: (title: string) => {
+    const recentlySelectedVibes = get().recentlySelectedVibes;
+    set(() => ({ recentlySelectedVibes: [...recentlySelectedVibes, title] }));
+  },
+  clearRecentlySelectedVibes: () => set(() => ({ recentlySelectedVibes: [] })),
+  addRecentlySelectedPlayable: (spId: string) => {
+    const recentlySelectedPlayables = get().recentlySelectedPlayables;
+    set(() => ({
+      recentlySelectedPlayables: [...recentlySelectedPlayables, spId],
+    }));
+  },
+  clearRecentlySelectedPlayables: () =>
+    set(() => ({
+      recentlySelectedPlayables: [],
+    })),
 }));

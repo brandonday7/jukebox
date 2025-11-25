@@ -9,6 +9,7 @@ import { BlankArtwork } from "./common/Artwork";
 import { lighter } from "./helpers/color";
 import Editor, { type BottomSheetRef } from "./Editor";
 import { useThemeState } from "@/state/themeState";
+import * as Haptics from "expo-haptics";
 
 const Root = styled.ScrollView<{ color: string }>`
   flex: 1;
@@ -41,8 +42,16 @@ const DummyVibe = styled.View`
 `;
 
 const Vibes = () => {
-  const { fetchVibes, vibes, removeVibe, selectedPlayable, clearVibes } =
-    useVibeState();
+  const {
+    fetchVibes,
+    vibes,
+    removeVibe,
+    selectedPlayable,
+    clearVibes,
+    addRecentlySelectedVibe,
+    clearRecentlySelectedVibes,
+    recentlySelectedVibes,
+  } = useVibeState();
   const { colorValues, defaultColor } = useThemeState();
   const { push } = useRouter();
   const [refreshing, setRefreshing] = useState(false);
@@ -54,8 +63,15 @@ const Vibes = () => {
     }
   }, [vibes, fetchVibes]);
 
+  useEffect(() => {
+    if (vibes && vibes.length === recentlySelectedVibes.length) {
+      clearRecentlySelectedVibes();
+    }
+  }, [recentlySelectedVibes, vibes, clearRecentlySelectedVibes]);
+
   const onSelect = (vibe: VibeData) => {
     push(`/vibes/${vibe.title}`);
+    addRecentlySelectedVibe(vibe.title);
   };
 
   return (
@@ -66,6 +82,8 @@ const Vibes = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
               setRefreshing(true);
               clearVibes();
               setTimeout(() => setRefreshing(false), 500);
@@ -77,7 +95,19 @@ const Vibes = () => {
           title="Vibes"
           mixItUp={
             vibes?.length
-              ? () => onSelect(vibes[Math.floor(Math.random() * vibes.length)])
+              ? () => {
+                  const availableRandomVibes =
+                    vibes.length === recentlySelectedVibes.length
+                      ? vibes
+                      : vibes.filter(
+                          (p) => !recentlySelectedVibes.includes(p.title)
+                        );
+                  const randomVibe =
+                    availableRandomVibes[
+                      Math.floor(Math.random() * availableRandomVibes.length)
+                    ];
+                  onSelect(randomVibe);
+                }
               : undefined
           }
         />

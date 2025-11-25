@@ -9,6 +9,7 @@ import { useThemeState } from "@/state/themeState";
 import { lighter } from "../helpers/color";
 import { Linking, RefreshControl } from "react-native";
 import { openSpotifyLink } from "../helpers/spotify";
+import * as Haptics from "expo-haptics";
 
 const StyledScrollView = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -154,6 +155,8 @@ const Devices = () => {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
             setRefreshing(true);
             clearDevices();
             setTimeout(() => setRefreshing(false), 500);

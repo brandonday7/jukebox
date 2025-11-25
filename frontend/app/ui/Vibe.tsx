@@ -8,9 +8,10 @@ import Header from "./common/Header";
 import type { PlayableData } from "@/api";
 import colorHash, { lighter } from "./helpers/color";
 import { usePlayer } from "./Player/PlayerContext";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { type BottomSheetRef } from "./Editor";
 import { useThemeState } from "@/state/themeState";
+import * as Haptics from "expo-haptics";
 
 const Root = styled.ScrollView<{ color: string }>`
   background-color: ${({ color }) => color};
@@ -63,6 +64,9 @@ const Vibe = () => {
     removePlayable,
     selectedPlayable,
     fetchVibe,
+    recentlySelectedPlayables,
+    addRecentlySelectedPlayable,
+    clearRecentlySelectedPlayables,
   } = useVibeState();
   const { colorValues, setColorValues } = useThemeState();
   const { play } = usePlaybackState();
@@ -73,11 +77,18 @@ const Vibe = () => {
   const onSelect = (playable: PlayableData) => {
     play(playable.type, playable.spId);
     setSelectedPlayable(playable);
+    addRecentlySelectedPlayable(playable.spId);
     setColorValues(colorHash.hsl(playable.title));
     open();
   };
 
   const vibe = vibes?.find((v) => v.title === name);
+
+  useEffect(() => {
+    if (vibe && vibe.playables.length === recentlySelectedPlayables.length) {
+      clearRecentlySelectedPlayables();
+    }
+  }, [vibe, recentlySelectedPlayables, clearRecentlySelectedPlayables]);
 
   if (!vibe) {
     return <Text>No vibe {name} exists.</Text>;
@@ -93,6 +104,7 @@ const Vibe = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setRefreshing(true);
               fetchVibe(vibe.title);
               setTimeout(() => setRefreshing(false), 500);
@@ -102,9 +114,19 @@ const Vibe = () => {
       >
         <Header
           title={vibe.title}
-          mixItUp={() =>
-            onSelect(playables[Math.floor(Math.random() * playables.length)])
-          }
+          mixItUp={() => {
+            const availableRandomPlayables =
+              playables.length === recentlySelectedPlayables.length
+                ? playables
+                : playables.filter(
+                    (p) => !recentlySelectedPlayables.includes(p.spId)
+                  );
+            const randomPlayable =
+              availableRandomPlayables[
+                Math.floor(Math.random() * availableRandomPlayables.length)
+              ];
+            onSelect(randomPlayable);
+          }}
         />
         <PlayablesContainer playing={!!selectedPlayable}>
           {playables.map((playable) => (
