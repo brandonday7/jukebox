@@ -23,6 +23,10 @@ import spotifyApi, {
 import { validateVibe } from "./validators.js";
 import express from "express";
 import crypto from "crypto";
+import {
+  fileAsPixelArray,
+  generateArtworkFileFromUrl,
+} from "../clients/artwork.js";
 const router = express.Router();
 
 interface SpotifyErrorBody {
@@ -45,6 +49,11 @@ router.get("/ping", async (_req, res) => {
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
   res.send(vibes);
+});
+
+router.get("/vibeTitles", async (_req, res) => {
+  const vibes = await findVibes();
+  res.send({ vibes: vibes.map(({ title }) => title) });
 });
 
 router.get("/vibe/:title", async (req, res) => {
@@ -317,5 +326,22 @@ router.post("/defaultDevice", async (req, res) => {
     res.status(500).send("Error: " + err.message);
   }
 });
+
+// router.post("/artworkFile", async (req, res) => {
+//   const url = req.query.spId as string;
+
+//   try {
+//     const imageFile = await generateArtworkFileFromUrl(
+//       url ?? "https://i.scdn.co/image/ab67616d00001e028c5b6f7dcdc5817dc5050b2a",
+//       30
+//     );
+
+//     const pixels = fileAsPixelArray(imageFile.bitmap);
+//     res.send({ pixels });
+//   } catch (e) {
+//     const err = e as SpotifyError;
+//     res.status(500).send("Error: " + err.message);
+//   }
+// });
 
 export default router;
