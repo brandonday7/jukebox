@@ -48,7 +48,7 @@ router.get("/ping", async (_req, res) => {
 
 router.get("/vibes", async (_req, res) => {
   const vibes = await findVibes();
-  res.send(vibes);
+  res.send({ vibes });
 });
 
 router.get("/vibeTitles", async (_req, res) => {
