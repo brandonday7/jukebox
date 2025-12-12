@@ -11,7 +11,7 @@
     "ios": {
       "bundleIdentifier": "com.brandonday.jukebox",
       "supportsTablet": true,
-      "buildNumber": "251201000",
+      "buildNumber": "251212000",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }

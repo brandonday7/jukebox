@@ -64,7 +64,11 @@ const Vibes = () => {
   }, [vibes, fetchVibes]);
 
   useEffect(() => {
-    if (vibes && vibes.length === recentlySelectedVibes.length) {
+    if (
+      vibes &&
+      vibes.length > 1 &&
+      vibes.length === recentlySelectedVibes.length
+    ) {
       clearRecentlySelectedVibes();
     }
   }, [recentlySelectedVibes, vibes, clearRecentlySelectedVibes]);

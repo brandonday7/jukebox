@@ -23,10 +23,7 @@ import spotifyApi, {
 import { validateVibe } from "./validators.js";
 import express from "express";
 import crypto from "crypto";
-import {
-  fileAsPixelArray,
-  generateArtworkFileFromUrl,
-} from "../clients/artwork.js";
+
 const router = express.Router();
 
 interface SpotifyErrorBody {

@@ -1,8 +1,9 @@
 import { del, get, post } from "./http";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const BASE_URL = "https://jukebox-server-5kap.onrender.com";
-const BASE_URL = "https://jukebox-cmymdq.fly.dev";
-// const BASE_URL = "http://localhost:3000";
+// const BASE_URL = "https://jukebox-cmymdq.fly.dev";
+const BASE_URL = "http://localhost:3000";
 const makeUrl = (endpoint: string) => `${BASE_URL}${endpoint}`;
 
 export interface VibeData {
@@ -83,3 +84,19 @@ export const getPlaylist = async (spId: string) =>
 export const getDevices = async () => get<Device[]>(makeUrl("/devices"));
 export const updateDefaultDevice = async (deviceId: string) =>
   post(makeUrl("/defaultDevice"), { deviceId });
+
+// Local Storage
+export const setPasscode = async (code: string) =>
+  await AsyncStorage.setItem("passcode", code);
+
+export const getPasscode = async () => await AsyncStorage.getItem("passcode");
+export const clearPasscode = async () =>
+  await AsyncStorage.removeItem("passcode");
+
+export const setLoginAttempts = async (attempts: number) =>
+  await AsyncStorage.setItem("loginAttempts", String(attempts));
+
+export const getLoginAttempts = async () =>
+  await AsyncStorage.getItem("loginAttempts");
+export const clearLoginAttempts = async () =>
+  await AsyncStorage.removeItem("loginAttempts");

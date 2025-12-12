@@ -3,3 +3,5 @@ node_modules
 backend/.env
 frontend/.env
 backend/dist
+hardware/jukebox/config.h
+.DS_Store
