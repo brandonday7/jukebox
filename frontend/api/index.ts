@@ -2,8 +2,8 @@ import { del, get, post } from "./http";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const BASE_URL = "https://jukebox-server-5kap.onrender.com";
-// const BASE_URL = "https://jukebox-cmymdq.fly.dev";
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "https://jukebox-cmymdq.fly.dev";
+// const BASE_URL = "http://localhost:3000";
 const makeUrl = (endpoint: string) => `${BASE_URL}${endpoint}`;
 
 export interface VibeData {
