@@ -264,7 +264,21 @@ export const updateAwarenessPlaylist = async () => {
     [] as PlayableData[]
   );
 
-  const spId = allAlbums[Math.floor(Math.random() * allAlbums.length)].spId;
+  const allArtists = new Set();
+  // Artists should be equally represented regardless of number of albums.
+  const uniqueArtistAlbumIds = allAlbums
+    .map((album) => {
+      if (!allArtists.has(album.artistName)) {
+        allArtists.add(album.artistName);
+        return album.spId;
+      }
+    })
+    .filter(Boolean) as string[];
+
+  const spId =
+    uniqueArtistAlbumIds[
+      Math.floor(Math.random() * uniqueArtistAlbumIds.length)
+    ];
   const albumData = await spotifyApi.getAlbum(spId);
   sleep(500);
   const { name: artistName, id } = albumData.body.artists[0];
