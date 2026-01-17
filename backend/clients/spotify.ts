@@ -163,7 +163,11 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
       .filter(
         ({ total_tracks, artists, album_type }) =>
           total_tracks > 1 &&
-          artists.some((artist) => artist.name !== "Various Artists") &&
+          artists.some(
+            (artist) =>
+              artist.name !== "Various Artists" &&
+              artist.name !== "Various Composers"
+          ) &&
           album_type !== "compilation"
       )
       .map(

@@ -44,9 +44,9 @@ export function initCronJobs() {
     }
   );
 
-  // Every day at 9:35 AM
+  // Every day at 1:00 AM
   cron.schedule(
-    "35 9 * * *",
+    "0 1 * * *",
     async () => {
       console.log("Running: Populate Awareness Playlist");
       try {
