@@ -3,6 +3,7 @@ import { createVibeFromPost, getLatestPost } from "../clients/lately.js";
 import {
   PLAYER_ACCOUNT_NAME,
   populateTopArtistsVibe,
+  updateAwarenessPlaylist,
   validateAccessToken,
 } from "../clients/spotify.js";
 
@@ -36,6 +37,23 @@ export function initCronJobs() {
         populateTopArtistsVibe();
       } catch (error) {
         console.error("Error in Explore Top Artists:", error);
+      }
+    },
+    {
+      timezone: "America/Toronto",
+    }
+  );
+
+  // Every day at 9:35 AM
+  cron.schedule(
+    "35 9 * * *",
+    async () => {
+      console.log("Running: Populate Awareness Playlist");
+      try {
+        await validateAccessToken(PLAYER_ACCOUNT_NAME);
+        updateAwarenessPlaylist();
+      } catch (error) {
+        console.error("Error in Awareness Playlist:", error);
       }
     },
     {

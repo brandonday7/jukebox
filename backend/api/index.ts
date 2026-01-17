@@ -44,13 +44,15 @@ router.get("/ping", async (_req, res) => {
 });
 
 router.get("/vibes", async (_req, res) => {
-  const vibes = await findVibes();
+  const vibes = (await findVibes()).filter(({ hidden }) => !hidden);
   res.send(vibes);
 });
 
 router.get("/vibeTitles", async (_req, res) => {
-  const vibes = await findVibes();
-  res.send({ vibes: vibes.map(({ title }) => title) });
+  const vibes = (await findVibes()).filter(({ hidden }) => !hidden);
+  res.send({
+    vibes: vibes.map(({ title }) => title),
+  });
 });
 
 router.get("/vibe/:title", async (req, res) => {

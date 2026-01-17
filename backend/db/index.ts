@@ -44,7 +44,7 @@ export const findVibes = async (log?: boolean) => {
 export const findVibe = async (title: string, log?: boolean) => {
   const vibe = await Vibe.findOne({ title });
 
-  if (vibe) {
+  if (vibe && !vibe.hidden) {
     if (log) {
       console.log(pretty(vibe));
     }

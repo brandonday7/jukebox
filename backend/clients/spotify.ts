@@ -4,9 +4,10 @@ import SpotifyWebApi from "spotify-web-api-node";
 import {
   createOrUpdateSpAccount,
   createOrUpdateVibe,
+  findVibes,
   getSpAccount,
 } from "../db/index.js";
-import type { PlayableData, PlayableType } from "../db/schema.js";
+import type { PlayableData, PlayableType, VibeData } from "../db/schema.js";
 import { sleep } from "../lib/helpers.js";
 
 interface SpAccount {
@@ -33,6 +34,8 @@ export const SCOPES = [
 export const PLAYER_ACCOUNT_NAME = "Brandon Day";
 export const BRANDON_RECENTS_ACCOUNT_NAME = "Brandon Day";
 // export const ALARA_RECENTS_ACCOUNT_NAME = "Alara Grace";
+
+const AWARENESS_PLAYLIST_ID = "5JtobxsHCac7jRCRbVEvzd";
 
 export default spotifyApi;
 
@@ -157,7 +160,12 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
     });
 
     const albumSet = body.items
-      .filter(({ total_tracks }) => total_tracks > 1)
+      .filter(
+        ({ total_tracks, artists, album_type }) =>
+          total_tracks > 1 &&
+          artists.some((artist) => artist.name !== "Various Artists") &&
+          album_type !== "compilation"
+      )
       .map(
         ({ id, name, images }) =>
           ({
@@ -226,20 +234,68 @@ export const updatePlaylistTracks = async (
   erasePrevious = false
 ) => {
   if (erasePrevious) {
-    const { body: playlist } = await spotifyApi.getPlaylist(spId);
-    sleep(500);
-    await spotifyApi.removeTracksFromPlaylistByPosition(
+    await spotifyApi.replaceTracksInPlaylist(
       spId,
-      Array.from(Array(10).keys()),
-      playlist.snapshot_id
+      trackSpIds.map((spId) => `spotify:track:${spId}`)
     );
-    sleep(500);
+  } else {
+    await spotifyApi.addTracksToPlaylist(
+      spId,
+      trackSpIds.map((spId) => `spotify:track:${spId}`)
+    );
   }
 
-  await spotifyApi.addTracksToPlaylist(
-    spId,
-    trackSpIds.map((spId) => `spotify:track:${spId}`)
+  return spId;
+};
+
+export const updateAwarenessPlaylist = async () => {
+  const NUM_PICKS = 3;
+
+  const vibes = (await findVibes()) as VibeData[];
+  const allAlbums = vibes.reduce(
+    (albums, vibe) => [
+      ...albums,
+      ...vibe.playables.filter((p) => p.type === "album"),
+    ],
+    [] as PlayableData[]
   );
 
-  return spId;
+  const spId = allAlbums[Math.floor(Math.random() * allAlbums.length)].spId;
+  const albumData = await spotifyApi.getAlbum(spId);
+  sleep(500);
+  const { name: artistName, id } = albumData.body.artists[0];
+  const artistAlbums = await getAllArtistAlbums(id, artistName);
+
+  const featuredAlbumIds = Array.from(Array(NUM_PICKS).keys()).map(
+    () => artistAlbums[Math.floor(Math.random() * artistAlbums.length)].spId
+  );
+  const tracksByAlbumId: Record<string, string[]> = {};
+
+  for (const albumId of featuredAlbumIds) {
+    if (!tracksByAlbumId[albumId]) {
+      const validTracks = (await getTracksForAlbum(albumId)).filter(
+        ({ artists }) => artists.some((artist) => artist.name === artistName)
+      );
+
+      tracksByAlbumId[albumId] = validTracks.map(({ id }) => id);
+      sleep(500);
+    }
+  }
+
+  const trackIds = featuredAlbumIds.map((albumId) => {
+    const tracks = tracksByAlbumId[albumId];
+    const featuredTrackId = tracks[Math.floor(Math.random() * tracks.length)];
+    return featuredTrackId;
+  });
+
+  await updatePlaylistTracks(AWARENESS_PLAYLIST_ID, trackIds, true);
+  sleep(500);
+  await spotifyApi.changePlaylistDetails(AWARENESS_PLAYLIST_ID, {
+    name: `Awareness: ${artistName}`,
+  });
+};
+
+const getTracksForAlbum = async (spId: string) => {
+  const { body } = await spotifyApi.getAlbumTracks(spId);
+  return body.items;
 };
