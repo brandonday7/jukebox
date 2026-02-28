@@ -1,20 +1,18 @@
 #include "methods.h"
 #include "config.h"
 #include "http.h"
+#include "display.h"
 #include <WiFi.h>
 
 void connectToWiFi() {
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    Serial.println("\nConnecting to Wifi network");
+    printFullScreen("Connecting to WiFi", true);
 
-    while(WiFi.status() != WL_CONNECTED){
-        Serial.print(".");
+    while(WiFi.status() != WL_CONNECTED) {
         delay(100);
     }
 
-    Serial.println("\nConnected to the WiFi network");
-    Serial.print("Local ESP32 IP: ");
-    Serial.println(WiFi.localIP());
+    clearDisplay();
 }
 
 std::vector<String> getVibeTitles() {

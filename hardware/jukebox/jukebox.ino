@@ -2,6 +2,7 @@
 #include "http.h"
 #include "methods.h"
 #include "ui.h"
+#include "display.h"
 #include <WiFi.h>
 #include <algorithm>
 
@@ -32,9 +33,8 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("=== Jukebox Starting ===");
+  displayInit();
   uiInit();
-
   connectToWiFi();
 }
 
@@ -56,6 +56,13 @@ void loop() {
 
     if (vibeTitles.size() > 0) {
       vibeTitlesLoaded = true;
+
+      const char* titlesSlice[6];
+      for (int i = 0; i < 6; i++) {
+        titlesSlice[i] = vibeTitles[i].c_str();
+      }
+
+      showTitles(titlesSlice, highlightedVibeIndex);
     } else {
       error = "Failed to load vibes. Try restarting Jukebox.";
     };
@@ -75,6 +82,9 @@ void loop() {
       page = VIBES;
       playablesLoaded = false;
       highlightedPlayableIndex = 0;
+      encoder.setCount(highlightedVibeIndex);
+      Serial.print("Vibe: ");
+      Serial.println(vibeTitles[highlightedVibeIndex]);
     } else if (page == PLAYING) {
       page = PLAYABLES;
     }
@@ -87,18 +97,34 @@ void loop() {
   if (encPosition < 0) {
     encoder.setCount(0);
     encPosition = 0;
-  } else if (encPosition >= vibeTitles.size()) {
+  } else if (page == VIBES && encPosition >= vibeTitles.size()) {
     encoder.setCount(vibeTitles.size() - 1);
     encPosition = vibeTitles.size() - 1;
+  } else if (page == PLAYABLES && encPosition >= playables.size()) {
+    encoder.setCount(playables.size() - 1);
+    encPosition = playables.size() - 1;
   }
 
-  if (encPosition != lastEncPosition) {
+  if (page == VIBES && encPosition != lastEncPosition) {
     int maxIndex = static_cast<int>(vibeTitles.size()) - 1;
     highlightedVibeIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    Serial.print("Vibe: ");
-    Serial.println(vibeTitles[highlightedVibeIndex]);
+    const char* titlesSlice[6];
+    for (int i = 0; i < 6; i++) {
+      titlesSlice[i] = vibeTitles[i].c_str();
+    }
+
+    showTitles(titlesSlice, highlightedVibeIndex);
+  }
+
+  if (page == PLAYABLES && playables.size() && encPosition != lastEncPosition) {
+    int maxIndex = static_cast<int>(playables.size()) - 1;
+    highlightedPlayableIndex = std::clamp(encPosition, 0, maxIndex);
+    lastEncPosition = encPosition;
+
+    Serial.print("Playable: ");
+    Serial.println(playables[highlightedPlayableIndex].title);
   }
 
   if (encSwitchPressed) {
@@ -109,9 +135,12 @@ void loop() {
 
         if (playables.size() > 0) {
           playablesLoaded = true;
+
+          Serial.print("Playable: ");
+          Serial.println(playables[highlightedPlayableIndex].title);
         } else {
-          error = "Failed to load playables. Try restarting Jukebox.";
-        }; 
+          error = "Failed to load playables. Press back and try again.";
+        };
       };
     } else if (page == PLAYABLES) {
       Serial.println("Will play selection!");
