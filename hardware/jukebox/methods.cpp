@@ -33,7 +33,8 @@ std::vector<String> getVibeTitles() {
 };
 
 std::vector<Playable> getPlayables(String title) {
-    String url = makeUrl("/vibe/" + title);
+    String url = makeUrl("/vibe/" + encodeUrlParam(title));
+    Serial.println(url);
     HttpResponse res = get(url);
     std::vector<Playable> playables;
 
@@ -54,6 +55,15 @@ std::vector<Playable> getPlayables(String title) {
     };
     return playables;
 };
+
+std::vector<String> getPlayableTitles(std::vector<Playable> playables) {
+    std::vector<String> titles;
+
+    for (int i = 0; i < playables.size(); i++) {
+        titles.push_back(playables[i].title);
+    }
+    return titles;
+}
 
 // Playback methods
 bool play(bool prev, String spId, String type) {

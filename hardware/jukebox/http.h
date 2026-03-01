@@ -13,6 +13,7 @@ struct HttpResponse {
 };
 
 String makeUrl(String endpoint);
+String encodeUrlParam(String str);
 HttpResponse get(String url);
 HttpResponse post(String url, String jsonBody = "");
 JsonDocument jsonParse(String jsonString);

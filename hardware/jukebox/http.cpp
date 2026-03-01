@@ -5,6 +5,21 @@ String makeUrl(String endpoint) {
     return SERVER_URL + endpoint;
 };
 
+String encodeUrlParam(String str) {
+  String encodedStr = "";
+  for (int i = 0; i < str.length(); i++) {
+    char c = str[i];
+    if (isAlphaNumeric(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+      encodedStr += c;
+    } else {
+      char buf[4];
+      sprintf(buf, "%%%02X", (unsigned char)c);
+      encodedStr += buf;
+    }
+  }
+  return encodedStr;
+}
+
 HttpResponse get(String url) {
     HttpResponse response;
     HTTPClient http;

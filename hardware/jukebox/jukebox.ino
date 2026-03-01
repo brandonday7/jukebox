@@ -26,6 +26,7 @@ int maxVibeDepthIndex = 0;
 std::vector<Playable> playables;
 bool playablesLoaded = false;
 int highlightedPlayableIndex = 0;
+int maxPlayableDepthIndex = 0;
 
 // Playback
 bool playing = false;
@@ -79,10 +80,10 @@ void loop() {
       playablesLoaded = false;
       highlightedPlayableIndex = 0;
       encoder.setCount(highlightedVibeIndex);
-      Serial.print("Vibe: ");
-      Serial.println(vibeTitles[highlightedVibeIndex]);
+      showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else if (page == PLAYING) {
       page = PLAYABLES;
+      showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
     }
     backButtonPressed = false;
   };
@@ -114,8 +115,7 @@ void loop() {
     highlightedPlayableIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    Serial.print("Playable: ");
-    Serial.println(playables[highlightedPlayableIndex].title);
+    showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
   }
 
   if (encSwitchPressed) {
@@ -127,6 +127,7 @@ void loop() {
         if (playables.size() > 0) {
           playablesLoaded = true;
 
+          showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
           Serial.print("Playable: ");
           Serial.println(playables[highlightedPlayableIndex].title);
         } else {
@@ -134,7 +135,13 @@ void loop() {
         };
       };
     } else if (page == PLAYABLES) {
-      Serial.println("Will play selection!");
+      page = PLAYING;
+      playing = play(
+        playing,
+        playables[highlightedPlayableIndex].spId,
+        playables[highlightedPlayableIndex].type
+      );
+      printFullScreen(playables[highlightedPlayableIndex].title);
     }
     encSwitchPressed = false;
   }

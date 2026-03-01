@@ -14,6 +14,7 @@ struct Playable {
 void connectToWiFi();
 std::vector<String> getVibeTitles();
 std::vector<Playable> getPlayables(String title);
+std::vector<String> getPlayableTitles(std::vector<Playable> playables);
 bool play(bool prev, String spId = "", String type = "");
 bool pause(bool prev);
 
