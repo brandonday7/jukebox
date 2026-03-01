@@ -121,15 +121,14 @@ void loop() {
   if (encSwitchPressed) {
     if (page == VIBES) {
       page = PLAYABLES;
+      encoder.setCount(0);
+      lastEncPosition = 0;
       if (vibeTitlesLoaded && !playablesLoaded && error == "") {
         playables = getPlayables(vibeTitles[highlightedVibeIndex]);
 
         if (playables.size() > 0) {
           playablesLoaded = true;
-
           showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
-          Serial.print("Playable: ");
-          Serial.println(playables[highlightedPlayableIndex].title);
         } else {
           error = "Failed to load playables. Press back and try again.";
         };
