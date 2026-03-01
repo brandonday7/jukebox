@@ -7,6 +7,6 @@
 void displayInit();
 void clearDisplay();
 void printFullScreen(String message, bool autoDots = false);
-void showTitles(const char* titles[6], int highlightedIndex);
+void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr);
 
 #endif

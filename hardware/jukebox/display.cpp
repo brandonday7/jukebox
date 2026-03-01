@@ -1,6 +1,7 @@
 #include "display.h"
 
 TFT_eSPI tft = TFT_eSPI();
+int screenHeight = 240;
 
 void displayInit() {
   tft.begin();
@@ -36,19 +37,38 @@ void printFullScreen(String message, bool autoDots) {
   }
 }
 
-void showTitles(const char* titles[6], int highlightedIndex) {
+void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
   tft.fillScreen(TFT_BLACK);
   
   int lineHeight = tft.fontHeight() + 4;
-  
-  for (int i = 0; i < 6; i++) {
-    tft.setCursor(10, 10 + i * lineHeight);
+  int numLines = std::floor(screenHeight / lineHeight);
+  int lowerLimit = 0;
+  int upperLimit = numLines - 1;
+  int maxDepth = *maxDepthPtr;
 
-    if (i == highlightedIndex) {
-      tft.setTextColor(TFT_WHITE, TFT_BLUE);
+  maxDepth = std::max(highlightedIndex, maxDepth);
+
+  if (highlightedIndex < maxDepth - upperLimit) {
+    maxDepth = highlightedIndex + upperLimit;
+  }
+
+  *maxDepthPtr = maxDepth;
+
+  int indexOffset = maxDepth - upperLimit;
+
+  if (indexOffset > 0) {
+    lowerLimit += indexOffset;
+    upperLimit += indexOffset;
+  }
+  
+  for (int i = 0; i < numLines; i++) {
+    tft.setCursor(0, i * lineHeight);
+
+    if (i + lowerLimit == highlightedIndex) {
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
     } else {
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
     }
-    tft.print(titles[i]);
+    tft.print(options[i + lowerLimit]);
   }
 }

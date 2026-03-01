@@ -20,6 +20,7 @@ int backButtonState = 0;
 std::vector<String> vibeTitles;
 bool vibeTitlesLoaded = false;
 int highlightedVibeIndex = 0;
+int maxVibeDepthIndex = 0;
 
 // Playables
 std::vector<Playable> playables;
@@ -57,12 +58,7 @@ void loop() {
     if (vibeTitles.size() > 0) {
       vibeTitlesLoaded = true;
 
-      const char* titlesSlice[6];
-      for (int i = 0; i < 6; i++) {
-        titlesSlice[i] = vibeTitles[i].c_str();
-      }
-
-      showTitles(titlesSlice, highlightedVibeIndex);
+      showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else {
       error = "Failed to load vibes. Try restarting Jukebox.";
     };
@@ -110,12 +106,7 @@ void loop() {
     highlightedVibeIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    const char* titlesSlice[6];
-    for (int i = 0; i < 6; i++) {
-      titlesSlice[i] = vibeTitles[i].c_str();
-    }
-
-    showTitles(titlesSlice, highlightedVibeIndex);
+    showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
   }
 
   if (page == PLAYABLES && playables.size() && encPosition != lastEncPosition) {
