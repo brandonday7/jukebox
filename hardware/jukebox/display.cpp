@@ -1,7 +1,6 @@
 #include "display.h"
 
 TFT_eSPI tft = TFT_eSPI();
-int screenHeight = 240;
 
 void displayInit() {
   tft.begin();
@@ -15,8 +14,21 @@ void clearDisplay() {
   tft.fillScreen(TFT_BLACK);
 }
 
+String truncate(String str) {
+  int screenWidth = tft.width();
+  if (tft.textWidth(str) <= screenWidth) {
+    return str;
+  }
+  
+  str += "...";
+  while (tft.textWidth(str) > screenWidth) {
+    str = str.substring(0, str.length() - 4) + "...";
+  }
+  return str;
+}
+
 void printFullScreen(String message, bool autoDots) {
-  tft.fillScreen(TFT_BLACK);
+  clearDisplay();
   tft.setTextColor(TFT_WHITE);
   int cursorX = 20;
   int cursorY = 60;
@@ -38,10 +50,10 @@ void printFullScreen(String message, bool autoDots) {
 }
 
 void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
-  tft.fillScreen(TFT_BLACK);
+  clearDisplay();
   
   int lineHeight = tft.fontHeight() + 4;
-  int numLines = std::floor(screenHeight / lineHeight);
+  int numLines = std::floor(tft.height() / lineHeight);
   int lowerLimit = 0;
   int upperLimit = numLines - 1;
   int maxDepth = *maxDepthPtr;
@@ -69,6 +81,6 @@ void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPt
     } else {
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
     }
-    tft.print(options[i + lowerLimit]);
+    tft.print(truncate(options[i + lowerLimit]));
   }
 }
