@@ -56,13 +56,16 @@ std::vector<Playable> getPlayables(String title) {
     return playables;
 };
 
-std::vector<String> getPlayableTitles(std::vector<Playable> playables) {
-    std::vector<String> titles;
+std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables) {
+    std::vector<MenuOption> options;
 
     for (int i = 0; i < playables.size(); i++) {
-        titles.push_back(playables[i].title);
+        MenuOption option;
+        option.title = playables[i].title;
+        option.subTitle = playables[i].artistName;
+        options.push_back(option);
     }
-    return titles;
+    return options;
 }
 
 // Playback methods

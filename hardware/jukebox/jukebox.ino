@@ -59,7 +59,7 @@ void loop() {
     if (vibeTitles.size() > 0) {
       vibeTitlesLoaded = true;
 
-      showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else {
       error = "Failed to load vibes. Try restarting Jukebox.";
     };
@@ -80,10 +80,10 @@ void loop() {
       playablesLoaded = false;
       highlightedPlayableIndex = 0;
       encoder.setCount(highlightedVibeIndex);
-      showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else if (page == PLAYING) {
       page = PLAYABLES;
-      showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+      renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
     }
     backButtonPressed = false;
   };
@@ -107,7 +107,7 @@ void loop() {
     highlightedVibeIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    showMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+    renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
   }
 
   if (page == PLAYABLES && playables.size() && encPosition != lastEncPosition) {
@@ -115,7 +115,7 @@ void loop() {
     highlightedPlayableIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+    renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
   }
 
   if (encSwitchPressed) {
@@ -128,7 +128,7 @@ void loop() {
 
         if (playables.size() > 0) {
           playablesLoaded = true;
-          showMenu(getPlayableTitles(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+          renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
         } else {
           error = "Failed to load playables. Press back and try again.";
         };

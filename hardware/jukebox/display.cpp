@@ -49,11 +49,11 @@ void printFullScreen(String message, bool autoDots) {
   }
 }
 
-void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
+void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
   clearDisplay();
-  
-  int lineHeight = tft.fontHeight() + 4;
-  int numLines = std::floor(tft.height() / lineHeight);
+
+  int optionHeight = tft.fontHeight() + 4;
+  int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = 0;
   int upperLimit = numLines - 1;
@@ -75,7 +75,7 @@ void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPt
   }
   
   for (int i = 0; i < numLines; i++) {
-    tft.setCursor(0, i * lineHeight);
+    tft.setCursor(0, i * optionHeight);
 
     if (i + lowerLimit == highlightedIndex) {
       tft.setTextColor(TFT_BLACK, TFT_WHITE);
@@ -83,5 +83,50 @@ void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPt
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
     }
     tft.print(truncate(options[i + lowerLimit]));
+  }
+}
+
+void renderMultilineMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr) {
+  clearDisplay();
+
+  int lineHeight = tft.fontHeight();
+  int optionHeight = 2 * lineHeight + 12;
+  int numLines = std::floor(tft.height() / optionHeight);
+  numLines = std::min(numLines, static_cast<int>(options.size()));
+  int lowerLimit = 0;
+  int upperLimit = numLines - 1;
+  int maxDepth = *maxDepthPtr;
+
+  maxDepth = std::max(highlightedIndex, maxDepth);
+
+  if (highlightedIndex < maxDepth - upperLimit) {
+    maxDepth = highlightedIndex + upperLimit;
+  }
+
+  *maxDepthPtr = maxDepth;
+
+  int indexOffset = maxDepth - upperLimit;
+
+  if (indexOffset > 0) {
+    lowerLimit += indexOffset;
+    upperLimit += indexOffset;
+  }
+  
+  for (int i = 0; i < numLines; i++) {
+    int cursorY = i * optionHeight;
+    tft.setCursor(0, cursorY);
+
+    if (i + lowerLimit == highlightedIndex) {
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
+    } else {
+      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    }
+    tft.print(truncate(options[i + lowerLimit].title));
+
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setCursor(0, cursorY += lineHeight + 4);
+    tft.print(truncate(options[i + lowerLimit].subTitle));
+
+    tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
   }
 }
