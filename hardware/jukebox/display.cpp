@@ -54,6 +54,7 @@ void showMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPt
   
   int lineHeight = tft.fontHeight() + 4;
   int numLines = std::floor(tft.height() / lineHeight);
+  numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = 0;
   int upperLimit = numLines - 1;
   int maxDepth = *maxDepthPtr;
