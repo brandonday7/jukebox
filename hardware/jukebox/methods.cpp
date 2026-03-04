@@ -6,7 +6,7 @@
 
 void connectToWiFi() {
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    printFullScreen("Connecting to WiFi", true);
+    printFullScreen("Connecting to WiFi...");
 
     while(WiFi.status() != WL_CONNECTED) {
         delay(100);

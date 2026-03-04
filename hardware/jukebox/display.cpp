@@ -5,8 +5,9 @@ TFT_eSPI tft = TFT_eSPI();
 void displayInit() {
   tft.begin();
   tft.setRotation(1);
-
-  printFullScreen("Jukebox starting", true);
+  tft.setTextFont(1);
+  tft.setTextPadding(50);
+  printFullScreen("Jukebox starting...");
   delay(1000);
 }
 
@@ -27,27 +28,14 @@ String truncate(String str) {
   return str;
 }
 
-void printFullScreen(String message, bool autoDots) {
+void printFullScreen(String message) {
   clearDisplay();
-  tft.setTextFont(1);
   tft.setTextColor(TFT_WHITE);
-  int cursorX = 20;
-  int cursorY = 60;
+  tft.setTextDatum(MC_DATUM);
   tft.setTextSize(2);
-  tft.setCursor(cursorX, cursorY);
 
-  if (autoDots) {
-    String dotsMessage = "";
-    for (int i = 0; i < 3; i++) {
-      dotsMessage += ".";
-      tft.fillRect(cursorX, cursorY, tft.textWidth(message + "..."), tft.fontHeight(), TFT_BLACK);
-      tft.setCursor(cursorX, cursorY);
-      tft.print(message + dotsMessage);
-      delay(500);
-    }
-  } else {
-    tft.print(message);
-  }
+  tft.drawString(message, tft.width() / 2, tft.height() / 2);
+  tft.setTextDatum(TL_DATUM);
 }
 
 // Vibe titles
@@ -74,11 +62,8 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
 
 // Playable titles
 void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr) {
-  tft.setTextSize(1);
-  int lineHeight1 = tft.fontHeight();
-  tft.setTextSize(2);
-  int lineHeight2 = tft.fontHeight();
-  int optionHeight = lineHeight1 + lineHeight2 + 12;
+  int lineHeight = tft.fontHeight();
+  int optionHeight = 2 * lineHeight + 12;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
@@ -97,12 +82,12 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
     tft.print(truncate(options[i + lowerLimit].title));
 
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setCursor(0, cursorY += lineHeight2 + 4);
+    tft.setCursor(0, cursorY += lineHeight + 4);
     String artistName = options[i + lowerLimit].subTitle;
-    tft.setTextSize(1);
+    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
     tft.print(truncate(toUpperCase(artistName)));
 
-    tft.fillRect(0, cursorY += lineHeight1 + 2, tft.width(), 2, TFT_WHITE);
+    tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
     tft.setTextSize(2);
   }
 }

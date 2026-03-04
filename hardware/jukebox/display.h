@@ -11,7 +11,7 @@ struct MenuOption {
 
 void displayInit();
 void clearDisplay();
-void printFullScreen(String message, bool autoDots = false);
+void printFullScreen(String message);
 
 void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr);
 void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr);
