@@ -29,6 +29,7 @@ String truncate(String str) {
 
 void printFullScreen(String message, bool autoDots) {
   clearDisplay();
+  tft.setTextFont(1);
   tft.setTextColor(TFT_WHITE);
   int cursorX = 20;
   int cursorY = 60;
@@ -51,6 +52,7 @@ void printFullScreen(String message, bool autoDots) {
 
 // Vibe titles
 void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
+  tft.setTextSize(2);
   int optionHeight = tft.fontHeight() + 4;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
@@ -72,8 +74,11 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
 
 // Playable titles
 void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr) {
-  int lineHeight = tft.fontHeight();
-  int optionHeight = 2 * lineHeight + 12;
+  tft.setTextSize(1);
+  int lineHeight1 = tft.fontHeight();
+  tft.setTextSize(2);
+  int lineHeight2 = tft.fontHeight();
+  int optionHeight = lineHeight1 + lineHeight2 + 12;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
@@ -92,10 +97,13 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
     tft.print(truncate(options[i + lowerLimit].title));
 
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setCursor(0, cursorY += lineHeight + 4);
-    tft.print(truncate(options[i + lowerLimit].subTitle));
+    tft.setCursor(0, cursorY += lineHeight2 + 4);
+    String artistName = options[i + lowerLimit].subTitle;
+    tft.setTextSize(1);
+    tft.print(truncate(toUpperCase(artistName)));
 
-    tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
+    tft.fillRect(0, cursorY += lineHeight1 + 2, tft.width(), 2, TFT_WHITE);
+    tft.setTextSize(2);
   }
 }
 
@@ -119,4 +127,9 @@ int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr) {
   }
 
   return lowerLimit;
+}
+
+String toUpperCase(String str) {
+  std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+  return str;
 }
