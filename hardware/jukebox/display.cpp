@@ -49,31 +49,15 @@ void printFullScreen(String message, bool autoDots) {
   }
 }
 
+// Vibe titles
 void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr) {
-  clearDisplay();
-
   int optionHeight = tft.fontHeight() + 4;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
-  int lowerLimit = 0;
-  int upperLimit = numLines - 1;
-  int maxDepth = *maxDepthPtr;
-
-  maxDepth = std::max(highlightedIndex, maxDepth);
-
-  if (highlightedIndex < maxDepth - upperLimit) {
-    maxDepth = highlightedIndex + upperLimit;
-  }
-
-  *maxDepthPtr = maxDepth;
-
-  int indexOffset = maxDepth - upperLimit;
-
-  if (indexOffset > 0) {
-    lowerLimit += indexOffset;
-    upperLimit += indexOffset;
-  }
+  int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
   
+  clearDisplay();
+
   for (int i = 0; i < numLines; i++) {
     tft.setCursor(0, i * optionHeight);
 
@@ -86,32 +70,16 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
   }
 }
 
-void renderMultilineMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr) {
-  clearDisplay();
-
+// Playable titles
+void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr) {
   int lineHeight = tft.fontHeight();
   int optionHeight = 2 * lineHeight + 12;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
-  int lowerLimit = 0;
-  int upperLimit = numLines - 1;
-  int maxDepth = *maxDepthPtr;
-
-  maxDepth = std::max(highlightedIndex, maxDepth);
-
-  if (highlightedIndex < maxDepth - upperLimit) {
-    maxDepth = highlightedIndex + upperLimit;
-  }
-
-  *maxDepthPtr = maxDepth;
-
-  int indexOffset = maxDepth - upperLimit;
-
-  if (indexOffset > 0) {
-    lowerLimit += indexOffset;
-    upperLimit += indexOffset;
-  }
+  int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
   
+  clearDisplay();
+
   for (int i = 0; i < numLines; i++) {
     int cursorY = i * optionHeight;
     tft.setCursor(0, cursorY);
@@ -129,4 +97,26 @@ void renderMultilineMenu(std::vector<MenuOption> options, int highlightedIndex, 
 
     tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
   }
+}
+
+int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr) {
+  int lowerLimit = 0;
+  int upperLimit = numLines - 1;
+  int maxDepth = *maxDepthPtr;
+
+  maxDepth = std::max(highlightedIndex, maxDepth);
+
+  if (highlightedIndex < maxDepth - upperLimit) {
+    maxDepth = highlightedIndex + upperLimit;
+  }
+
+  *maxDepthPtr = maxDepth;
+
+  int indexOffset = maxDepth - upperLimit;
+
+  if (indexOffset > 0) {
+    lowerLimit += indexOffset;
+  }
+
+  return lowerLimit;
 }

@@ -83,7 +83,7 @@ void loop() {
       renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else if (page == PLAYING) {
       page = PLAYABLES;
-      renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+      renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
     }
     backButtonPressed = false;
   };
@@ -115,7 +115,7 @@ void loop() {
     highlightedPlayableIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
 
-    renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+    renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
   }
 
   if (encSwitchPressed) {
@@ -128,7 +128,7 @@ void loop() {
 
         if (playables.size() > 0) {
           playablesLoaded = true;
-          renderMultilineMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+          renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
         } else {
           error = "Failed to load playables. Press back and try again.";
         };

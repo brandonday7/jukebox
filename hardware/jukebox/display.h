@@ -14,5 +14,6 @@ void clearDisplay();
 void printFullScreen(String message, bool autoDots = false);
 
 void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepthPtr);
-void renderMultilineMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr);
+void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr);
+int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr);
 #endif
