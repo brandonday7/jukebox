@@ -23,6 +23,10 @@ import spotifyApi, {
 import { validateVibe } from "./validators.js";
 import express from "express";
 import crypto from "crypto";
+import {
+  fileAsPixelArray,
+  generateArtworkFileFromUrl,
+} from "../clients/artwork.js";
 
 const router = express.Router();
 
@@ -93,12 +97,12 @@ router.post("/vibe/insertPlayables", async (req, res) => {
   }
 
   const artworkUrlsBySpId = await getArtworkUrlsBySpId(
-    albums.map(({ spId }) => spId)
+    albums.map(({ spId }) => spId),
   );
   const playablesToInsert = playables.map((p) =>
     artworkUrlsBySpId[p.spId]
       ? { ...p, artworkUrl: artworkUrlsBySpId[p.spId] }
-      : p
+      : p,
   );
   const newPlayables = await insertPlayables(title, playablesToInsert, index);
   res.send({ playables: newPlayables });
@@ -326,21 +330,15 @@ router.post("/defaultDevice", async (req, res) => {
   }
 });
 
-// router.post("/artworkFile", async (req, res) => {
-//   const url = req.query.spId as string;
+router.get("/artwork", async (req, res) => {
+  const imageUrl = req.query.imageUrl as string | undefined;
+  // for playlists. TODO: make this a real image hosted on server.
+  const backupUrl =
+    "https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25";
 
-//   try {
-//     const imageFile = await generateArtworkFileFromUrl(
-//       url ?? "https://i.scdn.co/image/ab67616d00001e028c5b6f7dcdc5817dc5050b2a",
-//       30
-//     );
-
-//     const pixels = fileAsPixelArray(imageFile.bitmap);
-//     res.send({ pixels });
-//   } catch (e) {
-//     const err = e as SpotifyError;
-//     res.status(500).send("Error: " + err.message);
-//   }
-// });
+  const artworkFile = await generateArtworkFileFromUrl(imageUrl ?? backupUrl);
+  const pixels = await fileAsPixelArray(artworkFile.bitmap);
+  res.send({ pixels });
+});
 
 export default router;
