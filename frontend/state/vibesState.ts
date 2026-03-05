@@ -22,7 +22,7 @@ interface VibeState {
   insertPlayables(
     title: string,
     playables: PlayableData[],
-    index?: number
+    index?: number,
   ): void;
   removePlayable(title: string, spId: string): void;
   setSelectedPlayable(playable?: PlayableData): void;
@@ -81,11 +81,11 @@ export const useVibeState = create<VibeState>((set, get) => ({
       const { playables: newPlayables } = await insertPlayables(
         title,
         playables,
-        index
+        index,
       );
       set(({ vibes }) => ({
         vibes: vibes?.map((v) =>
-          v.title === title ? { ...v, playables: newPlayables } : v
+          v.title === title ? { ...v, playables: newPlayables } : v,
         ),
       }));
     } catch {
@@ -103,7 +103,7 @@ export const useVibeState = create<VibeState>((set, get) => ({
             ?.playables?.filter((p) => p.spId !== spId) || [];
         return {
           vibes: vibes.map((v) =>
-            v.title === title ? { ...v, playables } : v
+            v.title === title ? { ...v, playables } : v,
           ),
         };
       });

@@ -104,7 +104,7 @@ const Vibes = () => {
                     vibes.length === recentlySelectedVibes.length
                       ? vibes
                       : vibes.filter(
-                          (p) => !recentlySelectedVibes.includes(p.title)
+                          (p) => !recentlySelectedVibes.includes(p.title),
                         );
                   const randomVibe =
                     availableRandomVibes[
@@ -135,7 +135,7 @@ const Vibes = () => {
                         onPress: () => removeVibe(v.title),
                         style: "default",
                       },
-                    ]
+                    ],
                   );
                 }}
               >

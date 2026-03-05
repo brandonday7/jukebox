@@ -56,7 +56,7 @@ export const createVibe = async (title: string, playables: PlayableData[]) =>
 export const insertPlayables = async (
   title: string,
   playables: PlayableData[],
-  index?: number
+  index?: number,
 ) =>
   post<{ playables: PlayableData[] }>(makeUrl("/vibe/insertPlayables"), {
     title,

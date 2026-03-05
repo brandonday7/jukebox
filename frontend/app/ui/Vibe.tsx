@@ -119,7 +119,7 @@ const Vibe = () => {
               playables.length === recentlySelectedPlayables.length
                 ? playables
                 : playables.filter(
-                    (p) => !recentlySelectedPlayables.includes(p.spId)
+                    (p) => !recentlySelectedPlayables.includes(p.spId),
                   );
             const randomPlayable =
               availableRandomPlayables[
@@ -147,7 +147,7 @@ const Vibe = () => {
                       onPress: () => removePlayable(vibe.title, playable.spId),
                       style: "default",
                     },
-                  ]
+                  ],
                 );
               }}
             >
