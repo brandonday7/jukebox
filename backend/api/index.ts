@@ -332,11 +332,16 @@ router.post("/defaultDevice", async (req, res) => {
 
 router.get("/artwork", async (req, res) => {
   const imageUrl = req.query.imageUrl as string | undefined;
-  // for playlists. TODO: make this a real image hosted on server.
-  const backupUrl =
-    "https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25";
+  const size = req.query.size as string | undefined;
 
-  const artworkFile = await generateArtworkFileFromUrl(imageUrl ?? backupUrl);
+  // For playlists. TODO: host a custom image on server.
+  const backupUrl =
+    "https://static.vecteezy.com/system/resources/thumbnails/025/379/485/small_2x/music-streaming-service-icon-isolated-on-square-background-vector.jpg";
+
+  const artworkFile = await generateArtworkFileFromUrl(
+    imageUrl ?? backupUrl,
+    size ? Number(size) : undefined,
+  );
   const pixels = await fileAsPixelArray(artworkFile.bitmap);
   res.send({ pixels });
 });
