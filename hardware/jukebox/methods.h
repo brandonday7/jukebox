@@ -10,12 +10,14 @@ struct Playable {
   String artistName;
   String type; // "album" or "playlist"
   String spId;
+  String artworkUrl;
 };
 
 void connectToWiFi();
 std::vector<String> getVibeTitles();
 std::vector<Playable> getPlayables(String title);
 std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables);
+void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size = 10);
 bool play(bool prev, String spId = "", String type = "");
 bool pause(bool prev);
 

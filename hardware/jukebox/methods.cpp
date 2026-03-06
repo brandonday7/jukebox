@@ -49,6 +49,7 @@ std::vector<Playable> getPlayables(String title) {
             playable.type = arr[i]["type"].as<String>();
             playable.artistName = arr[i]["artistName"].as<String>();
             playable.spId = arr[i]["spId"].as<String>();
+            playable.artworkUrl = arr[i]["artworkUrl"].as<String>();
 
             playables.push_back(playable);
         }
@@ -66,6 +67,20 @@ std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables) {
         options.push_back(option);
     }
     return options;
+}
+
+void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size) {
+    String params = "?imageUrl=" + encodeUrlParam(artworkUrl) + "&size=" + size;
+    String url = makeUrl("/artwork" + params);
+    HttpResponse res = get(url);
+
+    if (res.success) {
+        JsonDocument doc = jsonParse(res.body);
+        JsonArray pixels = doc["pixels"];
+        for (int i = 0; i < size * size; i++) {
+            bufferPtr[i] = pixels[i].as<uint16_t>();
+        }
+    }
 }
 
 // Playback methods

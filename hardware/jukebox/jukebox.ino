@@ -30,6 +30,8 @@ int maxPlayableDepthIndex = 0;
 
 // Playback
 bool playing = false;
+const int imgSize = 12;
+uint16_t imgBuffer[imgSize * imgSize] = {};
 
 void setup() {
   Serial.begin(115200);
@@ -135,12 +137,19 @@ void loop() {
       };
     } else if (page == PLAYABLES) {
       page = PLAYING;
-      playing = play(
-        playing,
-        playables[highlightedPlayableIndex].spId,
-        playables[highlightedPlayableIndex].type
+      fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
+      playing = true;
+      renderNowPlaying(
+        playables[highlightedPlayableIndex].title,
+        playables[highlightedPlayableIndex].artistName,
+        imgBuffer,
+        imgSize
       );
-      printFullScreen(playables[highlightedPlayableIndex].title);
+      // playing = play(
+      //   playing,
+      //   playables[highlightedPlayableIndex].spId,
+      //   playables[highlightedPlayableIndex].type
+      // );
     }
     encSwitchPressed = false;
   }

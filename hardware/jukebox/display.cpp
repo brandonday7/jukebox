@@ -4,9 +4,10 @@ TFT_eSPI tft = TFT_eSPI();
 
 void displayInit() {
   tft.begin();
+  clearDisplay();
   tft.setRotation(1);
   tft.setTextFont(1);
-  tft.setTextPadding(50);
+  tft.setTextSize(2);
   printFullScreen("Jukebox starting...");
   delay(1000);
 }
@@ -118,3 +119,26 @@ String toUpperCase(String str) {
   std::transform(str.begin(), str.end(), str.begin(), ::toupper);
   return str;
 }
+
+
+void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int size) {
+  clearDisplay();
+  int scale = 100 / size;
+  int imgWidth = size;
+  int imgHeight = size;
+  int cursorX = 30;
+  int cursorY = 70;
+
+  for (int y = 0; y < imgHeight; y++) {
+    for (int x = 0; x < imgWidth; x++) {
+      uint16_t color = bufferPtr[y * imgWidth + x];
+      tft.fillRect(cursorX + (x * scale), cursorY + (y * scale), scale, scale, color);
+    }
+  }
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.setCursor(140, 115);
+  tft.print(title);
+}
+
+
+
