@@ -140,7 +140,7 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
   }
 
   int displayTextRoom = tft.width() - 3 * padding - renderedSize;
-  // tft.setTextSize(2);
+  // tft.setTextSize(3);
   int titleFontHeight = tft.fontHeight();
   int artistFontHeight = tft.fontHeight();
   int totalTextHeight = titleFontHeight + artistFontHeight + 4;
@@ -149,9 +149,16 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
   int maxArtistLines = 1;
   int numLines = maxTitleLines + maxArtistLines;
 
+  int textCursorX = 2 * padding + renderedSize;
+  int textCursorY = (tft.height() - totalTextHeight) / 2;
+
   if (title.indexOf(" ") == -1) {
-    tft.setCursor(2 * padding + renderedSize, (tft.height() - totalTextHeight) / 2);
+    tft.setCursor(textCursorX, textCursorY);
     tft.print(truncate(title, displayTextRoom));
+    tft.setTextSize(2);
+    tft.setCursor(textCursorX, textCursorY += artistFontHeight + 4);
+    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+    tft.print(truncate(artistName, displayTextRoom));
   } else {
     totalTextHeight += titleFontHeight + 4;
     std::vector<int> spaceIndices;
@@ -172,8 +179,6 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
         break;
       }
     }
-    int textCursorX = 2 * padding + renderedSize;
-    int textCursorY = (tft.height() - totalTextHeight) / 2;
     tft.setCursor(textCursorX, textCursorY);
     tft.print(firstLine);
 

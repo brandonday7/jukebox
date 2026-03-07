@@ -145,11 +145,11 @@ void loop() {
         imgBuffer,
         imgSize
       );
-      // playing = play(
-      //   playing,
-      //   playables[highlightedPlayableIndex].spId,
-      //   playables[highlightedPlayableIndex].type
-      // );
+      playing = play(
+        playing,
+        playables[highlightedPlayableIndex].spId,
+        playables[highlightedPlayableIndex].type
+      );
     }
     encSwitchPressed = false;
   }
