@@ -1,7 +1,15 @@
 import { Jimp, type Bitmap } from "jimp";
+import fs from "fs";
 
-export const generateArtworkFileFromUrl = async (url: string, size = 10) => {
-  const image = await Jimp.read(url);
+// Note that the relative path provided is relative to /backend, not relative to this file.
+const DEFAULT_FILE_PATH = "./static/images/playlist-default.png";
+
+export const generateArtworkFileFromPath = async (path?: string, size = 10) => {
+  console.log(process.cwd());
+  const image = await (path
+    ? Jimp.read(path)
+    : Jimp.read(fs.readFileSync(DEFAULT_FILE_PATH)));
+
   image.resize({ w: size, h: size });
   return image;
 };

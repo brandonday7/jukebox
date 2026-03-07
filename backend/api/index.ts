@@ -25,7 +25,7 @@ import express from "express";
 import crypto from "crypto";
 import {
   fileAsPixelArray,
-  generateArtworkFileFromUrl,
+  generateArtworkFileFromPath,
 } from "../clients/artwork.js";
 
 const router = express.Router();
@@ -334,12 +334,8 @@ router.get("/artwork", async (req, res) => {
   const imageUrl = req.query.imageUrl as string | undefined;
   const size = req.query.size as string | undefined;
 
-  // For playlists. TODO: host a custom image on server.
-  const backupUrl =
-    "https://static.vecteezy.com/system/resources/thumbnails/025/379/485/small_2x/music-streaming-service-icon-isolated-on-square-background-vector.jpg";
-
-  const artworkFile = await generateArtworkFileFromUrl(
-    imageUrl ?? backupUrl,
+  const artworkFile = await generateArtworkFileFromPath(
+    imageUrl || undefined,
     size ? Number(size) : undefined,
   );
   const pixels = await fileAsPixelArray(artworkFile.bitmap);
