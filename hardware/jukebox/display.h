@@ -17,5 +17,6 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
 void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxDepthPtr);
 int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr);
 
+std::vector<String> toMultiline(String str, int maxLines, int availableSpace = -1);
 void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int size);
 #endif

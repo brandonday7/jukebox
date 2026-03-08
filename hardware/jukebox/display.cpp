@@ -197,5 +197,50 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
   }
 }
 
+std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
+  if (availableSpace == -1) {
+    availableSpace = tft.width();
+  }
+  std::vector<String> lines;
 
+  while (str.length() && lines.size() <= maxLines) {
+    std::vector<int> spaceIndices;
+    for (int i = 0; i < str.length(); i++) {
+      if (str[i] == ' ') {
+        spaceIndices.insert(spaceIndices.begin(), i);
+      }
+    }
+
+    if (spaceIndices.size() == 0 || lines.size() == maxLines - 1) {
+      lines.push_back(truncate(str));
+      str = "";
+      break;
+    }
+
+    String nextWord = str.substring(0, spaceIndices[spaceIndices.size() - 1]);
+    if (tft.textWidth(nextWord) > availableSpace) {
+        lines.push_back(truncate(str));
+        str = "";
+        break;
+    }
+
+    String line = str;
+    int spaceIndex = 0;
+
+    while (tft.textWidth(line) > availableSpace) {
+      if (spaceIndex < spaceIndices.size()) {
+        line = line.substring(0, spaceIndices[spaceIndex]);
+        spaceIndex++;
+      } else {
+        break;
+      }
+    }
+
+    lines.push_back(line);
+    str = str.substring(line.length());
+    str.trim();
+  }
+
+  return lines;
+}
 

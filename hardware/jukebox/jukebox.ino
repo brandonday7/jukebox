@@ -3,8 +3,11 @@
 #include "methods.h"
 #include "ui.h"
 #include "display.h"
+#include "tests.h"
 #include <WiFi.h>
 #include <algorithm>
+
+bool runTests = true;
 
 // System
 enum Page {
@@ -37,6 +40,10 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
+  if (runTests) {
+    runTestSuite();
+    runTests = false;
+  }
   displayInit();
   uiInit();
   connectToWiFi();
