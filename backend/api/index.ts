@@ -43,7 +43,19 @@ interface SpotifyError extends Error {
   statusCode: number;
 }
 
-router.get("/ping", async (_req, res) => {
+router.get("/ping", async (req, res) => {
+  const activateDefaultDevice = req.query.activateDefaultDevice as
+    | string
+    | undefined;
+
+  if (activateDefaultDevice === "true") {
+    await validateAccessToken(PLAYER_ACCOUNT_NAME);
+    // Activate the user's default device. Retry is a no-op.
+    // No need to await response. This simply primes Spotify
+    // API for incoming play requests.
+    activateAndRetry(async () => {}, PLAYER_ACCOUNT_NAME);
+  }
+
   res.send({ awake: true });
 });
 
