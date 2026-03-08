@@ -2,14 +2,14 @@ const API_KEY = process.env.EXPO_PUBLIC_API_KEY || "";
 
 export const get = async <T>(
   url: string,
-  p?: Record<string, any>
+  p?: Record<string, any>,
 ): Promise<T> => {
   const params = new URLSearchParams();
   for (const key in p) {
     params.append(key, p[key]);
   }
 
-  const result = await fetch([url, params ? "?" : "", params].join(""), {
+  const result = await fetch([url, params.size ? "?" : "", params].join(""), {
     method: "GET",
     headers: {
       "x-api-key": API_KEY,
@@ -25,7 +25,7 @@ export const get = async <T>(
 
 export const post = async <T>(
   url: string,
-  body?: Record<string, any>
+  body?: Record<string, any>,
 ): Promise<T> => {
   const result = await fetch(url, {
     method: "POST",
@@ -44,7 +44,7 @@ export const post = async <T>(
 
 export const del = async <T>(
   url: string,
-  body?: Record<string, any>
+  body?: Record<string, any>,
 ): Promise<T> => {
   const result = await fetch(url, {
     method: "DELETE",

@@ -70,8 +70,17 @@ std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables) {
 }
 
 void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size) {
-    String params = "?imageUrl=" + encodeUrlParam(artworkUrl) + "&size=" + size;
+    String params = "?size=" + String(size);
+    Serial.println(params);
+    Serial.println(artworkUrl);
+
+    if (artworkUrl != "null" && artworkUrl.length() > 0) {
+        params = params + "&imageUrl=" + encodeUrlParam(artworkUrl);
+    }
+    Serial.println(params);
     String url = makeUrl("/artwork" + params);
+    Serial.println(url);
+
     HttpResponse res = get(url);
 
     if (res.success) {

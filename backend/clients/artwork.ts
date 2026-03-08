@@ -4,7 +4,7 @@ import fs from "fs";
 // Note that the relative path provided is relative to /backend, not relative to this file.
 const DEFAULT_FILE_PATH = "./static/images/playlist-default.png";
 
-export const generateArtworkFileFromPath = async (path?: string, size = 10) => {
+export const generateArtworkFileFromPath = async (path?: string, size = 12) => {
   console.log(process.cwd());
   const image = await (path
     ? Jimp.read(path)
