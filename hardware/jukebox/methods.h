@@ -14,6 +14,7 @@ struct Playable {
 };
 
 void connectToWiFi();
+void activateSpotifyDevice();
 std::vector<String> getVibeTitles();
 std::vector<Playable> getPlayables(String title);
 std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables);

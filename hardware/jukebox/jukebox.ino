@@ -40,6 +40,7 @@ void setup() {
   displayInit();
   uiInit();
   connectToWiFi();
+  activateSpotifyDevice();
 }
 
 void loop() {

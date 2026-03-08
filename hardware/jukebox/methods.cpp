@@ -15,6 +15,11 @@ void connectToWiFi() {
     clearDisplay();
 }
 
+void activateSpotifyDevice() {
+    String url = makeUrl("/ping?activateDefaultDevice=true");
+    HttpResponse res = get(url);
+}
+
 std::vector<String> getVibeTitles() {
     String url = makeUrl("/vibeTitles");
     HttpResponse res = get(url);
