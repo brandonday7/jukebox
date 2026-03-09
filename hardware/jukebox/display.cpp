@@ -223,10 +223,10 @@ std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
 void renderLoading(int delayTime) {
   clearDisplay();
   int speed = 400;
-  int width = 50;
-  int height = 50;
-  int smR = 10;
-  int lgR = 20;
+  int width = 30;
+  int height = 30;
+  int smR = 5;
+  int lgR = 10;
   int cursorX = (tft.width() - width) / 2;
   int cursorY = (tft.height() - height) / 2;
 

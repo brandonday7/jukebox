@@ -104,7 +104,7 @@ bool play(bool prev, String spId, String type) {
     body["spId"] = spId;
     body["type"] = type;
 
-    char bodyJsonBuffer[50]; // Create a character array to store the JSON string
+    char bodyJsonBuffer[60]; // Create a character array to store the JSON string
     serializeJson(body, bodyJsonBuffer); // Serialize the JsonDocument to the buffer
 
     HttpResponse res = post(url, bodyJsonBuffer);

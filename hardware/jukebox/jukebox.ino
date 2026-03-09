@@ -151,7 +151,8 @@ void loop() {
         playables[highlightedPlayableIndex].title,
         playables[highlightedPlayableIndex].artistName,
         imgBuffer,
-        imgSize
+        imgSize,
+        playing
       );
       // playing = play(
       //   playing,
