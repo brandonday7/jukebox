@@ -143,57 +143,33 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
   // tft.setTextSize(3);
   int titleFontHeight = tft.fontHeight();
   int artistFontHeight = tft.fontHeight();
-  int totalTextHeight = titleFontHeight + artistFontHeight + 4;
 
-  int maxTitleLines = 2;
-  int maxArtistLines = 1;
-  int numLines = maxTitleLines + maxArtistLines;
+  std::vector<String> titleLines = toMultiline(title, 3, displayTextRoom);
+  std::vector<String> artistLines = toMultiline(artistName, 3, displayTextRoom);
+
+  int totalTextHeight = 0;
+  for (int i = 0; i < titleLines.size(); i++) {
+    totalTextHeight += titleFontHeight + 4;
+  }
+  for (int i = 0; i < artistLines.size(); i++) {
+    totalTextHeight += artistFontHeight + 4;
+  }
 
   int textCursorX = 2 * padding + renderedSize;
   int textCursorY = (tft.height() - totalTextHeight) / 2;
 
-  if (title.indexOf(" ") == -1) {
+  for (int i = 0; i < titleLines.size(); i++) {
     tft.setCursor(textCursorX, textCursorY);
-    tft.print(truncate(title, displayTextRoom));
-    tft.setTextSize(2);
-    tft.setCursor(textCursorX, textCursorY += artistFontHeight + 4);
-    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-    tft.print(truncate(artistName, displayTextRoom));
-  } else {
-    totalTextHeight += titleFontHeight + 4;
-    std::vector<int> spaceIndices;
-    for (int i = 0; i < title.length(); i++) {
-      if (title[i] == ' ') {
-        spaceIndices.insert(spaceIndices.begin(), i);
-      }
-    }
+    tft.print(titleLines[i]);
+    textCursorY += titleFontHeight + 4;
+  }
 
-    String firstLine = title;
-    int spaceIndex = 0;
+  tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
 
-    while (tft.textWidth(firstLine) > displayTextRoom) {
-      if (spaceIndex < spaceIndices.size()) {
-        firstLine = firstLine.substring(0, spaceIndices[spaceIndex]);
-        spaceIndex++;
-      } else {
-        break;
-      }
-    }
+  for (int i = 0; i < artistLines.size(); i++) {
     tft.setCursor(textCursorX, textCursorY);
-    tft.print(firstLine);
-
-    int titleHeight = titleFontHeight;
-    if (firstLine != title) {
-      tft.setCursor(textCursorX, textCursorY += titleFontHeight + 4);
-      String secondLine = title.substring(spaceIndices[spaceIndex - 1] + 1, title.length());
-      tft.print(truncate(secondLine, displayTextRoom));
-      titleHeight += titleFontHeight;
-    }
-
-    tft.setTextSize(2);
-    tft.setCursor(textCursorX, textCursorY += artistFontHeight + 4);
-    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-    tft.print(truncate(artistName, displayTextRoom));
+    tft.print(artistLines[i]);
+    textCursorY += titleFontHeight + 4;
   }
 }
 
@@ -212,14 +188,14 @@ std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
     }
 
     if (spaceIndices.size() == 0 || lines.size() == maxLines - 1) {
-      lines.push_back(truncate(str));
+      lines.push_back(truncate(str, availableSpace));
       str = "";
       break;
     }
 
     String nextWord = str.substring(0, spaceIndices[spaceIndices.size() - 1]);
     if (tft.textWidth(nextWord) > availableSpace) {
-        lines.push_back(truncate(str));
+        lines.push_back(truncate(str, availableSpace));
         str = "";
         break;
     }
