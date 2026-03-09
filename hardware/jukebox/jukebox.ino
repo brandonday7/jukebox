@@ -64,7 +64,9 @@ void loop() {
   };
 
   if (!vibeTitlesLoaded && error == "") {
-    vibeTitles = getVibeTitles();
+    vibeTitles = withLoading<std::vector<String>>([&]() {
+      return getVibeTitles();
+    });
 
     if (vibeTitles.size() > 0) {
       vibeTitlesLoaded = true;
@@ -151,8 +153,7 @@ void loop() {
         playables[highlightedPlayableIndex].title,
         playables[highlightedPlayableIndex].artistName,
         imgBuffer,
-        imgSize,
-        playing
+        imgSize
       );
       // playing = play(
       //   playing,
