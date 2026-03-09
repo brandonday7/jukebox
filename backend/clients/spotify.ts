@@ -41,7 +41,7 @@ export default spotifyApi;
 
 export const activateAndRetry = async (
   retry: () => Promise<void>,
-  accountName: string
+  accountName: string,
 ) => {
   const deviceId = (await getSpAccount(accountName))?.defaultDeviceId;
 
@@ -57,19 +57,22 @@ export const activateAndRetry = async (
 };
 
 export const activateDevice = async (deviceId?: string) => {
-  const deviceIdToActivate =
-    deviceId ?? (await spotifyApi.getMyDevices()).body.devices[0]?.id;
+  const devices = (await spotifyApi.getMyDevices()).body.devices;
 
-  if (deviceIdToActivate) {
-    await spotifyApi.transferMyPlayback([deviceIdToActivate]);
-    console.log(`Device with ID ${deviceIdToActivate} has been activated!`);
-    // After device has been activated, it needs 3s to actually wake up.
-    // This delay will only ever happen when you first turn the device playback on.
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    return true;
+  if (devices.length) {
+    const device = devices.find(({ id }) => deviceId === id) ?? devices[0];
+    const deviceIdToActivate = !device.is_active ? device.id : undefined;
+
+    if (deviceIdToActivate) {
+      await spotifyApi.transferMyPlayback([deviceIdToActivate]);
+      console.log(`Device with ID ${deviceIdToActivate} has been activated!`);
+      // After device has been activated, it needs 3s to actually wake up.
+      // This delay will only ever happen when you first turn the device playback on.
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return true;
+    }
+    return false;
   }
-  console.warn(`No device activated`);
-  return false;
 };
 
 export const validateAccessToken = async (accountName: string) => {
@@ -108,22 +111,25 @@ export const getArtworkUrlsBySpId = async (spIds: string[]) => {
 
   while (i < spIds.length) {
     albums.push(
-      ...(await spotifyApi.getAlbums(spIds.slice(i, i + limit))).body.albums
+      ...(await spotifyApi.getAlbums(spIds.slice(i, i + limit))).body.albums,
     );
     i += limit;
 
     sleep(500);
   }
 
-  const artworkUrlsBySpId = albums.reduce((acc, { images, id }) => {
-    acc[id] = images[0].url;
-    return acc;
-  }, {} as Record<string, string>);
+  const artworkUrlsBySpId = albums.reduce(
+    (acc, { images, id }) => {
+      acc[id] = images[0].url;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
   return artworkUrlsBySpId;
 };
 
 export const getAlbumsBySpId = async (
-  spIds: string[]
+  spIds: string[],
 ): Promise<PlayableData[]> => {
   const limit = 20;
   let i = 0;
@@ -131,7 +137,7 @@ export const getAlbumsBySpId = async (
 
   while (i < spIds.length) {
     albums.push(
-      ...(await spotifyApi.getAlbums(spIds.slice(i, i + limit))).body.albums
+      ...(await spotifyApi.getAlbums(spIds.slice(i, i + limit))).body.albums,
     );
     i += limit;
 
@@ -166,9 +172,9 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
           artists.some(
             (artist) =>
               artist.name !== "Various Artists" &&
-              artist.name !== "Various Composers"
+              artist.name !== "Various Composers",
           ) &&
-          album_type !== "compilation"
+          album_type !== "compilation",
       )
       .map(
         ({ id, name, images }) =>
@@ -178,7 +184,7 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
             artistName,
             artworkUrl: images.length ? images[0].url : "",
             spId: id,
-          } as PlayableData)
+          }) as PlayableData,
       );
 
     albums = albums.concat(albumSet);
@@ -202,21 +208,21 @@ export const populateTopArtistsVibe = async () => {
     spId: artist.id,
   }));
   const artistAlbums = await Promise.all(
-    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name))
+    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name)),
   );
 
   await createOrUpdateVibe(
     "Explore Top Artists",
     artistAlbums.map(
-      (albums) => albums[Math.floor(Math.random() * albums.length)]
-    )
+      (albums) => albums[Math.floor(Math.random() * albums.length)],
+    ),
   );
 };
 
 export const createPlaylist = async (
   name: string,
   description: string,
-  spIds: string[]
+  spIds: string[],
 ) => {
   const { body } = await spotifyApi.createPlaylist(name, {
     description,
@@ -226,7 +232,7 @@ export const createPlaylist = async (
 
   await spotifyApi.addTracksToPlaylist(
     playlistSpId,
-    spIds.map((spId) => `spotify:track:${spId}`)
+    spIds.map((spId) => `spotify:track:${spId}`),
   );
 
   return playlistSpId;
@@ -235,17 +241,17 @@ export const createPlaylist = async (
 export const updatePlaylistTracks = async (
   spId: string,
   trackSpIds: string[],
-  erasePrevious = false
+  erasePrevious = false,
 ) => {
   if (erasePrevious) {
     await spotifyApi.replaceTracksInPlaylist(
       spId,
-      trackSpIds.map((spId) => `spotify:track:${spId}`)
+      trackSpIds.map((spId) => `spotify:track:${spId}`),
     );
   } else {
     await spotifyApi.addTracksToPlaylist(
       spId,
-      trackSpIds.map((spId) => `spotify:track:${spId}`)
+      trackSpIds.map((spId) => `spotify:track:${spId}`),
     );
   }
 
@@ -261,7 +267,7 @@ export const updateAwarenessPlaylist = async () => {
       ...albums,
       ...vibe.playables.filter((p) => p.type === "album"),
     ],
-    [] as PlayableData[]
+    [] as PlayableData[],
   );
 
   const allArtists = new Set();
@@ -285,14 +291,14 @@ export const updateAwarenessPlaylist = async () => {
   const artistAlbums = await getAllArtistAlbums(id, artistName);
 
   const featuredAlbumIds = Array.from(Array(NUM_PICKS).keys()).map(
-    () => artistAlbums[Math.floor(Math.random() * artistAlbums.length)].spId
+    () => artistAlbums[Math.floor(Math.random() * artistAlbums.length)].spId,
   );
   const tracksByAlbumId: Record<string, string[]> = {};
 
   for (const albumId of featuredAlbumIds) {
     if (!tracksByAlbumId[albumId]) {
       const validTracks = (await getTracksForAlbum(albumId)).filter(
-        ({ artists }) => artists.some((artist) => artist.name === artistName)
+        ({ artists }) => artists.some((artist) => artist.name === artistName),
       );
 
       tracksByAlbumId[albumId] = validTracks.map(({ id }) => id);
