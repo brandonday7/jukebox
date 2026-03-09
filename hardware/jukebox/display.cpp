@@ -220,3 +220,47 @@ std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
   return lines;
 }
 
+void renderLoading(int delayTime) {
+  clearDisplay();
+  int speed = 400;
+  int width = 50;
+  int height = 50;
+  int smR = 10;
+  int lgR = 20;
+  int cursorX = (tft.width() - width) / 2;
+  int cursorY = (tft.height() - height) / 2;
+
+  tft.fillCircle(cursorX, cursorY, smR, TFT_WHITE);
+  tft.fillCircle(cursorX + width, cursorY, lgR, TFT_WHITE);
+  tft.fillCircle(cursorX + width, cursorY + height, smR, TFT_WHITE);
+  tft.fillCircle(cursorX, cursorY + width, smR, TFT_WHITE);
+  // Offset starting position to top-right circle.
+  int count = 0;
+  int maxCount = delayTime / speed;
+
+  while (count < maxCount) {
+    count++;
+    int largeIndex = count % 4;
+
+    if (largeIndex == 0) {
+      tft.fillCircle(cursorX, cursorY + width, lgR, TFT_BLACK);
+      tft.fillCircle(cursorX, cursorY + width, smR, TFT_WHITE);
+      tft.fillCircle(cursorX, cursorY, lgR, TFT_WHITE);
+    } else if (largeIndex == 1) {
+      tft.fillCircle(cursorX, cursorY, lgR, TFT_BLACK);
+      tft.fillCircle(cursorX, cursorY, smR, TFT_WHITE);
+      tft.fillCircle(cursorX + width, cursorY, lgR, TFT_WHITE);
+    } else if (largeIndex == 2) {
+      tft.fillCircle(cursorX + width, cursorY, lgR, TFT_BLACK);
+      tft.fillCircle(cursorX + width, cursorY, smR, TFT_WHITE);
+      tft.fillCircle(cursorX + width, cursorY + height, lgR, TFT_WHITE);
+    } else {
+      tft.fillCircle(cursorX, cursorY + width, lgR, TFT_WHITE);
+      tft.fillCircle(cursorX + width, cursorY + height, lgR, TFT_BLACK);
+      tft.fillCircle(cursorX + width, cursorY + height, smR, TFT_WHITE);
+    }
+    delay(speed);
+  }
+  return;
+}
+
