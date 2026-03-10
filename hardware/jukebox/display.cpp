@@ -2,7 +2,6 @@
 
 TFT_eSPI tft = TFT_eSPI();
 volatile bool isLoading = false;
-TaskHandle_t animTaskHandle = NULL;
 
 String truncate(String str, int horizontalSpace = tft.width()) {
   if (tft.textWidth(str) <= horizontalSpace) {
@@ -243,11 +242,12 @@ std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
 }
 
 void animationTask(void* param) {
-  int frame = 0;
+  int frame = 1;
+  int speed = 300;
   while (isLoading) {
       renderLoading(frame);
       frame = (frame + 1) % 4;
-      vTaskDelay(200 / portTICK_PERIOD_MS);
+      vTaskDelay(speed / portTICK_PERIOD_MS);
   }
   vTaskDelete(NULL);
 }
@@ -256,18 +256,19 @@ void startLoading() {
   if (!isLoading) {
     clearDisplay();
     isLoading = true;
-    xTaskCreatePinnedToCore(animationTask, "loading", 4096, NULL, 1, &animTaskHandle, 0);
+    // Run animation on Core 0 while HTTP request clogs up Core 1.
+    xTaskCreatePinnedToCore(animationTask, "loading", 4096, NULL, 1, NULL, 0);
   }
 }
 
 void stopLoading() {
+  int safeCleanupTime = 50;
   isLoading = false;
-  vTaskDelay(50 / portTICK_PERIOD_MS);  // let animation task exit cleanly
+  vTaskDelay(safeCleanupTime / portTICK_PERIOD_MS);
   clearDisplay();
 }
 
 void renderLoading(int frame) {
-  // int speed = 400;
   int width = 30;
   int height = 30;
   int smR = 5;
@@ -279,9 +280,6 @@ void renderLoading(int frame) {
   tft.fillCircle(cursorX + width, cursorY, smR, TFT_WHITE);
   tft.fillCircle(cursorX + width, cursorY + height, smR, TFT_WHITE);
   tft.fillCircle(cursorX, cursorY + width, smR, TFT_WHITE);
-  // Offset starting position to top-right circle.
-  // int count = 0;
-  // int maxCount = delayTime / speed;
 
   if (frame == 0) {
     tft.fillCircle(cursorX, cursorY + width, lgR, TFT_BLACK);
@@ -303,48 +301,3 @@ void renderLoading(int frame) {
 
   return;
 }
-
-// void renderLoading(int delayTime) {
-//   clearDisplay();
-//   int speed = 400;
-//   int width = 30;
-//   int height = 30;
-//   int smR = 5;
-//   int lgR = 10;
-//   int cursorX = (tft.width() - width) / 2;
-//   int cursorY = (tft.height() - height) / 2;
-
-//   tft.fillCircle(cursorX, cursorY, smR, TFT_WHITE);
-//   tft.fillCircle(cursorX + width, cursorY, lgR, TFT_WHITE);
-//   tft.fillCircle(cursorX + width, cursorY + height, smR, TFT_WHITE);
-//   tft.fillCircle(cursorX, cursorY + width, smR, TFT_WHITE);
-//   // Offset starting position to top-right circle.
-//   int count = 0;
-//   int maxCount = delayTime / speed;
-
-//   while (count < maxCount) {
-//     count++;
-//     int largeIndex = count % 4;
-
-//     if (largeIndex == 0) {
-//       tft.fillCircle(cursorX, cursorY + width, lgR, TFT_BLACK);
-//       tft.fillCircle(cursorX, cursorY + width, smR, TFT_WHITE);
-//       tft.fillCircle(cursorX, cursorY, lgR, TFT_WHITE);
-//     } else if (largeIndex == 1) {
-//       tft.fillCircle(cursorX, cursorY, lgR, TFT_BLACK);
-//       tft.fillCircle(cursorX, cursorY, smR, TFT_WHITE);
-//       tft.fillCircle(cursorX + width, cursorY, lgR, TFT_WHITE);
-//     } else if (largeIndex == 2) {
-//       tft.fillCircle(cursorX + width, cursorY, lgR, TFT_BLACK);
-//       tft.fillCircle(cursorX + width, cursorY, smR, TFT_WHITE);
-//       tft.fillCircle(cursorX + width, cursorY + height, lgR, TFT_WHITE);
-//     } else {
-//       tft.fillCircle(cursorX, cursorY + width, lgR, TFT_WHITE);
-//       tft.fillCircle(cursorX + width, cursorY + height, lgR, TFT_BLACK);
-//       tft.fillCircle(cursorX + width, cursorY + height, smR, TFT_WHITE);
-//     }
-//     delay(speed);
-//   }
-//   return;
-// }
-
