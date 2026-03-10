@@ -112,6 +112,7 @@ bool play(bool prev, String spId, String type) {
         JsonDocument doc = jsonParse(res.body);
         return doc["playing"];
     };
+    // printFullScreen("Spotify has made your playback device inaccessible to our app right now. If you wish to listen on this device, you can start playback from the Spotify app directly.");
     return prev;
 };
 
