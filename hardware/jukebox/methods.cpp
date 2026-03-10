@@ -6,7 +6,6 @@
 
 void connectToWiFi() {
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    // renderLoading(2000);
 
     while(WiFi.status() != WL_CONNECTED) {
         delay(100);

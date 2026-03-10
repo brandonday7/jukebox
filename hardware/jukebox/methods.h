@@ -30,7 +30,7 @@ T withLoading(std::function<T()> httpFn) {
   return result;
 }
 
-// Void specialization of withLoading
+// Void specialization of withLoading above
 inline void withLoading(std::function<void()> httpFn) {
   startLoading();
   httpFn();

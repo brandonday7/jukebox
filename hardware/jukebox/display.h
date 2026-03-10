@@ -22,6 +22,5 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
 
 void startLoading();
 void stopLoading();
-// void renderLoading(int delayTime);
 void renderLoading(int frame);
 #endif
