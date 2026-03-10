@@ -20,5 +20,7 @@ int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr);
 std::vector<String> toMultiline(String str, int maxLines, int availableSpace = -1);
 void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int size);
 
-void renderLoading(int delayTime);
+void startLoading();
+void stopLoading();
+void renderLoading(int frame);
 #endif

@@ -22,4 +22,18 @@ void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size = 10)
 bool play(bool prev, String spId = "", String type = "");
 bool pause(bool prev);
 
+template <typename T>
+T withLoading(std::function<T()> httpFn) {
+  startLoading();
+  T result = httpFn();
+  stopLoading();
+  return result;
+}
+
+// Void specialization of withLoading above
+inline void withLoading(std::function<void()> httpFn) {
+  startLoading();
+  httpFn();
+  stopLoading();
+}
 #endif

@@ -64,7 +64,9 @@ void loop() {
   };
 
   if (!vibeTitlesLoaded && error == "") {
-    vibeTitles = getVibeTitles();
+    vibeTitles = withLoading<std::vector<String>>([&]() {
+      return getVibeTitles();
+    });
 
     if (vibeTitles.size() > 0) {
       vibeTitlesLoaded = true;
@@ -134,10 +136,13 @@ void loop() {
       encoder.setCount(0);
       lastEncPosition = 0;
       if (vibeTitlesLoaded && !playablesLoaded && error == "") {
-        playables = getPlayables(vibeTitles[highlightedVibeIndex]);
+        playables = withLoading<std::vector<Playable>>([&]() {
+            return getPlayables(vibeTitles[highlightedVibeIndex]);
+        });
 
         if (playables.size() > 0) {
           playablesLoaded = true;
+
           renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
         } else {
           error = "Failed to load playables. Press back and try again.";
@@ -145,14 +150,15 @@ void loop() {
       };
     } else if (page == PLAYABLES) {
       page = PLAYING;
-      fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
+      withLoading([&]() {
+        return fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
+      });
       playing = true;
       renderNowPlaying(
         playables[highlightedPlayableIndex].title,
         playables[highlightedPlayableIndex].artistName,
         imgBuffer,
-        imgSize,
-        playing
+        imgSize
       );
       // playing = play(
       //   playing,
