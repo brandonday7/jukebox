@@ -22,10 +22,30 @@ String toUpperCase(String str) {
 
 void displayInit() {
   tft.begin();
+  ledcAttach(TFT_BL, 5000, 6);
+  ledcWrite(TFT_BL, 63);
   clearDisplay();
   tft.setRotation(1);
   tft.setTextFont(1);
   tft.setTextSize(2);
+}
+
+// Value between 0 and 63;
+void changeScreenBrightness(int brightness) {
+  ledcWrite(TFT_BL, brightness);
+}
+
+void turnScreenOff() {
+  clearDisplay();
+  delay(500);
+  // In low-power mode, can no longer depend on PWM.
+  ledcDetach(TFT_BL);
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, LOW);
+}
+
+void dimScreen() {
+  ledcWrite(TFT_BL, 100);
 }
 
 void clearDisplay() {
@@ -70,7 +90,7 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
-  
+
   clearDisplay();
 
   for (int i = 0; i < numLines; i++) {
@@ -96,7 +116,7 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
-  
+
   clearDisplay();
 
   for (int i = 0; i < numLines; i++) {
@@ -223,9 +243,9 @@ std::vector<String> toMultiline(String str, int maxLines, int availableSpace) {
 
     String nextWord = str.substring(0, spaceIndices[spaceIndices.size() - 1]);
     if (tft.textWidth(nextWord) > availableSpace) {
-        lines.push_back(truncate(str, availableSpace));
-        str = "";
-        break;
+      lines.push_back(truncate(str, availableSpace));
+      str = "";
+      break;
     }
 
     String line = str;
@@ -252,9 +272,9 @@ void animationTask(void* param) {
   int frame = 1;
   int speed = 300;
   while (isLoading) {
-      renderLoading(frame);
-      frame = (frame + 1) % 4;
-      vTaskDelay(speed / portTICK_PERIOD_MS);
+    renderLoading(frame);
+    frame = (frame + 1) % 4;
+    vTaskDelay(speed / portTICK_PERIOD_MS);
   }
   vTaskDelete(NULL);
 }

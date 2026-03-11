@@ -36,6 +36,15 @@ bool playing = false;
 const int imgSize = 12;
 uint16_t imgBuffer[imgSize * imgSize] = {};
 
+// Energy Saving Modes
+unsigned long lastActivityTime = 0;
+bool screenDimmed = false;
+bool inactivityMode = false;
+// Turn off after 2 hours
+const unsigned long POWER_DOWN_LIMIT_MS = 2UL * 60 * 60 * 1000;
+// Dim screen after 2 minutes
+const unsigned long DIM_LIMIT_MS = 2UL * 60 * 1000;
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -51,11 +60,33 @@ void setup() {
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!inactivityMode && WiFi.status() != WL_CONNECTED) {
     // TODO: keep this block and send error message to LCD screen
     Serial.println("WiFi not connected!");
     delay(5000);
     return;
+  }
+
+  unsigned long now = millis();
+
+  if (now - lastActivityTime > POWER_DOWN_LIMIT_MS) {
+    printFullScreen("Goodbye!");
+    delay(1000);
+    turnScreenOff();
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    inactivityMode = true;
+  }
+
+  if (inactivityMode) {
+    Serial.println("Inactivity mode. Returning early...");
+    delay(60000);
+    return;
+  }
+
+  if (now - lastActivityTime > DIM_LIMIT_MS && !screenDimmed) {
+    changeScreenBrightness(1);
+    screenDimmed = true;
   }
 
   if (error != "") {
@@ -78,6 +109,8 @@ void loop() {
   };
 
   if (playbackButtonPressed == true) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+
     if (playing) {
       playing = pause(playing);
     } else {
@@ -87,6 +120,8 @@ void loop() {
   };
 
   if (backButtonPressed == true) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+
     if (page == PLAYABLES) {
       page = VIBES;
       playablesLoaded = false;
@@ -114,6 +149,10 @@ void loop() {
     encPosition = playables.size() - 1;
   }
 
+  if (encPosition != lastEncPosition) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+  }
+
   if (page == VIBES && encPosition != lastEncPosition) {
     int maxIndex = static_cast<int>(vibeTitles.size()) - 1;
     highlightedVibeIndex = std::clamp(encPosition, 0, maxIndex);
@@ -131,6 +170,8 @@ void loop() {
   }
 
   if (encSwitchPressed) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+
     if (page == VIBES) {
       page = PLAYABLES;
       encoder.setCount(0);

@@ -10,6 +10,8 @@ struct MenuOption {
 };
 
 void displayInit();
+void changeScreenBrightness(int brightness);
+void turnScreenOff();
 void clearDisplay();
 void printFullScreen(String message);
 

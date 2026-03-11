@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "display.h"
 #include <ESP32Encoder.h>
 
 #define PLAYBACK_BUTTON_PIN 4
@@ -56,4 +57,14 @@ void uiInit() {
   encoder.attachSingleEdge(ENC_A_PIN, ENC_B_PIN);
   encoder.setCount(0);
   encoder.setFilter(1023);
+}
+
+void onUiAction(long unsigned* lastActivityTime, bool* screenDimmedPtr) {
+  *lastActivityTime = millis();
+
+  bool screenDimmed = *screenDimmedPtr == true;
+  if (screenDimmed) {
+    changeScreenBrightness(63);
+    *screenDimmedPtr = false;
+  }
 }

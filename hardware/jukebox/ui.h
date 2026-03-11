@@ -10,5 +10,6 @@ extern volatile bool encSwitchPressed;
 extern ESP32Encoder encoder;
 
 void uiInit();
+void onUiAction(long unsigned* lastActivityTime, bool* screenDimmedPtr);
 
 #endif
