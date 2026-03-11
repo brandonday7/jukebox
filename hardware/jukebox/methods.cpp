@@ -5,13 +5,12 @@
 #include <WiFi.h>
 
 void connectToWiFi() {
+    printFullScreen("Jukebox starting...");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
     while(WiFi.status() != WL_CONNECTED) {
         delay(100);
     }
-
-    clearDisplay();
 }
 
 void activateSpotifyDevice() {
@@ -112,7 +111,7 @@ bool play(bool prev, String spId, String type) {
         JsonDocument doc = jsonParse(res.body);
         return doc["playing"];
     };
-    // printFullScreen("Spotify has made your playback device inaccessible to our app right now. If you wish to listen on this device, you can start playback from the Spotify app directly.");
+    printFullScreen("The specified playback device inaccessible to our app right now. If you wish to listen on this device, try initiating playback from the Spotify app directly.");
     return prev;
 };
 

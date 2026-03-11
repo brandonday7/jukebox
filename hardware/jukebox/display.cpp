@@ -26,8 +26,6 @@ void displayInit() {
   tft.setRotation(1);
   tft.setTextFont(1);
   tft.setTextSize(2);
-  printFullScreen("Jukebox starting...");
-  delay(1000);
 }
 
 void clearDisplay() {
@@ -47,8 +45,17 @@ void printFullScreen(String message) {
   tft.setTextColor(TFT_WHITE);
   tft.setTextDatum(MC_DATUM);
   tft.setTextSize(2);
+  int lineHeight = tft.fontHeight();
 
-  tft.drawString(message, tft.width() / 2, tft.height() / 2);
+  std::vector<String> lines = toMultiline(message, 10);
+
+  int cursorY = (tft.height() - lines.size() * (lineHeight + 4)) / 2;
+
+  for (int i = 0; i < lines.size(); i++) {
+    tft.drawString(lines[i], tft.width() / 2, cursorY);
+    cursorY += lineHeight + 4;
+  }
+
   tft.setTextDatum(TL_DATUM);
 }
 
