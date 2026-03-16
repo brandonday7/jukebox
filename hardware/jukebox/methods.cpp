@@ -3,6 +3,12 @@
 #include "http.h"
 #include "display.h"
 #include <WiFi.h>
+#include <cstdlib>
+#include <ctime>
+#include <set>
+
+std::set<int> vibeIndexHistory;
+std::set<int> playableIndexHistory;
 
 void connectToWiFi() {
     printFullScreen("Jukebox starting...");
@@ -24,6 +30,7 @@ std::vector<String> getVibeTitles() {
     std::vector<String> vibeTitles;
 
     if (res.success) {
+        errorCount = 0;
         Serial.println(res.body);
         JsonDocument doc = jsonParse(res.body);
         JsonArray arr = doc["vibes"];
@@ -31,7 +38,9 @@ std::vector<String> getVibeTitles() {
         for (int i = 0; i < arr.size(); i++) {
             vibeTitles.push_back(arr[i].as<String>());
         }
-    };
+    } else {
+        errorCount++;
+    }
     return vibeTitles;
 };
 
@@ -42,6 +51,7 @@ std::vector<Playable> getPlayables(String title) {
     std::vector<Playable> playables;
 
     if (res.success) {
+        errorCount = 0;
         Serial.println(res.body);
         JsonDocument doc = jsonParse(res.body);
         JsonArray arr = doc["playables"];
@@ -56,7 +66,9 @@ std::vector<Playable> getPlayables(String title) {
 
             playables.push_back(playable);
         }
-    };
+    } else {
+        errorCount++;
+    }
     return playables;
 };
 
@@ -83,11 +95,14 @@ void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size) {
     HttpResponse res = get(url);
 
     if (res.success) {
+        errorCount = 0;
         JsonDocument doc = jsonParse(res.body);
         JsonArray pixels = doc["pixels"];
         for (int i = 0; i < size * size; i++) {
             bufferPtr[i] = pixels[i].as<uint16_t>();
         }
+    } else {
+        errorCount++;
     }
 }
 
@@ -104,9 +119,12 @@ bool play(bool prev, String spId, String type) {
     HttpResponse res = post(url, bodyJsonBuffer);
 
     if (res.success) {
+        errorCount = 0;
         JsonDocument doc = jsonParse(res.body);
         return doc["playing"];
-    };
+    } else {
+        errorCount++;
+    }
     printFullScreen("The specified playback device inaccessible to our app right now. If you wish to listen on this device, try initiating playback from the Spotify app directly.");
     return prev;
 };
@@ -116,8 +134,45 @@ bool pause(bool prev) {
     HttpResponse res = post(url);
 
     if (res.success) {
+        errorCount = 0;
         JsonDocument doc = jsonParse(res.body);
         return doc["playing"];
-    };
+    } else {
+        errorCount++;
+    }
     return prev;
 };
+
+int selectFreshRandomIndex(int size, std::set<int>* unavailableIndices) {
+    int min = 0;
+    int max = size - 1;
+    bool choosing = true;
+    int index = -1;
+
+    if (unavailableIndices->size() >= size) {
+        unavailableIndices->clear();
+    }
+    while (choosing) {
+        index = rand() % (max - min + 1) + min;
+        if (unavailableIndices->count(index) == 0) {
+            choosing = false;
+        }
+    }
+    unavailableIndices->insert(index);
+    return index;
+}
+
+int selectRandomVibe(int size) {
+    return selectFreshRandomIndex(size, &vibeIndexHistory);
+}
+void clearVibeHistory() {
+    vibeIndexHistory.clear();
+}
+
+int selectRandomPlayable(int size) {
+    return selectFreshRandomIndex(size, &playableIndexHistory);
+}
+void clearPlayableHistory() {
+    playableIndexHistory.clear();
+}
+

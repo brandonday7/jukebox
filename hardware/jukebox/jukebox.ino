@@ -7,17 +7,15 @@
 #include <WiFi.h>
 #include <algorithm>
 
-bool runTests = false;
-
 // System
+bool runTests = false;
 enum Page {
   VIBES,
   PLAYABLES,
   PLAYING
 };
 Page page = VIBES;
-String error = "";
-int backButtonState = 0;
+int errorCount = 0;
 
 // Vibes
 std::vector<String> vibeTitles;
@@ -53,6 +51,8 @@ void setup() {
     runTestSuite();
     runTests = false;
   }
+  // Seed random number generator.
+  srand(static_cast<unsigned int>(time(0)));
   displayInit();
   uiInit();
   connectToWiFi();
@@ -89,12 +89,13 @@ void loop() {
     screenDimmed = true;
   }
 
-  if (error != "") {
-    Serial.println("Error in loop: " + error);
-    delay(5000);
+  if (errorCount >= 3) {
+    printFullScreen("We're having some issues. Try restarting Jukebox.");
+    delay(60000);
+    return;
   };
 
-  if (!vibeTitlesLoaded && error == "") {
+  if (!vibeTitlesLoaded && errorCount < 3) {
     vibeTitles = withLoading<std::vector<String>>([&]() {
       return getVibeTitles();
     });
@@ -104,7 +105,8 @@ void loop() {
 
       renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
     } else {
-      error = "Failed to load vibes. Try restarting Jukebox.";
+      delay(1000);
+      return;
     };
   };
 
@@ -121,7 +123,6 @@ void loop() {
 
   if (backButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
-
     if (page == PLAYABLES) {
       page = VIBES;
       playablesLoaded = false;
@@ -176,7 +177,7 @@ void loop() {
       page = PLAYABLES;
       encoder.setCount(0);
       lastEncPosition = 0;
-      if (vibeTitlesLoaded && !playablesLoaded && error == "") {
+      if (vibeTitlesLoaded && !playablesLoaded && errorCount < 3) {
         playables = withLoading<std::vector<Playable>>([&]() {
             return getPlayables(vibeTitles[highlightedVibeIndex]);
         });
@@ -186,10 +187,12 @@ void loop() {
 
           renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
         } else {
-          error = "Failed to load playables. Press back and try again.";
+          delay(1000);
+          page = VIBES;
+          return;
         };
       };
-    } else if (page == PLAYABLES) {
+    } else if (page == PLAYABLES && playables.size()) {
       page = PLAYING;
       withLoading([&]() {
         return fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);

@@ -2,8 +2,10 @@
 #define METHODS_H
 
 #include <Arduino.h>
-#include <vector> 
+#include <vector>
 #include "display.h"
+
+extern int errorCount;
 
 struct Playable {
   String title;
@@ -21,6 +23,11 @@ std::vector<MenuOption> getPlayableOptions(std::vector<Playable> playables);
 void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size = 10);
 bool play(bool prev, String spId = "", String type = "");
 bool pause(bool prev);
+
+int selectRandomVibe(int size);
+void clearVibeHistory();
+int selectRandomPlayable(int size);
+void clearPlayableHistory();
 
 template <typename T>
 T withLoading(std::function<T()> httpFn) {
