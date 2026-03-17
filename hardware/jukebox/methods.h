@@ -24,9 +24,9 @@ void fetchPlayableArtwork(String artworkUrl, uint16_t* bufferPtr, int size = 10)
 bool play(bool prev, String spId = "", String type = "");
 bool pause(bool prev);
 
-int selectRandomVibe(int size);
+int pickRandomVibe(int size);
 void clearVibeHistory();
-int selectRandomPlayable(int size);
+int pickRandomPlayable(int size);
 void clearPlayableHistory();
 
 template <typename T>

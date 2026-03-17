@@ -4,6 +4,7 @@
 
 #define PLAYBACK_BUTTON_PIN 4
 #define BACK_BUTTON_PIN 5
+#define SHIFT_BUTTON_PIN 27
 #define ENC_SW_PIN 13
 #define ENC_A_PIN 26
 #define ENC_B_PIN 25
@@ -13,6 +14,9 @@ volatile unsigned long lastPlaybackIsrTime = 0;
 
 volatile bool backButtonPressed = false;
 volatile unsigned long lastBackIsrTime = 0;
+
+volatile bool shiftButtonPressed = false;
+volatile unsigned long lastShiftIsrTime = 0;
 
 volatile bool encSwitchPressed = false;
 volatile unsigned long lastEncSwitchIsrTime = 0;
@@ -35,6 +39,14 @@ void IRAM_ATTR backButtonISR() {
   }
 }
 
+void IRAM_ATTR shiftButtonISR() {
+  unsigned long now = millis();
+  if (now - lastShiftIsrTime > 200) {
+    shiftButtonPressed = true;
+    lastShiftIsrTime = now;
+  }
+}
+
 void IRAM_ATTR encSwitchISR() {
   unsigned long now = millis();
   if (now - lastEncSwitchIsrTime > 200) {
@@ -49,6 +61,9 @@ void uiInit() {
 
   pinMode(BACK_BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BACK_BUTTON_PIN), backButtonISR, FALLING);
+
+  pinMode(SHIFT_BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(SHIFT_BUTTON_PIN), shiftButtonISR, FALLING);
 
   pinMode(ENC_SW_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(ENC_SW_PIN), encSwitchISR, FALLING);

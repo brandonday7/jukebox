@@ -6,6 +6,7 @@
 
 extern volatile bool playbackButtonPressed;
 extern volatile bool backButtonPressed;
+extern volatile bool shiftButtonPressed;
 extern volatile bool encSwitchPressed;
 extern ESP32Encoder encoder;
 

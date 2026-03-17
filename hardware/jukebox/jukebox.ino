@@ -43,6 +43,45 @@ const unsigned long POWER_DOWN_LIMIT_MS = 2UL * 60 * 60 * 1000;
 // Dim screen after 2 minutes
 const unsigned long DIM_LIMIT_MS = 2UL * 60 * 1000;
 
+void selectVibe(int index) {
+  page = PLAYABLES;
+  if (vibeTitlesLoaded && !playablesLoaded && errorCount < 3) {
+    playables = withLoading<std::vector<Playable>>([&]() {
+        return getPlayables(vibeTitles[index]);
+    });
+
+    if (playables.size() > 0) {
+      playablesLoaded = true;
+
+      renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+    } else {
+      playablesLoaded = false;
+      delay(1000);
+      page = VIBES;
+      return;
+    };
+  };
+}
+
+void selectPlayable(int index) {
+  page = PLAYING;
+  withLoading([&]() {
+    return fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
+  });
+  playing = true;
+  renderNowPlaying(
+    playables[highlightedPlayableIndex].title,
+    playables[highlightedPlayableIndex].artistName,
+    imgBuffer,
+    imgSize
+  );
+  // playing = play(
+  //   playing,
+  //   playables[highlightedPlayableIndex].spId,
+  //   playables[highlightedPlayableIndex].type
+  // );
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -52,7 +91,7 @@ void setup() {
     runTests = false;
   }
   // Seed random number generator.
-  srand(static_cast<unsigned int>(time(0)));
+  srand(esp_random());
   displayInit();
   uiInit();
   connectToWiFi();
@@ -110,34 +149,14 @@ void loop() {
     };
   };
 
-  if (playbackButtonPressed == true) {
-    onUiAction(&lastActivityTime, &screenDimmed);
-
-    if (playing) {
-      playing = pause(playing);
-    } else {
-      playing = play(playing);
-    };
-    playbackButtonPressed = false;
-  };
-
-  if (backButtonPressed == true) {
-    onUiAction(&lastActivityTime, &screenDimmed);
-    if (page == PLAYABLES) {
-      page = VIBES;
-      playablesLoaded = false;
-      highlightedPlayableIndex = 0;
-      encoder.setCount(highlightedVibeIndex);
-      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
-    } else if (page == PLAYING) {
-      page = PLAYABLES;
-      renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
-    }
-    backButtonPressed = false;
-  };
-
   int encPosition = encoder.getCount();
   static int lastEncPosition = 0;
+
+  // if (shiftButtonPressed == true) {
+  //   onUiAction(&lastActivityTime, &screenDimmed);
+
+  //   shiftButtonPressed = false;
+  // }
 
   if (encPosition < 0) {
     encoder.setCount(0);
@@ -158,7 +177,6 @@ void loop() {
     int maxIndex = static_cast<int>(vibeTitles.size()) - 1;
     highlightedVibeIndex = std::clamp(encPosition, 0, maxIndex);
     lastEncPosition = encPosition;
-
     renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
   }
 
@@ -170,45 +188,60 @@ void loop() {
     renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
   }
 
+  if (playbackButtonPressed == true) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+
+    if (shiftButtonPressed == true) {
+      if (page == VIBES && vibeTitles.size()) {
+        highlightedVibeIndex = pickRandomVibe(vibeTitles.size());
+        printFullScreen(vibeTitles[highlightedVibeIndex]);
+        delay(1000);
+        encoder.setCount(0);
+        lastEncPosition = 0;
+        selectVibe(highlightedVibeIndex);
+      } else if (page == PLAYABLES && playablesLoaded) {
+        highlightedPlayableIndex = pickRandomPlayable(playables.size());
+        printFullScreen(playables[highlightedPlayableIndex].title);
+        delay(1000);
+        selectPlayable(highlightedPlayableIndex);
+      }
+
+      shiftButtonPressed = false;
+    } else {
+      if (playing) {
+        playing = pause(playing);
+      } else {
+        playing = play(playing);
+      };
+    }
+
+    playbackButtonPressed = false;
+  };
+
+  if (backButtonPressed == true) {
+    onUiAction(&lastActivityTime, &screenDimmed);
+    if (page == PLAYABLES) {
+      page = VIBES;
+      playablesLoaded = false;
+      highlightedPlayableIndex = 0;
+      encoder.setCount(highlightedVibeIndex);
+      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+    } else if (page == PLAYING) {
+      page = PLAYABLES;
+      renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+    }
+    backButtonPressed = false;
+  };
+
   if (encSwitchPressed) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
     if (page == VIBES) {
-      page = PLAYABLES;
       encoder.setCount(0);
       lastEncPosition = 0;
-      if (vibeTitlesLoaded && !playablesLoaded && errorCount < 3) {
-        playables = withLoading<std::vector<Playable>>([&]() {
-            return getPlayables(vibeTitles[highlightedVibeIndex]);
-        });
-
-        if (playables.size() > 0) {
-          playablesLoaded = true;
-
-          renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
-        } else {
-          delay(1000);
-          page = VIBES;
-          return;
-        };
-      };
+      selectVibe(highlightedVibeIndex);
     } else if (page == PLAYABLES && playables.size()) {
-      page = PLAYING;
-      withLoading([&]() {
-        return fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
-      });
-      playing = true;
-      renderNowPlaying(
-        playables[highlightedPlayableIndex].title,
-        playables[highlightedPlayableIndex].artistName,
-        imgBuffer,
-        imgSize
-      );
-      playing = play(
-        playing,
-        playables[highlightedPlayableIndex].spId,
-        playables[highlightedPlayableIndex].type
-      );
+      selectPlayable(highlightedPlayableIndex);
     }
     encSwitchPressed = false;
   }

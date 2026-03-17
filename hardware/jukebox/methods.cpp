@@ -143,7 +143,7 @@ bool pause(bool prev) {
     return prev;
 };
 
-int selectFreshRandomIndex(int size, std::set<int>* unavailableIndices) {
+int pickFreshRandomIndex(int size, std::set<int>* unavailableIndices) {
     int min = 0;
     int max = size - 1;
     bool choosing = true;
@@ -162,15 +162,15 @@ int selectFreshRandomIndex(int size, std::set<int>* unavailableIndices) {
     return index;
 }
 
-int selectRandomVibe(int size) {
-    return selectFreshRandomIndex(size, &vibeIndexHistory);
+int pickRandomVibe(int size) {
+    return pickFreshRandomIndex(size, &vibeIndexHistory);
 }
 void clearVibeHistory() {
     vibeIndexHistory.clear();
 }
 
-int selectRandomPlayable(int size) {
-    return selectFreshRandomIndex(size, &playableIndexHistory);
+int pickRandomPlayable(int size) {
+    return pickFreshRandomIndex(size, &playableIndexHistory);
 }
 void clearPlayableHistory() {
     playableIndexHistory.clear();
