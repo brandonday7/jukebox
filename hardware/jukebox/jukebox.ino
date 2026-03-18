@@ -43,6 +43,7 @@ const unsigned long POWER_DOWN_LIMIT_MS = 2UL * 60 * 60 * 1000;
 // Dim screen after 2 minutes
 const unsigned long DIM_LIMIT_MS = 2UL * 60 * 1000;
 
+// Common helper methods
 void selectVibe(int index) {
   page = PLAYABLES;
   if (vibeTitlesLoaded && !playablesLoaded && errorCount < 3) {
