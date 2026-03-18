@@ -221,16 +221,37 @@ void loop() {
 
   if (backButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
-    if (page == PLAYABLES) {
-      page = VIBES;
-      playablesLoaded = false;
-      highlightedPlayableIndex = 0;
-      encoder.setCount(highlightedVibeIndex);
-      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
-    } else if (page == PLAYING) {
-      page = PLAYABLES;
-      renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+
+    if (shiftButtonPressed) {
+      if (page == VIBES) {
+        highlightedVibeIndex = 0;
+        encoder.setCount(0);
+        lastEncPosition = 0;
+        vibeTitles = {};
+        vibeTitlesLoaded = false;
+      } else if (page == PLAYABLES) {
+        highlightedPlayableIndex = 0;
+        encoder.setCount(0);
+        lastEncPosition = 0;
+        playables = {};
+        playablesLoaded = false;
+        selectVibe(highlightedVibeIndex);
+      }
+
+      shiftButtonPressed = false;
+    } else {
+      if (page == PLAYABLES) {
+        page = VIBES;
+        playablesLoaded = false;
+        highlightedPlayableIndex = 0;
+        encoder.setCount(highlightedVibeIndex);
+        renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+      } else if (page == PLAYING) {
+        page = PLAYABLES;
+        renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
+      }
     }
+
     backButtonPressed = false;
   };
 
