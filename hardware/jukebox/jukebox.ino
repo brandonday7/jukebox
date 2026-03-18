@@ -10,12 +10,16 @@
 // System
 bool runTests = false;
 enum Page {
+  NONE,
   VIBES,
   PLAYABLES,
   PLAYING
 };
 Page page = VIBES;
+Page prevPage = NONE;
 int errorCount = 0;
+unsigned long lastShiftTime = 0;
+const unsigned long SHIFT_LIMIT_MS = 1UL * 500;
 
 // Vibes
 std::vector<String> vibeTitles;
@@ -28,6 +32,8 @@ std::vector<Playable> playables;
 bool playablesLoaded = false;
 int highlightedPlayableIndex = 0;
 int maxPlayableDepthIndex = 0;
+String nowPlayingTitle;
+String nowPlayingArtist;
 
 // Playback
 bool playing = false;
@@ -39,9 +45,9 @@ unsigned long lastActivityTime = 0;
 bool screenDimmed = false;
 bool inactivityMode = false;
 // Turn off after 2 hours
-const unsigned long POWER_DOWN_LIMIT_MS = 2UL * 60 * 60 * 1000;
+const unsigned long POWER_DOWN_LIMIT_MS = 1UL * 2 * 60 * 60 * 1000;
 // Dim screen after 2 minutes
-const unsigned long DIM_LIMIT_MS = 2UL * 60 * 1000;
+const unsigned long DIM_LIMIT_MS = 1UL * 2 * 60 * 1000;
 
 // Common helper methods
 void selectVibe(int index) {
@@ -69,13 +75,10 @@ void selectPlayable(int index) {
   withLoading([&]() {
     return fetchPlayableArtwork(playables[highlightedPlayableIndex].artworkUrl, imgBuffer, imgSize);
   });
+  nowPlayingTitle = playables[highlightedPlayableIndex].title;
+  nowPlayingArtist = playables[highlightedPlayableIndex].artistName;
+  renderNowPlaying(nowPlayingTitle, nowPlayingArtist, imgBuffer, imgSize);
   playing = true;
-  renderNowPlaying(
-    playables[highlightedPlayableIndex].title,
-    playables[highlightedPlayableIndex].artistName,
-    imgBuffer,
-    imgSize
-  );
   // playing = play(
   //   playing,
   //   playables[highlightedPlayableIndex].spId,
@@ -153,11 +156,21 @@ void loop() {
   int encPosition = encoder.getCount();
   static int lastEncPosition = 0;
 
-  // if (shiftButtonPressed == true) {
-  //   onUiAction(&lastActivityTime, &screenDimmed);
+  if (shiftButtonPressed == true) {
+    onUiAction(&lastActivityTime, &screenDimmed);
 
-  //   shiftButtonPressed = false;
-  // }
+    now = millis();
+    if (now - lastShiftTime <= SHIFT_LIMIT_MS) {
+      if (nowPlayingTitle.length() > 0 && nowPlayingArtist.length() > 0) {
+        prevPage = page;
+        page = PLAYING;
+        renderNowPlaying(nowPlayingTitle, nowPlayingArtist, imgBuffer, imgSize);
+      }
+    }
+
+    lastShiftTime = millis();
+    shiftButtonPressed = false;
+  }
 
   if (encPosition < 0) {
     encoder.setCount(0);
@@ -245,6 +258,10 @@ void loop() {
         playablesLoaded = false;
         highlightedPlayableIndex = 0;
         encoder.setCount(highlightedVibeIndex);
+        renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
+      } else if (page == PLAYING && prevPage == VIBES) {
+        prevPage = NONE;
+        page = VIBES;
         renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
       } else if (page == PLAYING) {
         page = PLAYABLES;
