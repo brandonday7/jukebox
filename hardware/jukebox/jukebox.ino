@@ -156,7 +156,9 @@ void loop() {
   int encPosition = encoder.getCount();
   static int lastEncPosition = 0;
 
-  if (shiftButtonPressed == true) {
+  processShiftPress();
+
+  if (shiftPressed) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
     now = millis();
@@ -167,9 +169,8 @@ void loop() {
         renderNowPlaying(nowPlayingTitle, nowPlayingArtist, imgBuffer, imgSize);
       }
     }
-
-    lastShiftTime = millis();
-    shiftButtonPressed = false;
+    lastShiftTime = now;
+    shiftPressed = false;
   }
 
   if (encPosition < 0) {
@@ -205,7 +206,7 @@ void loop() {
   if (playbackButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
-    if (shiftButtonPressed == true) {
+    if (shiftLatched == true) {
       if (page == VIBES && vibeTitles.size()) {
         highlightedVibeIndex = pickRandomVibe(vibeTitles.size());
         printFullScreen(vibeTitles[highlightedVibeIndex]);
@@ -220,7 +221,7 @@ void loop() {
         selectPlayable(highlightedPlayableIndex);
       }
 
-      shiftButtonPressed = false;
+      shiftLatched = false;
     } else {
       if (playing) {
         playing = pause(playing);
@@ -235,7 +236,7 @@ void loop() {
   if (backButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
-    if (shiftButtonPressed) {
+    if (shiftLatched == true) {
       if (page == VIBES) {
         highlightedVibeIndex = 0;
         encoder.setCount(0);
@@ -251,7 +252,7 @@ void loop() {
         selectVibe(highlightedVibeIndex);
       }
 
-      shiftButtonPressed = false;
+      shiftLatched = false;
     } else {
       if (page == PLAYABLES) {
         page = VIBES;

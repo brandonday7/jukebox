@@ -15,8 +15,10 @@ volatile unsigned long lastPlaybackIsrTime = 0;
 volatile bool backButtonPressed = false;
 volatile unsigned long lastBackIsrTime = 0;
 
-volatile bool shiftButtonPressed = false;
-volatile unsigned long lastShiftIsrTime = 0;
+volatile bool shiftButtonChanged = false;
+unsigned long lastShiftIsrTime = 0;
+bool shiftLatched = false;
+bool shiftPressed = false;
 
 volatile bool encSwitchPressed = false;
 volatile unsigned long lastEncSwitchIsrTime = 0;
@@ -40,11 +42,7 @@ void IRAM_ATTR backButtonISR() {
 }
 
 void IRAM_ATTR shiftButtonISR() {
-  unsigned long now = millis();
-  if (now - lastShiftIsrTime > 200) {
-    shiftButtonPressed = true;
-    lastShiftIsrTime = now;
-  }
+  shiftButtonChanged = true;
 }
 
 void IRAM_ATTR encSwitchISR() {
@@ -63,7 +61,7 @@ void uiInit() {
   attachInterrupt(digitalPinToInterrupt(BACK_BUTTON_PIN), backButtonISR, FALLING);
 
   pinMode(SHIFT_BUTTON_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(SHIFT_BUTTON_PIN), shiftButtonISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(SHIFT_BUTTON_PIN), shiftButtonISR, CHANGE);
 
   pinMode(ENC_SW_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(ENC_SW_PIN), encSwitchISR, FALLING);
@@ -81,5 +79,22 @@ void onUiAction(long unsigned* lastActivityTime, bool* screenDimmedPtr) {
   if (screenDimmed) {
     changeScreenBrightness(63);
     *screenDimmedPtr = false;
+  }
+}
+
+void processShiftPress() {
+  unsigned long now = millis();
+  if (shiftButtonChanged && now - lastShiftIsrTime > 50) {
+    shiftButtonChanged = false;
+    lastShiftIsrTime = now;
+
+    bool pinState = digitalRead(SHIFT_BUTTON_PIN);
+    
+    if (pinState == LOW && !shiftLatched) {
+      shiftLatched = true;
+      shiftPressed = true;
+    } else if (pinState == HIGH && shiftLatched) {
+      shiftLatched = false;
+    }
   }
 }

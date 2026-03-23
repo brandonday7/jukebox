@@ -6,11 +6,14 @@
 
 extern volatile bool playbackButtonPressed;
 extern volatile bool backButtonPressed;
-extern volatile bool shiftButtonPressed;
+extern bool shiftLatched;
+extern bool shiftPressed;
 extern volatile bool encSwitchPressed;
+
 extern ESP32Encoder encoder;
 
 void uiInit();
 void onUiAction(long unsigned* lastActivityTime, bool* screenDimmedPtr);
+void processShiftPress();
 
 #endif
