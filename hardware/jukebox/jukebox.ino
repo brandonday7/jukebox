@@ -158,7 +158,7 @@ void loop() {
 
   processShiftPress();
 
-  if (shiftPressed) {
+  if (shiftButtonPressed) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
     now = millis();
@@ -170,7 +170,7 @@ void loop() {
       }
     }
     lastShiftTime = now;
-    shiftPressed = false;
+    shiftButtonPressed = false;
   }
 
   if (encPosition < 0) {
@@ -206,7 +206,7 @@ void loop() {
   if (playbackButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
-    if (shiftLatched == true) {
+    if (shiftButtonLatched == true) {
       if (page == VIBES && vibeTitles.size()) {
         highlightedVibeIndex = pickRandomVibe(vibeTitles.size());
         printFullScreen(vibeTitles[highlightedVibeIndex]);
@@ -221,7 +221,7 @@ void loop() {
         selectPlayable(highlightedPlayableIndex);
       }
 
-      shiftLatched = false;
+      shiftButtonLatched = false;
     } else {
       if (playing) {
         playing = pause(playing);
@@ -236,7 +236,7 @@ void loop() {
   if (backButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
 
-    if (shiftLatched == true) {
+    if (shiftButtonLatched == true) {
       if (page == VIBES) {
         highlightedVibeIndex = 0;
         encoder.setCount(0);
@@ -252,7 +252,7 @@ void loop() {
         selectVibe(highlightedVibeIndex);
       }
 
-      shiftLatched = false;
+      shiftButtonLatched = false;
     } else {
       if (page == PLAYABLES) {
         page = VIBES;

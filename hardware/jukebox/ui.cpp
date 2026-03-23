@@ -8,8 +8,9 @@
 #define ENC_SW_PIN 13
 #define ENC_A_PIN 26
 #define ENC_B_PIN 25
+#define DEBOUNCE_MS 200
 
-volatile bool playbackButtonPressed = false;
+bool playbackButtonPressed = false;
 volatile unsigned long lastPlaybackIsrTime = 0;
 
 volatile bool backButtonPressed = false;
@@ -17,8 +18,8 @@ volatile unsigned long lastBackIsrTime = 0;
 
 volatile bool shiftButtonChanged = false;
 unsigned long lastShiftIsrTime = 0;
-bool shiftLatched = false;
-bool shiftPressed = false;
+bool shiftButtonLatched = false;
+bool shiftButtonPressed = false;
 
 volatile bool encSwitchPressed = false;
 volatile unsigned long lastEncSwitchIsrTime = 0;
@@ -27,7 +28,7 @@ ESP32Encoder encoder;
 
 void IRAM_ATTR playbackButtonISR() {
   unsigned long now = millis();
-  if (now - lastPlaybackIsrTime > 200) {
+  if (now - lastPlaybackIsrTime > DEBOUNCE_MS) {
     playbackButtonPressed = true;
     lastPlaybackIsrTime = now;
   }
@@ -35,7 +36,7 @@ void IRAM_ATTR playbackButtonISR() {
 
 void IRAM_ATTR backButtonISR() {
   unsigned long now = millis();
-  if (now - lastBackIsrTime > 200) {
+  if (now - lastBackIsrTime > DEBOUNCE_MS) {
     backButtonPressed = true;
     lastBackIsrTime = now;
   }
@@ -47,7 +48,7 @@ void IRAM_ATTR shiftButtonISR() {
 
 void IRAM_ATTR encSwitchISR() {
   unsigned long now = millis();
-  if (now - lastEncSwitchIsrTime > 200) {
+  if (now - lastEncSwitchIsrTime > DEBOUNCE_MS) {
     encSwitchPressed = true;
     lastEncSwitchIsrTime = now;
   }
@@ -90,11 +91,11 @@ void processShiftPress() {
 
     bool pinState = digitalRead(SHIFT_BUTTON_PIN);
     
-    if (pinState == LOW && !shiftLatched) {
-      shiftLatched = true;
-      shiftPressed = true;
-    } else if (pinState == HIGH && shiftLatched) {
-      shiftLatched = false;
+    if (pinState == LOW && !shiftButtonLatched) {
+      shiftButtonLatched = true;
+      shiftButtonPressed = true;
+    } else if (pinState == HIGH && shiftButtonLatched) {
+      shiftButtonLatched = false;
     }
   }
 }
