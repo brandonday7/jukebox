@@ -223,11 +223,19 @@ void loop() {
 
       shiftButtonLatched = false;
     } else {
+      if (page == PLAYING) {
+        renderIndicator();
+      }
+
       if (playing) {
         playing = pause(playing);
       } else {
         playing = play(playing);
       };
+
+      if (page == PLAYING) {
+        renderIndicator(true);
+      }
     }
 
     playbackButtonPressed = false;

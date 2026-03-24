@@ -10,7 +10,7 @@
 #define ENC_B_PIN 25
 #define DEBOUNCE_MS 50
 
-bool playbackButtonPressed = false;
+volatile bool playbackButtonPressed = false;
 volatile unsigned long lastPlaybackIsrTime = 0;
 
 volatile bool backButtonPressed = false;

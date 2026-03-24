@@ -328,3 +328,16 @@ void renderLoading(int frame) {
 
   return;
 }
+
+void renderIndicator(bool hide) {
+  int padding = 15;
+  int r = 4;
+  int cursorX = tft.width() - padding - r;
+  int cursorY = tft.height() - padding -r;
+
+  if (hide) {
+    tft.fillCircle(cursorX, cursorY, r, TFT_BLACK);
+  } else {
+    tft.fillCircle(cursorX, cursorY, r, TFT_WHITE);
+  }
+}
