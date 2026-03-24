@@ -8,7 +8,7 @@
 #define ENC_SW_PIN 13
 #define ENC_A_PIN 26
 #define ENC_B_PIN 25
-#define DEBOUNCE_MS 200
+#define DEBOUNCE_MS 50
 
 bool playbackButtonPressed = false;
 volatile unsigned long lastPlaybackIsrTime = 0;
@@ -85,7 +85,7 @@ void onUiAction(long unsigned* lastActivityTime, bool* screenDimmedPtr) {
 
 void processShiftPress() {
   unsigned long now = millis();
-  if (shiftButtonChanged && now - lastShiftIsrTime > 50) {
+  if (shiftButtonChanged && now - lastShiftIsrTime > DEBOUNCE_MS) {
     shiftButtonChanged = false;
     lastShiftIsrTime = now;
 
