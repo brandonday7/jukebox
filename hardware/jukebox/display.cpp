@@ -3,9 +3,9 @@
 TFT_eSPI tft = TFT_eSPI();
 volatile bool isLoading = false;
 
-int prevVibeLowerLimit = -1;
-int prevVibeUpperLimit = -1;
-int prevHighlightedVibeIndex = -1;
+int prevLowerLimit = -1;
+int prevUpperLimit = -1;
+int prevHighlightedIndex = -1;
 
 String truncate(String str, int horizontalSpace = tft.width()) {
   if (tft.textWidth(str) <= horizontalSpace) {
@@ -100,9 +100,9 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
   int upperLimit = lowerLimit + numLines;
 
-  bool boundsChanged = prevVibeLowerLimit != lowerLimit || prevVibeUpperLimit != upperLimit;
+  bool boundsChanged = prevLowerLimit != lowerLimit || prevUpperLimit != upperLimit;
 
-  if (boundsChanged || prevHighlightedVibeIndex == -1) {
+  if (boundsChanged || prevHighlightedIndex == -1) {
     clearDisplay();
 
     for (int i = 0; i < numLines; i++) {
@@ -116,11 +116,11 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
       tft.print(truncate(options[i + lowerLimit]));
     }
   } else {
-    int prevScreenIndex = prevHighlightedVibeIndex - lowerLimit;
+    int prevScreenIndex = prevHighlightedIndex - lowerLimit;
     tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), optionHeight, TFT_BLACK);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.setCursor(0, optionHeight * prevScreenIndex);
-    tft.print(truncate(options[prevHighlightedVibeIndex]));
+    tft.print(truncate(options[prevHighlightedIndex]));
 
     int screenIndex = highlightedIndex - lowerLimit;
     tft.setCursor(0, optionHeight * screenIndex);
@@ -128,15 +128,16 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
     tft.print(truncate(options[highlightedIndex]));
   }
 
-  prevVibeLowerLimit = lowerLimit;
-  prevVibeUpperLimit = upperLimit;
-  prevHighlightedVibeIndex = highlightedIndex;
+  prevLowerLimit = lowerLimit;
+  prevUpperLimit = upperLimit;
+  prevHighlightedIndex = highlightedIndex;
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
 }
 
-void resetVibeMenuState() {
-  prevVibeLowerLimit = -1;
-  prevVibeUpperLimit = -1;
-  prevHighlightedVibeIndex = -1;
+void resetMenuState() {
+  prevLowerLimit = -1;
+  prevUpperLimit = -1;
+  prevHighlightedIndex = -1;
 }
 
 // Playable titles
@@ -150,29 +151,50 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
+  int upperLimit = lowerLimit + numLines;
 
-  clearDisplay();
+  bool boundsChanged = prevLowerLimit != lowerLimit || prevUpperLimit != upperLimit;
 
-  for (int i = 0; i < numLines; i++) {
-    int cursorY = i * optionHeight;
-    tft.setCursor(0, cursorY);
+  if (boundsChanged || prevHighlightedIndex == -1) {
+    clearDisplay();
 
-    if (i + lowerLimit == highlightedIndex) {
-      tft.setTextColor(TFT_BLACK, TFT_WHITE);
-    } else {
+    for (int i = 0; i < numLines; i++) {
+      int cursorY = i * optionHeight;
+      tft.setCursor(0, cursorY);
+
+      if (i + lowerLimit == highlightedIndex) {
+        tft.setTextColor(TFT_BLACK, TFT_WHITE);
+      } else {
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      }
+      tft.print(truncate(options[i + lowerLimit].title));
+
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      tft.setCursor(0, cursorY += lineHeight + 4);
+      String artistName = options[i + lowerLimit].subTitle;
+      tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+      tft.print(truncate(toUpperCase(artistName)));
+
+      tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
+      tft.setTextSize(2);
     }
-    tft.print(truncate(options[i + lowerLimit].title));
-
+  } else {
+    int prevScreenIndex = prevHighlightedIndex - lowerLimit;
+    tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), lineHeight, TFT_BLACK);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setCursor(0, cursorY += lineHeight + 4);
-    String artistName = options[i + lowerLimit].subTitle;
-    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-    tft.print(truncate(toUpperCase(artistName)));
+    tft.setCursor(0, optionHeight * prevScreenIndex);
+    tft.print(truncate(options[prevHighlightedIndex].title));
 
-    tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
-    tft.setTextSize(2);
+    int screenIndex = highlightedIndex - lowerLimit;
+    tft.setCursor(0, optionHeight * screenIndex);
+    tft.setTextColor(TFT_BLACK, TFT_WHITE);
+    tft.print(truncate(options[highlightedIndex].title));
   }
+
+  prevLowerLimit = lowerLimit;
+  prevUpperLimit = upperLimit;
+  prevHighlightedIndex = highlightedIndex;
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
 }
 
 int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr) {

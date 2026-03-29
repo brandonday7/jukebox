@@ -243,6 +243,7 @@ void loop() {
 
   if (backButtonPressed == true) {
     onUiAction(&lastActivityTime, &screenDimmed);
+    resetMenuState();
 
     if (shiftButtonLatched == true) {
       if (page == VIBES) {
@@ -283,12 +284,12 @@ void loop() {
 
   if (encSwitchPressed) {
     onUiAction(&lastActivityTime, &screenDimmed);
+    resetMenuState();
 
     if (page == VIBES) {
       encoder.setCount(0);
       lastEncPosition = 0;
       selectVibe(highlightedVibeIndex);
-      resetVibeMenuState();
     } else if (page == PLAYABLES && playables.size()) {
       selectPlayable(highlightedPlayableIndex);
     }
