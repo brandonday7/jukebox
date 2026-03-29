@@ -11,7 +11,7 @@ std::set<int> vibeIndexHistory;
 std::set<int> playableIndexHistory;
 
 void connectToWiFi() {
-    printFullScreen("Jukebox starting...");
+    printFullScreen("Jukebox", true);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
     while(WiFi.status() != WL_CONNECTED) {

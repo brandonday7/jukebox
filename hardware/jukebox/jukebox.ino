@@ -288,6 +288,7 @@ void loop() {
       encoder.setCount(0);
       lastEncPosition = 0;
       selectVibe(highlightedVibeIndex);
+      resetVibeMenuState();
     } else if (page == PLAYABLES && playables.size()) {
       selectPlayable(highlightedPlayableIndex);
     }
