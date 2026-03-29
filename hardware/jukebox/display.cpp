@@ -352,10 +352,10 @@ void stopLoading() {
 }
 
 void renderLoading(int frame) {
-  int width = 30;
-  int height = 30;
-  int smR = 5;
-  int lgR = 10;
+  int width = 32;
+  int height = 32;
+  int smR = 6;
+  int lgR = 15;
   int cursorX = (tft.width() - width) / 2;
   int cursorY = (tft.height() - height) / 2;
 
