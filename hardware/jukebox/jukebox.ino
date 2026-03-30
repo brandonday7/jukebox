@@ -99,7 +99,7 @@ void setup() {
   displayInit();
   uiInit();
   connectToWiFi();
-  activateSpotifyDevice();
+  // activateSpotifyDevice();
 }
 
 void loop() {

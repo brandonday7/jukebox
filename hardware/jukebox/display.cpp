@@ -93,8 +93,11 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
     return;
   }
 
+  int padding = 4;
+  int screenWidth = tft.width();
+
   tft.setTextSize(2);
-  int optionHeight = tft.fontHeight() + 4;
+  int optionHeight = tft.fontHeight() + 2 * padding;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
@@ -106,26 +109,28 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
     clearDisplay();
 
     for (int i = 0; i < numLines; i++) {
-      tft.setCursor(0, i * optionHeight);
+      tft.setCursor(padding, i * optionHeight + padding);
 
       if (i + lowerLimit == highlightedIndex) {
+        tft.fillRect(0, i * optionHeight, tft.width(), optionHeight, TFT_WHITE);
         tft.setTextColor(TFT_BLACK, TFT_WHITE);
       } else {
         tft.setTextColor(TFT_WHITE, TFT_BLACK);
       }
-      tft.print(truncate(options[i + lowerLimit]));
+      tft.print(truncate(options[i + lowerLimit], screenWidth - 2 * padding));
     }
   } else {
     int prevScreenIndex = prevHighlightedIndex - lowerLimit;
     tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), optionHeight, TFT_BLACK);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setCursor(0, optionHeight * prevScreenIndex);
-    tft.print(truncate(options[prevHighlightedIndex]));
+    tft.setCursor(padding, optionHeight * prevScreenIndex + padding);
+    tft.print(truncate(options[prevHighlightedIndex], screenWidth - 2 * padding));
 
     int screenIndex = highlightedIndex - lowerLimit;
-    tft.setCursor(0, optionHeight * screenIndex);
+    tft.fillRect(0, optionHeight * screenIndex, tft.width(), optionHeight, TFT_WHITE);
+    tft.setCursor(padding, optionHeight * screenIndex + padding);
     tft.setTextColor(TFT_BLACK, TFT_WHITE);
-    tft.print(truncate(options[highlightedIndex]));
+    tft.print(truncate(options[highlightedIndex], screenWidth - 2 * padding));
   }
 
   prevLowerLimit = lowerLimit;
@@ -354,7 +359,7 @@ void stopLoading() {
 void renderLoading(int frame) {
   int width = 32;
   int height = 32;
-  int smR = 6;
+  int smR = 3;
   int lgR = 15;
   int cursorX = (tft.width() - width) / 2;
   int cursorY = (tft.height() - height) / 2;
