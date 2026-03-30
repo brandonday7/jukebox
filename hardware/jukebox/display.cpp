@@ -113,36 +113,30 @@ void renderMenu(std::vector<String> options, int highlightedIndex, int* maxDepth
 
       if (i + lowerLimit == highlightedIndex) {
         tft.fillRect(0, i * optionHeight, tft.width(), optionHeight, TFT_WHITE);
-        tft.setTextColor(TFT_BLACK, TFT_WHITE);
+        tft.setTextColor(TFT_BLACK);
       } else {
-        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextColor(TFT_WHITE);
       }
       tft.print(truncate(options[i + lowerLimit], screenWidth - 2 * padding));
     }
   } else {
     int prevScreenIndex = prevHighlightedIndex - lowerLimit;
     tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), optionHeight, TFT_BLACK);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextColor(TFT_WHITE);
     tft.setCursor(padding, optionHeight * prevScreenIndex + padding);
     tft.print(truncate(options[prevHighlightedIndex], screenWidth - 2 * padding));
 
     int screenIndex = highlightedIndex - lowerLimit;
     tft.fillRect(0, optionHeight * screenIndex, tft.width(), optionHeight, TFT_WHITE);
     tft.setCursor(padding, optionHeight * screenIndex + padding);
-    tft.setTextColor(TFT_BLACK, TFT_WHITE);
+    tft.setTextColor(TFT_BLACK);
     tft.print(truncate(options[highlightedIndex], screenWidth - 2 * padding));
   }
 
   prevLowerLimit = lowerLimit;
   prevUpperLimit = upperLimit;
   prevHighlightedIndex = highlightedIndex;
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-}
-
-void resetMenuState() {
-  prevLowerLimit = -1;
-  prevUpperLimit = -1;
-  prevHighlightedIndex = -1;
+  tft.setTextColor(TFT_WHITE);
 }
 
 // Playable titles
@@ -151,8 +145,12 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
     return;
   }
 
+  int padding = 4;
+  int lineSpacing = 4;
+  int screenWidth = tft.width();
+
   int lineHeight = tft.fontHeight();
-  int optionHeight = 2 * lineHeight + 12;
+  int optionHeight = 2 * lineHeight + 3 * padding + lineSpacing;
   int numLines = std::floor(tft.height() / optionHeight);
   numLines = std::min(numLines, static_cast<int>(options.size()));
   int lowerLimit = getScrollBoundary(numLines, highlightedIndex, maxDepthPtr);
@@ -164,42 +162,49 @@ void renderMenu(std::vector<MenuOption> options, int highlightedIndex, int* maxD
     clearDisplay();
 
     for (int i = 0; i < numLines; i++) {
-      int cursorY = i * optionHeight;
-      tft.setCursor(0, cursorY);
+      int cursorY = i * optionHeight + padding;
+      tft.setCursor(padding, cursorY);
 
       if (i + lowerLimit == highlightedIndex) {
-        tft.setTextColor(TFT_BLACK, TFT_WHITE);
+        tft.fillRect(0, i * optionHeight, tft.width(), lineHeight + 2 * padding, TFT_WHITE);
+        tft.setTextColor(TFT_BLACK);
       } else {
-        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextColor(TFT_WHITE);
       }
-      tft.print(truncate(options[i + lowerLimit].title));
+      tft.print(truncate(options[i + lowerLimit].title, screenWidth - 2 * padding));
 
-      tft.setTextColor(TFT_WHITE, TFT_BLACK);
-      tft.setCursor(0, cursorY += lineHeight + 4);
+      tft.setCursor(padding, cursorY += lineHeight + padding + lineSpacing);
       String artistName = options[i + lowerLimit].subTitle;
-      tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-      tft.print(truncate(toUpperCase(artistName)));
+      tft.setTextColor(TFT_DARKGREY);
+      tft.print(truncate(toUpperCase(artistName), screenWidth - 2 * padding));
 
-      tft.fillRect(0, cursorY += lineHeight + 2, tft.width(), 2, TFT_WHITE);
-      tft.setTextSize(2);
+      tft.fillRect(0, cursorY += lineHeight + padding - 1, tft.width(), 1, TFT_DARKGREY);
+      cursorY += 1;
     }
   } else {
     int prevScreenIndex = prevHighlightedIndex - lowerLimit;
-    tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), lineHeight, TFT_BLACK);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setCursor(0, optionHeight * prevScreenIndex);
-    tft.print(truncate(options[prevHighlightedIndex].title));
+    tft.fillRect(0, optionHeight * prevScreenIndex, tft.width(), lineHeight + 2 * padding, TFT_BLACK);
+    tft.setTextColor(TFT_WHITE);
+    tft.setCursor(padding, optionHeight * prevScreenIndex + padding);
+    tft.print(truncate(options[prevHighlightedIndex].title, screenWidth - 2 * padding));
 
     int screenIndex = highlightedIndex - lowerLimit;
-    tft.setCursor(0, optionHeight * screenIndex);
-    tft.setTextColor(TFT_BLACK, TFT_WHITE);
-    tft.print(truncate(options[highlightedIndex].title));
+    tft.fillRect(0, optionHeight * screenIndex, tft.width(), lineHeight + 2 * padding, TFT_WHITE);
+    tft.setCursor(padding, optionHeight * screenIndex + padding);
+    tft.setTextColor(TFT_BLACK);
+    tft.print(truncate(options[highlightedIndex].title, screenWidth - 2 * padding));
   }
 
   prevLowerLimit = lowerLimit;
   prevUpperLimit = upperLimit;
   prevHighlightedIndex = highlightedIndex;
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.setTextColor(TFT_WHITE);
+}
+
+void resetMenuState() {
+  prevLowerLimit = -1;
+  prevUpperLimit = -1;
+  prevHighlightedIndex = -1;
 }
 
 int getScrollBoundary(int numLines, int highlightedIndex, int* maxDepthPtr) {
@@ -273,7 +278,7 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
     textCursorY += titleFontHeight + 4;
   }
 
-  tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+  tft.setTextColor(TFT_DARKGREY, TFT_BLACK);
 
   for (int i = 0; i < artistLines.size(); i++) {
     tft.setCursor(textCursorX, textCursorY);
@@ -357,10 +362,10 @@ void stopLoading() {
 }
 
 void renderLoading(int frame) {
-  int width = 32;
-  int height = 32;
-  int smR = 3;
-  int lgR = 15;
+  int width = 26;
+  int height = 26;
+  int smR = 5;
+  int lgR = 12;
   int cursorX = (tft.width() - width) / 2;
   int cursorY = (tft.height() - height) / 2;
 
