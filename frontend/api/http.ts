@@ -2,20 +2,24 @@ const API_KEY = process.env.EXPO_PUBLIC_API_KEY || "";
 
 export const get = async <T>(
   url: string,
-  p?: Record<string, any>,
+  p: Record<string, any> = {},
 ): Promise<T> => {
   const params = new URLSearchParams();
-  for (const key in p) {
+  const keys = Object.keys(p);
+  keys.forEach((key) => {
     params.append(key, p[key]);
-  }
-
-  const result = await fetch([url, params.size ? "?" : "", params].join(""), {
-    method: "GET",
-    headers: {
-      "x-api-key": API_KEY,
-      "Content-Type": "application/json",
-    },
   });
+
+  const result = await fetch(
+    [url, params.toString() ? "?" : "", params.toString()].join(""),
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
+    },
+  );
   if (result.ok) {
     return await result.json();
   } else {
