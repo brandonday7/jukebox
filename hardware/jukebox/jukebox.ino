@@ -88,7 +88,6 @@ void selectPlayable(int index) {
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);
 
   if (runTests) {
     runTestSuite();
@@ -97,9 +96,9 @@ void setup() {
   // Seed random number generator.
   srand(esp_random());
   displayInit();
-  uiInit();
   connectToWiFi();
-  // activateSpotifyDevice();
+  uiInit();
+  activateSpotifyDevice();
 }
 
 void loop() {

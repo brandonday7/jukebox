@@ -28,5 +28,6 @@ void stopLoading();
 void renderLoading(int frame);
 
 void renderIndicator(bool hide = false);
+void traceTitleBorder(String title);
 
 #endif

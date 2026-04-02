@@ -1,5 +1,8 @@
 #include "display.h"
 
+
+#define LCD_PWR_PIN 19
+
 TFT_eSPI tft = TFT_eSPI();
 volatile bool isLoading = false;
 
@@ -25,6 +28,8 @@ String toUpperCase(String str) {
 }
 
 void displayInit() {
+  pinMode(LCD_PWR_PIN, OUTPUT);
+  digitalWrite(LCD_PWR_PIN, HIGH);
   tft.begin();
   ledcAttach(TFT_BL, 5000, 6);
   ledcWrite(TFT_BL, 63);
@@ -32,6 +37,7 @@ void displayInit() {
   tft.setRotation(1);
   tft.setTextFont(1);
   tft.setTextSize(2);
+  digitalWrite(LCD_PWR_PIN, LOW);
 }
 
 // Value between 0 and 63;
@@ -77,7 +83,7 @@ void printFullScreen(String message, bool large) {
 
   std::vector<String> lines = toMultiline(message, 10);
 
-  int cursorY = (tft.height() - lines.size() * (lineHeight + 4)) / 2;
+  int cursorY = (tft.height() - (lines.size() - 1) * (lineHeight + 4)) / 2;
 
   for (int i = 0; i < lines.size(); i++) {
     tft.drawString(lines[i], tft.width() / 2, cursorY);
@@ -407,3 +413,61 @@ void renderIndicator(bool hide) {
     tft.fillCircle(cursorX, cursorY, r, TFT_WHITE);
   }
 }
+
+void traceTitleBorder(String title) {
+  if (isLoading) {
+    return;
+  }
+
+  printFullScreen(title, true);
+
+  int frameSize = 1;
+	int speed = 1200;
+  int padding = 10;
+
+  std::vector<String> lines = toMultiline(title, 10);
+  int width = 0;
+
+  for (int i = 0; i < lines.size(); i++) {
+    int lineWidth = tft.textWidth(lines[i]);
+    width = std::max(width, lineWidth);
+  }
+
+  width += 2 * padding;
+	int height = tft.fontHeight() * lines.size() + 2 * padding;
+
+  int x = (tft.width() - width) / 2;
+	int y = (tft.height() + height) / 2;
+
+  int bottomRightX = tft.width() - x;
+  int topRightY = (tft.height() - height) / 2;
+  int topLeftX = (tft.width() - width) / 2;
+  int bottomLeftY = (tft.height() + height) / 2;
+
+  int frames = 2 * height + 2 * width;
+	int frameRate = speed / frames;
+
+	while (x < bottomRightX) {
+		tft.fillRect(x, y, frameSize, 1, TFT_WHITE);
+    x += frameSize;
+		delay(frameRate);
+	}
+
+	while (y > topRightY) {
+		tft.fillRect(x, y, 1, frameSize, TFT_WHITE);
+    y -= frameSize;
+		delay(frameRate);
+	}
+
+	while (x > topLeftX) {
+		tft.fillRect(x, y, frameSize, 1, TFT_WHITE);
+    x -= frameSize;
+		delay(frameRate);
+	}
+
+	while (y < bottomLeftY) {
+		tft.fillRect(x, y, 1, frameSize, TFT_WHITE);
+    y += frameSize;
+		delay(frameRate);
+	}
+} 
