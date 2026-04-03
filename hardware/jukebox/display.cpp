@@ -247,9 +247,25 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
   int scale = desiredSize / size;
   // Depending on original file dimensions, image may not scale to exactly 100px;
   int renderedSize = size * scale;
+  int minPadding = 15;
+  int gap = 15;
 
-  int padding = 15;
-  int cursorX = padding;
+  int minDisplayTextRoom = tft.width() - gap - 2 * minPadding - renderedSize;
+  std::vector<String> titleLines = toMultiline(title, 3, minDisplayTextRoom);
+  std::vector<String> artistLines = toMultiline(artistName, 3, minDisplayTextRoom);
+
+  int maxTextWidth = 0;
+  for (int i = 0; i < titleLines.size(); i++) {
+    int lineWidth = tft.textWidth(titleLines[i]);
+    maxTextWidth = std::max(maxTextWidth, lineWidth);
+  }
+  for (int i = 0; i < artistLines.size(); i++) {
+    int lineWidth = tft.textWidth(artistLines[i]);
+    maxTextWidth = std::max(maxTextWidth, lineWidth);
+  }
+
+  int displayWidth = maxTextWidth + renderedSize + gap;
+  int cursorX = (tft.width() - displayWidth) / 2;
   int cursorY = (tft.height() - renderedSize) / 2;
 
   for (int y = 0; y < fileHeight; y++) {
@@ -259,14 +275,8 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
     }
   }
 
-  int displayTextRoom = tft.width() - 3 * padding - renderedSize;
-  // tft.setTextSize(3);
   int titleFontHeight = tft.fontHeight();
   int artistFontHeight = tft.fontHeight();
-
-  std::vector<String> titleLines = toMultiline(title, 3, displayTextRoom);
-  std::vector<String> artistLines = toMultiline(artistName, 3, displayTextRoom);
-
   int totalTextHeight = 0;
   for (int i = 0; i < titleLines.size(); i++) {
     totalTextHeight += titleFontHeight + 4;
@@ -275,7 +285,7 @@ void renderNowPlaying(String title, String artistName, uint16_t* bufferPtr, int 
     totalTextHeight += artistFontHeight + 4;
   }
 
-  int textCursorX = 2 * padding + renderedSize;
+  int textCursorX = (tft.width()- displayWidth) / 2 + renderedSize + gap;
   int textCursorY = (tft.height() - totalTextHeight) / 2;
 
   for (int i = 0; i < titleLines.size(); i++) {
