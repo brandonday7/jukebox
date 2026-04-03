@@ -78,7 +78,6 @@ void selectPlayable(int index) {
   nowPlayingTitle = playables[highlightedPlayableIndex].title;
   nowPlayingArtist = playables[highlightedPlayableIndex].artistName;
   renderNowPlaying(nowPlayingTitle, nowPlayingArtist, imgBuffer, imgSize);
-  // playing = true;
   playing = play(
     playing,
     playables[highlightedPlayableIndex].spId,
@@ -155,7 +154,10 @@ void loop() {
   int encPosition = encoder.getCount();
   static int lastEncPosition = 0;
 
+  processPlaybackPress();
   processShiftPress();
+  processEncSwitchPress();
+  processBackPress();
 
   if (shiftButtonPressed) {
     onUiAction(&lastActivityTime, &screenDimmed);
