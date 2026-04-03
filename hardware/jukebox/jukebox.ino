@@ -78,12 +78,12 @@ void selectPlayable(int index) {
   nowPlayingTitle = playables[highlightedPlayableIndex].title;
   nowPlayingArtist = playables[highlightedPlayableIndex].artistName;
   renderNowPlaying(nowPlayingTitle, nowPlayingArtist, imgBuffer, imgSize);
-  playing = true;
-  // playing = play(
-  //   playing,
-  //   playables[highlightedPlayableIndex].spId,
-  //   playables[highlightedPlayableIndex].type
-  // );
+  // playing = true;
+  playing = play(
+    playing,
+    playables[highlightedPlayableIndex].spId,
+    playables[highlightedPlayableIndex].type
+  );
 }
 
 void setup() {
