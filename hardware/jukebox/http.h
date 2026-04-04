@@ -19,11 +19,3 @@ HttpResponse post(String url, String jsonBody = "");
 JsonDocument jsonParse(String jsonString);
 
 #endif
-
-// Notes
-// JSON PARSING TIPS:
-// - Use doc["key"] to access fields
-// - Use doc["nested"]["key"] for nested objects
-// - Use doc["array"][0] for array elements
-// - Use .as<String>() or .as<int>() for type conversion
-// - Check if key exists: doc.containsKey("key")

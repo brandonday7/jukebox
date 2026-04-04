@@ -63,8 +63,9 @@ void selectVibe(int index) {
       renderMenu(getPlayableOptions(playables), highlightedPlayableIndex, &maxPlayableDepthIndex);
     } else {
       playablesLoaded = false;
-      delay(1000);
       page = VIBES;
+      encoder.setCount(highlightedVibeIndex);
+      renderMenu(vibeTitles, highlightedVibeIndex, &maxVibeDepthIndex);
       return;
     };
   };
