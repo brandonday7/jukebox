@@ -153,7 +153,11 @@ export const getAlbumsBySpId = async (
   }));
 };
 
-export const getAllArtistAlbums = async (spId: string, artistName: string) => {
+export const getAllArtistAlbums = async (
+  spId: string,
+  artistName: string,
+  primaryOnly = false,
+) => {
   const limit = 50;
   let i = 0;
   let albums: PlayableData[] = [];
@@ -174,7 +178,8 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
               artist.name !== "Various Artists" &&
               artist.name !== "Various Composers",
           ) &&
-          album_type !== "compilation",
+          album_type !== "compilation" &&
+          (!primaryOnly || artists[0].name === artistName),
       )
       .map(
         ({ id, name, images }) =>
@@ -192,7 +197,7 @@ export const getAllArtistAlbums = async (spId: string, artistName: string) => {
     if (body.total >= limit + i) {
       i += limit;
 
-      sleep(500);
+      sleep(5000);
     } else {
       hasMore = false;
     }
@@ -208,7 +213,7 @@ export const populateTopArtistsVibe = async () => {
     spId: artist.id,
   }));
   const artistAlbums = await Promise.all(
-    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name)),
+    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name, true)),
   );
 
   await createOrUpdateVibe(
@@ -286,9 +291,9 @@ export const updateAwarenessPlaylist = async () => {
       Math.floor(Math.random() * uniqueArtistAlbumIds.length)
     ];
   const albumData = await spotifyApi.getAlbum(spId);
-  sleep(500);
+  sleep(5000);
   const { name: artistName, id } = albumData.body.artists[0];
-  const artistAlbums = await getAllArtistAlbums(id, artistName);
+  const artistAlbums = await getAllArtistAlbums(id, artistName, true);
 
   const featuredAlbumIds = Array.from(Array(NUM_PICKS).keys()).map(
     () => artistAlbums[Math.floor(Math.random() * artistAlbums.length)].spId,
@@ -302,7 +307,7 @@ export const updateAwarenessPlaylist = async () => {
       );
 
       tracksByAlbumId[albumId] = validTracks.map(({ id }) => id);
-      sleep(500);
+      sleep(5000);
     }
   }
 
@@ -313,7 +318,7 @@ export const updateAwarenessPlaylist = async () => {
   });
 
   await updatePlaylistTracks(AWARENESS_PLAYLIST_ID, trackIds, true);
-  sleep(500);
+  sleep(5000);
   await spotifyApi.changePlaylistDetails(AWARENESS_PLAYLIST_ID, {
     name: `Awareness: ${artistName}`,
   });
