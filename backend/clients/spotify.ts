@@ -8,7 +8,7 @@ import {
   getSpAccount,
 } from "../db/index.js";
 import type { PlayableData, PlayableType, VibeData } from "../db/schema.js";
-import { sleep } from "../lib/helpers.js";
+import { pretty, sleep } from "../lib/helpers.js";
 
 interface SpAccount {
   accessToken: string;
@@ -57,20 +57,31 @@ export const activateAndRetry = async (
 };
 
 export const activateDevice = async (deviceId?: string) => {
-  const devices = (await spotifyApi.getMyDevices()).body.devices;
+  try {
+    const devices = (await spotifyApi.getMyDevices()).body.devices;
 
-  if (devices.length) {
-    const device = devices.find(({ id }) => deviceId === id) ?? devices[0];
-    const deviceIdToActivate = !device.is_active ? device.id : undefined;
+    if (devices.length) {
+      const device = devices.find(({ id }) => deviceId === id) ?? devices[0];
+      const deviceIdToActivate = !device.is_active ? device.id : undefined;
 
-    if (deviceIdToActivate) {
-      await spotifyApi.transferMyPlayback([deviceIdToActivate]);
-      console.log(`Device with ID ${deviceIdToActivate} has been activated!`);
-      // After device has been activated, it needs 3s to actually wake up.
-      // This delay will only ever happen when you first turn the device playback on.
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      return true;
+      if (deviceIdToActivate) {
+        try {
+          await spotifyApi.transferMyPlayback([deviceIdToActivate]);
+          console.log(
+            `Device with ID ${deviceIdToActivate} has been activated!`,
+          );
+          // After device has been activated, it needs 3s to actually wake up.
+          // This delay will only ever happen when you first turn the device playback on.
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          return true;
+        } catch (error) {
+          console.warn("Error: transferMyPlayback", error);
+        }
+      }
+      return false;
     }
+  } catch (error) {
+    console.warn("Error: getMyDevices", error);
     return false;
   }
 };
@@ -212,9 +223,20 @@ export const populateTopArtistsVibe = async () => {
     name: artist.name,
     spId: artist.id,
   }));
-  const artistAlbums = await Promise.all(
-    artists.map(({ spId, name }) => getAllArtistAlbums(spId, name, true)),
-  );
+
+  const artistAlbums = [];
+  const batchSize = 5;
+
+  for (let i = 0; i < artists.length; i += batchSize) {
+    artistAlbums.push(
+      ...(await Promise.all(
+        artists
+          .slice(i, i + batchSize)
+          .map(({ spId, name }) => getAllArtistAlbums(spId, name, true)),
+      )),
+    );
+    sleep(5000);
+  }
 
   await createOrUpdateVibe(
     "Explore Top Artists",

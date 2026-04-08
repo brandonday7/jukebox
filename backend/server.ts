@@ -2,11 +2,6 @@ import { connect, disconnect } from "./db/index.js";
 import { PORT } from "./config.js";
 import app from "./app.js";
 import { initCronJobs } from "./cron/scheduler.js";
-import {
-  PLAYER_ACCOUNT_NAME,
-  populateTopArtistsVibe,
-  validateAccessToken,
-} from "./clients/spotify.js";
 
 initCronJobs();
 
